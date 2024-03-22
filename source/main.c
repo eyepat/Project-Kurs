@@ -108,7 +108,7 @@ int main(int argv, char** args){
                     break;
             }
         }
-
+....
         shipVelocityX = shipVelocityY = 0;
         if(up && !down) shipVelocityY = -SPEED;
         if(down && !up) shipVelocityY = SPEED;
