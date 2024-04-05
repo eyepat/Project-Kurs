@@ -1,0 +1,23 @@
+# Makefile för macOS anpassad för ditt projekt
+SRCDIR=./source
+CC=clang
+CFLAGS = -g -c $(shell sdl2-config --cflags)
+LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lm
+
+# Namnet på ditt mål (exekverbar fil)
+TARGET = simpleSDLexample1
+
+# Objektfiler som ska byggas
+OBJS = $(SRCDIR)/main.o
+
+# Standard byggregel
+$(TARGET): $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS)
+
+# Regel för att bygga .o filer från .c filer
+$(SRCDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+# Städa projektet från byggfiler och exekverbara filer
+clean:
+	rm -f $(SRCDIR)/*.o $(TARGET)

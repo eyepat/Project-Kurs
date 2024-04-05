@@ -6,7 +6,7 @@
 #define SPEED 100
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
-.....
+
 int main(int argv, char** args){
     if(SDL_Init(SDL_INIT_VIDEO)!=0){
         printf("Error: %s\n",SDL_GetError());
