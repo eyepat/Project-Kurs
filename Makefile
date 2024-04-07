@@ -1,17 +1,26 @@
 # Makefile for Windows
-SRCDIR=./source
+SRCDIR=./src
+INCDIR=./include
 CC=gcc
 INCLUDE = C:\msys64\mingw64\include\SDL2
 
-CFLAGS = -g -I$(INCLUDE) -c 
-LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -mwindows -lm
+CFLAGS = -g -I$(INCLUDE) -I$(INCDIR) -c 
+LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2_ttf -lSDL2 -mwindows -lm
 
-simpleSDLexample1: main.o
-	$(CC) main.o -o simpleSDLexample1 $(LDFLAGS)
+Football: main.o controller.o model.o view.o
+	$(CC) main.o controller.o model.o view.o -o Football $(LDFLAGS)
 
 main.o: $(SRCDIR)/main.c
 	$(CC) $(CFLAGS) $(SRCDIR)/main.c
 
+controller.o: $(SRCDIR)/controller.c
+	$(CC) $(CFLAGS) $(SRCDIR)/controller.c
+
+model.o: $(SRCDIR)/model.c
+	$(CC) $(CFLAGS) $(SRCDIR)/model.c
+
+view.o: $(SRCDIR)/view.c
+	$(CC) $(CFLAGS) $(SRCDIR)/view.c
+
 clean:
-	rm *.exe
-	rm *.o
+	rm -f *.o Football
