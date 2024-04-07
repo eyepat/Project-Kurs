@@ -6,7 +6,11 @@
 #define SPEED 300
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
+<<<<<<< Updated upstream
 #define PLAYER_RADIUS 15 // Storlek på spelarens cirkel
+=======
+#define PLAYER_RADIUS 12 // Storlek på spelarens cirkel
+>>>>>>> Stashed changes
 
 // Funktion för att rita en fylld cirkel
 void drawFilledCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius) {
@@ -27,7 +31,13 @@ int main(int argv, char** args){
         return 1;
     }
 
+<<<<<<< Updated upstream
     SDL_Window* pWindow = SDL_CreateWindow("Fotbollsspel",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH,WINDOW_HEIGHT,0);
+=======
+   
+    SDL_Window* pWindow = SDL_CreateWindow("Fotbollsspel", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1920, 1080, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+>>>>>>> Stashed changes
     if(!pWindow){
         printf("Error: %s\n",SDL_GetError());
         SDL_Quit();
