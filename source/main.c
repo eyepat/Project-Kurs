@@ -3,9 +3,23 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#define SPEED 100
+#define SPEED 300
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
+#define PLAYER_RADIUS 15 // Storlek på spelarens cirkel
+
+// Funktion för att rita en fylld cirkel
+void drawFilledCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius) {
+    for (int w = 0; w < radius * 2; w++) {
+        for (int h = 0; h < radius * 2; h++) {
+            int dx = radius - w; // horisontell avstånd från centrum
+            int dy = radius - h; // vertikal avstånd från centrum
+            if ((dx*dx + dy*dy) <= (radius * radius)) {
+                SDL_RenderDrawPoint(renderer, centerX + dx, centerY + dy);
+            }
+        }
+    }
+}
 
 int main(int argv, char** args){
     if(SDL_Init(SDL_INIT_VIDEO)!=0){
@@ -13,7 +27,7 @@ int main(int argv, char** args){
         return 1;
     }
 
-    SDL_Window* pWindow = SDL_CreateWindow("Enkelt exempel 1",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH,WINDOW_HEIGHT,0);
+    SDL_Window* pWindow = SDL_CreateWindow("Fotbollsspel",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH,WINDOW_HEIGHT,0);
     if(!pWindow){
         printf("Error: %s\n",SDL_GetError());
         SDL_Quit();
@@ -27,7 +41,8 @@ int main(int argv, char** args){
         return 1;    
     }
 
-    SDL_Surface *pSurface = IMG_Load("resources/ship.png");
+    // Ladda fotbollsplansbild
+    SDL_Surface *pSurface = IMG_Load("resources/football_field.png");
     if(!pSurface){
         printf("Error: %s\n",SDL_GetError());
         SDL_DestroyRenderer(pRenderer);
@@ -35,9 +50,9 @@ int main(int argv, char** args){
         SDL_Quit();
         return 1;    
     }
-    SDL_Texture *pTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
+    SDL_Texture *pFieldTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
     SDL_FreeSurface(pSurface);
-    if(!pTexture){
+    if(!pFieldTexture){
         printf("Error: %s\n",SDL_GetError());
         SDL_DestroyRenderer(pRenderer);
         SDL_DestroyWindow(pWindow);
@@ -45,21 +60,15 @@ int main(int argv, char** args){
         return 1;    
     }
 
-    SDL_Rect shipRect;
-    SDL_QueryTexture(pTexture,NULL,NULL,&shipRect.w,&shipRect.h);
-    shipRect.w/=4;
-    shipRect.h/=4;
-    float shipX = (WINDOW_WIDTH - shipRect.w)/2;//left side
-    float shipY = (WINDOW_HEIGHT - shipRect.h)/2;//upper side
-    float shipVelocityX = 0;//unit: pixels/s
-    float shipVelocityY = 0;
+    float playerX = WINDOW_WIDTH / 2;
+    float playerY = WINDOW_HEIGHT / 2;
+    float playerVelocityX = 0;
+    float playerVelocityY = 0;
 
     bool closeWindow = false;
-    bool up,down,left,right;
-    up = down = left = right = false;
+    bool up = false, down = false, left = false, right = false;
 
     while(!closeWindow){
-
         SDL_Event event;
         while(SDL_PollEvent(&event)){
             switch(event.type){
@@ -91,48 +100,58 @@ int main(int argv, char** args){
                         case SDL_SCANCODE_W:
                         case SDL_SCANCODE_UP:
                             up=false;
-                        break;
+                            break;
                         case SDL_SCANCODE_A:
                         case SDL_SCANCODE_LEFT:
                             left=false;
-                        break;
+                            break;
                         case SDL_SCANCODE_S:
                         case SDL_SCANCODE_DOWN:
                             down=false;
-                        break;
+                            break;
                         case SDL_SCANCODE_D:
                         case SDL_SCANCODE_RIGHT:
                             right=false;
-                        break;
+                            break;
                     }
                     break;
             }
         }
 
-        shipVelocityX = shipVelocityY = 0;
-        if(up && !down) shipVelocityY = -SPEED;
-        if(down && !up) shipVelocityY = SPEED;
-        if(left && !right) shipVelocityX = -SPEED;
-        if(right && !left) shipVelocityX = SPEED;
-        shipX += shipVelocityX/60;//60 frames/s
-        shipY += shipVelocityY/60;
-        if(shipX<0) shipX=0;
-        if(shipY<0) shipY=0;
-        if(shipX>WINDOW_WIDTH-shipRect.w) shipX = WINDOW_WIDTH-shipRect.w;
-        if(shipY>WINDOW_HEIGHT-shipRect.h) shipY = WINDOW_HEIGHT-shipRect.h;
-        shipRect.x = shipX;
-        shipRect.y = shipY;
+        playerVelocityX = playerVelocityY = 0;
+        if(up && !down) playerVelocityY = -SPEED;
+        if(down && !up) playerVelocityY = SPEED;
+        if(left && !right) playerVelocityX = -SPEED;
+        if(right && !left) playerVelocityX = SPEED;
 
+        playerX += playerVelocityX * 0.016f; // Antag 60 FPS, 0.016 ~ 1/60
+        playerY += playerVelocityY * 0.016f;
+
+        // Förhindra spelaren från att gå utanför fönstret
+        if(playerX < PLAYER_RADIUS) playerX = PLAYER_RADIUS;
+        if(playerY < PLAYER_RADIUS) playerY = PLAYER_RADIUS;
+        if(playerX > WINDOW_WIDTH - PLAYER_RADIUS) playerX = WINDOW_WIDTH - PLAYER_RADIUS;
+        if(playerY > WINDOW_HEIGHT - PLAYER_RADIUS) playerY = WINDOW_HEIGHT - PLAYER_RADIUS;
+
+        // Rensa skärmen
         SDL_RenderClear(pRenderer);
-        SDL_RenderCopy(pRenderer,pTexture,NULL,&shipRect);
+
+        // Rita fotbollsplanen
+        SDL_RenderCopy(pRenderer, pFieldTexture, NULL, NULL);
+
+        // Rita spelaren som en cirkel
+        SDL_SetRenderDrawColor(pRenderer, 255, 255, 255, 255); // Vit färg för spelaren
+        drawFilledCircle(pRenderer, (int)playerX, (int)playerY, PLAYER_RADIUS);
+
+        // Visa det som ritats
         SDL_RenderPresent(pRenderer);
-        SDL_Delay(1000/60);//60 frames/s
+
+        SDL_Delay(16); // Cirka 60 FPS
     }
 
-    SDL_DestroyTexture(pTexture);
+    SDL_DestroyTexture(pFieldTexture);
     SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
-
     SDL_Quit();
     return 0;
 }
