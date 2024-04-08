@@ -15,7 +15,7 @@ void renderPlayer(SDL_Renderer *renderer, const Entity *player) {
 void renderBall(SDL_Renderer *renderer, const Entity *ball) {
     // Render the ball entity
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    drawBall(renderer, ball->x, ball->y, ball->radius);
+    drawBall(renderer, ball->x, ball->y, ball->radius*2);
 
 
 }

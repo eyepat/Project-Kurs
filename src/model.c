@@ -3,9 +3,6 @@
 #include <SDL2/SDL.h>
 #define SPEED 900
 
-
-
-
 // Function to initialize the game
 void initializeGame(Entity *player, Entity *ball, Field *field) {
     // Get the current display mode
@@ -48,18 +45,12 @@ void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool ri
 }
 
 
-
-
-
-
-
-
 void updateBallPosition(Entity *ball, Entity *player, const Field *field, float deltaTime) {
     // Calculate the distance between the ball and the player
     float distance = sqrt(pow(player->x - ball->x, 2) + pow(player->y - ball->y, 2));
 
     // Define a threshold for player-ball collision
-    float kickThreshold = player->radius + ball->radius;
+    float kickThreshold = player->radius + ball->radius*2;
 
     // If the distance is less than the kick threshold, the player has kicked the ball
     if (distance < kickThreshold) {
@@ -81,7 +72,12 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
     // Apply friction or deceleration to gradually stop the ball
     float deceleration = 400.0f; // Adjust this value as needed
     if (fabs(ball->xSpeed) > 0) {
-        float direction = ball->xSpeed > 0 ? -1 : 1;
+        float direction;
+        if (ball->xSpeed > 0) {
+            direction = -1; // Ball is moving to the right
+        } else {
+            direction = 1; // Ball is moving to the left or stationary
+        }
         float friction = deceleration * deltaTime;
         if (fabs(ball->xSpeed) < friction) {
             ball->xSpeed = 0; // If friction would stop the ball, set speed to 0
@@ -90,7 +86,12 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
         }
     }
     if (fabs(ball->ySpeed) > 0) {
-        float direction = ball->ySpeed > 0 ? -1 : 1;
+        float direction;
+        if (ball->ySpeed > 0) {
+            direction = -1; // Ball is moving downward
+        } else {
+            direction = 1; // Ball is moving upward or stationary
+        }
         float friction = deceleration * deltaTime;
         if (fabs(ball->ySpeed) < friction) {
             ball->ySpeed = 0; // If friction would stop the ball, set speed to 0
