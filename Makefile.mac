@@ -1,14 +1,15 @@
 # Makefile för macOS anpassad för ditt projekt
-SRCDIR=./source
+SRCDIR=./src
+INCDIR=./include
 CC=clang
-CFLAGS = -g -c $(shell sdl2-config --cflags)
-LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lm
+CFLAGS = -g -c $(shell sdl2-config --cflags) -I$(INCDIR)
+LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lm -lSDL2_ttf
 
 # Namnet på ditt mål (exekverbar fil)
-TARGET = simpleSDLexample1
+TARGET = Football
 
 # Objektfiler som ska byggas
-OBJS = $(SRCDIR)/main.o
+OBJS = $(SRCDIR)/main.o $(SRCDIR)/controller.o $(SRCDIR)/model.o $(SRCDIR)/view.o
 
 # Standard byggregel
 $(TARGET): $(OBJS)
