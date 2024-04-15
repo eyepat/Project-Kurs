@@ -33,16 +33,35 @@ void initializeGame(Entity *player, Entity *ball, Field *field) {
 // Function to update the player's position based on user input
 void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool right, const Field *field, float deltaTime) {
     float speed = SPEED * deltaTime;
+    if (up) {
+        player->y -= speed;
+        if (player->y < player->radius + field->height * 0.15) {
+            player->y = player->radius + field->height * 0.15;
+        }
+    }
 
-    if (up) player->y -= speed;
-    if (down) player->y += speed;
-    if (left) player->x -= speed;
-    if (right) player->x += speed;
+    if (down) {
+        player->y += speed;
+        if (player->y > field->height - player->radius - field->height * 0.03) {
+            player->y = field->height - player->radius - field->height * 0.03;
+        }
+    }
 
-    // Keep the player within the field boundaries
-    player->x = fmax(player->radius, fmin(player->x, field->width - player->radius));
-    player->y = fmax(player->radius + field->height*0.13, fmin(player->y, field->height - player->radius));//collision with top banner fixed
+    if (left) {
+        player->x -= speed;
+        if (player->x < player->radius + field->height * 0.05) {
+            player->x = player->radius + field->height * 0.05;
+        }
+    }
+
+    if (right) {
+        player->x += speed;
+        if (player->x > field->width - player->radius - field->height * 0.05) {
+            player->x = field->width - player->radius - field->height * 0.05;
+        }
+    }
 }
+
 
 
 void updateBallPosition(Entity *ball, Entity *player, const Field *field, float deltaTime) {
@@ -104,18 +123,21 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
     ball->x += ball->xSpeed * deltaTime;
     ball->y += ball->ySpeed * deltaTime;
 
+      // Check boundaries and apply the margins set for the player
+    float verticalMargin = field->height * 0.15; // Top margin
+    float bottomMargin = field->height * 0.03; // Bottom margin
+    float horizontalMargin = field->width * 0.03; // Side margins dvs left right
+
     // Check if the ball hits the left or right wall
-    if (ball->x - ball->radius <= 0 || ball->x + ball->radius >= field->width) {
-        // Reverse the horizontal direction of the ball and adjust position to stay within bounds
+    if (ball->x - ball->radius <= horizontalMargin || ball->x + ball->radius >= field->width - horizontalMargin) {
         ball->xSpeed *= -1;
-        ball->x = fmax(ball->radius, fmin(ball->x, field->width - ball->radius));
+        ball->x = fmax(ball->radius + horizontalMargin, fmin(ball->x, field->width - ball->radius - horizontalMargin));
     }
 
     // Check if the ball hits the top or bottom wall
-    if (ball->y - ball->radius - field->height*0.13 <= 0 || ball->y + ball->radius >= field->height) {//collision with top banner fixed
-        // Reverse the vertical direction of the ball and adjust position to stay within bounds
+    if (ball->y - ball->radius <= verticalMargin || ball->y + ball->radius >= field->height - bottomMargin) {
         ball->ySpeed *= -1;
-        ball->y = fmax(ball->radius, fmin(ball->y, field->height - ball->radius));
+        ball->y = fmax(ball->radius + verticalMargin, fmin(ball->y, field->height - ball->radius - bottomMargin));
     }
 }
 

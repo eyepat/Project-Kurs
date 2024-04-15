@@ -1,9 +1,20 @@
 #include "view.h"
 
-void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture) {
-    // Render the playing field
-    SDL_RenderCopy(renderer, fieldTexture, NULL, NULL);
+void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
+    // Define the new size of the field
+    int newWidth = windowWidth * 0.95; // 90% of the window width
+    int newHeight = windowHeight * 0.95; // 90% of the window height
+
+    // Calculate the position to center the field
+    int posX = (windowWidth - newWidth) / 2;
+    int posY = (windowHeight - newHeight) / 2;
+
+    SDL_Rect fieldRect = {posX, posY, newWidth, newHeight};
+
+    // Render the playing field within the defined rectangle
+    SDL_RenderCopy(renderer, fieldTexture, NULL, &fieldRect);
 }
+
 
 void renderPlayer(SDL_Renderer *renderer, const Entity *player) {
     // Render the player entity

@@ -5,7 +5,7 @@
 #include "model.h"
 
 // Function declarations for rendering game elements
-void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture);
+void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight);
 void renderPlayer(SDL_Renderer *renderer, const Entity *player);
 void renderBall(SDL_Renderer *renderer, const Entity *ball);
 void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, int outlineThickness);

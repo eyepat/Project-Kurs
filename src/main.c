@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
     bool closeWindow = false;
     bool up = false, down = false, left = false, right = false;
     float ballVelocityX = 0, ballVelocityY = 0;
-
+    int windowWidth, windowHeight;  
     // Main game loop
     while (!closeWindow) {
         currentTime = SDL_GetTicks();
@@ -92,11 +92,11 @@ int main(int argc, char **argv) {
         // Update game state
         updatePlayerPosition(&player, up, down, left, right, &field,deltaTime);
         updateBallPosition(&ball, &player, &field, deltaTime);
-
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         // Render game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        renderField(renderer, fieldTexture);
+        renderField(renderer, fieldTexture, windowWidth, windowHeight);
         renderPlayer(renderer, &player);
         renderBall(renderer, &ball);
         SDL_RenderPresent(renderer);
