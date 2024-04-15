@@ -18,12 +18,12 @@ void initializeGame(Entity *player, Entity *ball, Field *field) {
 
     // Initialize player properties
     player->x = field->width / 2;
-    player->y = field->height / 2;
+    player->y = field->height / 1.8;
     player->radius = field->width / 128;
 
     // Initialize ball properties
     ball->x = field->width / 4;
-    ball->y = field->height / 2;
+    ball->y = field->height / 1.8;
     ball->radius = 20;
     ball->xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     ball->ySpeed = 0; // Initialize ball's speed in the y-direction to zero
