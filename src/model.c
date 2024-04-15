@@ -41,7 +41,7 @@ void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool ri
 
     // Keep the player within the field boundaries
     player->x = fmax(player->radius, fmin(player->x, field->width - player->radius));
-    player->y = fmax(player->radius, fmin(player->y, field->height - player->radius));
+    player->y = fmax(player->radius + field->height*0.13, fmin(player->y, field->height - player->radius));//collision with top banner fixed
 }
 
 
@@ -112,7 +112,7 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
     }
 
     // Check if the ball hits the top or bottom wall
-    if (ball->y - ball->radius <= 0 || ball->y + ball->radius >= field->height) {
+    if (ball->y - ball->radius - field->height*0.13 <= 0 || ball->y + ball->radius >= field->height) {//collision with top banner fixed
         // Reverse the vertical direction of the ball and adjust position to stay within bounds
         ball->ySpeed *= -1;
         ball->y = fmax(ball->radius, fmin(ball->y, field->height - ball->radius));
