@@ -18,12 +18,12 @@ void initializeGame(Entity *player, Entity *ball, Field *field) {
 
     // Initialize player properties
     player->x = field->width / 2;
-    player->y = field->height / 1.8;
+    player->y = field->height / 1.95;
     player->radius = field->width / 128;
 
     // Initialize ball properties
     ball->x = field->width / 4;
-    ball->y = field->height / 1.8;
+    ball->y = field->height / 1.95;
     ball->radius = 20;
     ball->xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     ball->ySpeed = 0; // Initialize ball's speed in the y-direction to zero
@@ -35,29 +35,29 @@ void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool ri
     float speed = SPEED * deltaTime;
     if (up) {
         player->y -= speed;
-        if (player->y < player->radius + field->height * 0.15) {
-            player->y = player->radius + field->height * 0.15;
+        if (player->y < player->radius + field->height * 0.11) {
+            player->y = player->radius + field->height * 0.11;
         }
     }
 
     if (down) {
         player->y += speed;
-        if (player->y > field->height - player->radius - field->height * 0.03) {
-            player->y = field->height - player->radius - field->height * 0.03;
+        if (player->y > field->height - player->radius - field->height * 0.09) {
+            player->y = field->height - player->radius - field->height * 0.09;
         }
     }
 
     if (left) {
         player->x -= speed;
-        if (player->x < player->radius + field->height * 0.05) {
-            player->x = player->radius + field->height * 0.05;
+        if (player->x < player->radius + field->height * 0.11) {
+            player->x = player->radius + field->height * 0.11;
         }
     }
 
     if (right) {
         player->x += speed;
-        if (player->x > field->width - player->radius - field->height * 0.05) {
-            player->x = field->width - player->radius - field->height * 0.05;
+        if (player->x > field->width - player->radius - field->height * 0.11) {
+            player->x = field->width - player->radius - field->height * 0.11;
         }
     }
 }
@@ -124,9 +124,9 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
     ball->y += ball->ySpeed * deltaTime;
 
       // Check boundaries and apply the margins set for the player
-    float verticalMargin = field->height * 0.15; // Top margin
-    float bottomMargin = field->height * 0.03; // Bottom margin
-    float horizontalMargin = field->width * 0.03; // Side margins dvs left right
+    float verticalMargin = field->height * 0.12; // Top margin
+    float bottomMargin = field->height * 0.09; // Bottom margin
+    float horizontalMargin = field->width * 0.07; // Side margins dvs left right
 
     // Check if the ball hits the left or right wall
     if (ball->x - ball->radius <= horizontalMargin || ball->x + ball->radius >= field->width - horizontalMargin) {

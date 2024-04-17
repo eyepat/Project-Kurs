@@ -2,8 +2,8 @@
 
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
-    int newWidth = windowWidth * 0.95; // 90% of the window width
-    int newHeight = windowHeight * 0.95; // 90% of the window height
+    int newWidth = windowWidth * 1; // 100% of the window width
+    int newHeight = windowHeight * 1; // 100% of the window height
 
     // Calculate the position to center the field
     int posX = (windowWidth - newWidth) / 2;
