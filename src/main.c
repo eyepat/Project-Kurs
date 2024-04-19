@@ -21,13 +21,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    //Loading Font
-    TTF_Font* font = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 50);
-    if (!font) {
-    printf("Error loading font: %s\n", TTF_GetError());
-    }
-
-
     // Create the main window
     SDL_DisplayMode displayMode;
     if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
@@ -72,9 +65,9 @@ int main(int argc, char **argv) {
     }
 
     // Initialize game entities and field
-    Entity player, ball;
+    Entity player, ball, player2;
     Field field;
-    initializeGame(&player, &ball, &field);
+    initializeGame(&player, &ball, &field, &player2);
 
  
     //to track player movement
@@ -82,17 +75,10 @@ int main(int argc, char **argv) {
     Uint32 currentTime;
     float deltaTime;
 
-    //timer
-    Timer gameTimer;
-    initializeTimer(&gameTimer, 70); // Sätter maxTime till 120 sekunder
-    //Score
-    Score gameScore;
-    initializeScore(&gameScore);
-
-
    // Game loop variables
     bool closeWindow = false;
-    bool up = false, down = false, left = false, right = false;
+    bool up = false, down = false, left = false, right = false; //Player 1 movement variables
+    bool up2 = false, down2 = false, left2 = false, right2 = false; //Player 2 movement variables
     float ballVelocityX = 0, ballVelocityY = 0;
     int windowWidth, windowHeight;  
     // Main game loop
@@ -101,28 +87,22 @@ int main(int argc, char **argv) {
         deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
         // Handle events
-        handleEvents(&closeWindow, &up, &down, &left, &right);
+        handleEvents(&closeWindow, &up, &down, &left, &right, &up2, &down2, &left2, &right2);
         
 
         // Update game state
         updatePlayerPosition(&player, up, down, left, right, &field,deltaTime);
+        updatePlayerPosition(&player2, up2, down2, left2, right2, &field,deltaTime);
         updateBallPosition(&ball, &player, &field, deltaTime);
+        updateBallPosition(&ball, &player2, &field, deltaTime);
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        updateTimer(&gameTimer);
-
-        int teamNumber = 0; //temporary
-        updateScore(&gameScore, teamNumber);//teamNumber= 1 or 2 depending on what team has scored when ball collision with goal for example
-
         // Render game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
+        renderPlayer(renderer, &player2);
         renderPlayer(renderer, &player);
         renderBall(renderer, &ball);
-        renderTimer(renderer, font, &gameTimer, windowWidth);
-        renderScore(renderer, font, gameScore, windowWidth, windowHeight);
-
-
         SDL_RenderPresent(renderer);
 
         // Delay for consistent frame rate
@@ -135,7 +115,6 @@ int main(int argc, char **argv) {
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_Quit();
-    TTF_CloseFont(font);
 
     return 0;
 }
