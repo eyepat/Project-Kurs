@@ -126,6 +126,7 @@ int main(int argc, char **argv) {
         renderTimer(renderer, font, &gameTimer, windowWidth);
         renderScore(renderer, font, gameScore, windowWidth, windowHeight);
         int test = 2; // Testtest
+        
 
 
         SDL_RenderPresent(renderer);
