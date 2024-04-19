@@ -16,4 +16,5 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windo
 void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score score, int windowWidth, int windowHeight);
 
 
+
 #endif /* VIEW_H */
