@@ -73,7 +73,28 @@ void drawBall(SDL_Renderer* renderer, int x, int y, int radius) {
     }
 }
 
+// Function to render text
+void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Color color, int x, int y) {
+    // Render text
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
 
+    // Get text dimensions
+    int textWidth, textHeight;
+    SDL_QueryTexture(texture, NULL, NULL, &textWidth, &textHeight);
+
+    // Position the text
+    SDL_Rect textRect = {x, y, textWidth, textHeight};
+
+    // Render the text on the screen
+    SDL_RenderCopy(renderer, texture, NULL, &textRect);
+
+    // Clean up
+    SDL_DestroyTexture(texture);
+}
+
+// Render the timer text
 void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windowWidth) {
     // Convert to Minutes and seconds
     int totalSeconds = timer->currentTime;
@@ -84,21 +105,33 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windo
     char text[20];
     sprintf(text, "%02d:%02d", minutes, seconds);
 
-    SDL_Color color = {255, 255, 255}; // White
-    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    int textWidth = surface->w;
-    int textHeight = surface->h;
-    SDL_FreeSurface(surface);
+    // White color
+    SDL_Color color = {255, 255, 255};
 
-    // Timer Placement
-    SDL_Rect timerRect;
-    timerRect.x = (windowWidth - textWidth) / 2; // Center timer horizontally
-    timerRect.y = 15; // Move down timerr
-    timerRect.w = textWidth;
-    timerRect.h = textHeight;
+    // Position the timer text
 
-    SDL_RenderCopy(renderer, texture, NULL, &timerRect);
-    SDL_DestroyTexture(texture);
+    int timerX = 170; // Center timer horizontally
+    int timerY = 15; // Move down timer
+
+    // Render the text
+    renderText(renderer, font, text, color, timerX, timerY);
 }
 
+// Render the score text
+void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score score, int windowWidth, int windowHeight) {
+    // Score formatting
+    char text[20];
+    sprintf(text, "%02d:%02d", score.team1Score, score.team2Score);
+
+    // White color
+    SDL_Color color = {255, 255, 255};
+
+    // Calculate position for the score text
+    int textWidth, textHeight;
+    TTF_SizeText(font, text, &textWidth, &textHeight);
+    int scoreX = (windowWidth - textWidth) / 2; // Centered horizontally
+    int scoreY = 15; // Top-aligned
+
+    // Render the text
+    renderText(renderer, font, text, color, scoreX, scoreY);
+}

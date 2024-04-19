@@ -141,6 +141,19 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
     }
 }
 
+void initializeScore(Score* score) {
+    score->team1Score = 0;
+    score->team2Score = 0;
+}
+
+void updateScore(Score* score, int teamNumber) {
+    if (teamNumber == 1) {
+        score->team1Score++;
+    } else if (teamNumber == 2) {
+        score->team2Score++;
+    }
+}
+
 void initializeTimer(Timer* timer, int maxTime) {
     timer->startTime = SDL_GetTicks();
     timer->currentTime = 0;

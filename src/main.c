@@ -84,7 +84,10 @@ int main(int argc, char **argv) {
 
     //timer
     Timer gameTimer;
-    initializeTimer(&gameTimer, 70); // Sätter maxTime till 15 sekunder
+    initializeTimer(&gameTimer, 70); // Sätter maxTime till 120 sekunder
+    //Score
+    Score gameScore;
+    initializeScore(&gameScore);
 
 
    // Game loop variables
@@ -107,6 +110,9 @@ int main(int argc, char **argv) {
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         updateTimer(&gameTimer);
 
+        int teamNumber = 0; //temporary
+        updateScore(&gameScore, teamNumber);//teamNumber= 1 or 2 depending on what team has scored when ball collision with goal for example
+
         // Render game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -114,6 +120,8 @@ int main(int argc, char **argv) {
         renderPlayer(renderer, &player);
         renderBall(renderer, &ball);
         renderTimer(renderer, font, &gameTimer, windowWidth);
+        renderScore(renderer, font, gameScore, windowWidth, windowHeight);
+
 
         SDL_RenderPresent(renderer);
 
