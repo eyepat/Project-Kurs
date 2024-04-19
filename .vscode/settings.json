@@ -1,5 +1,8 @@
 {
     "files.associations": {
         "sdl_ttf.h": "c"
-    }
+    },
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "main"
+    ]
 }
