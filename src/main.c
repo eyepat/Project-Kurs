@@ -21,6 +21,13 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    //Loading Font
+    TTF_Font* font = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 50);
+    if (!font) {
+    printf("Error loading font: %s\n", TTF_GetError());
+    }
+
+
     // Create the main window
     SDL_DisplayMode displayMode;
     if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
@@ -75,6 +82,11 @@ int main(int argc, char **argv) {
     Uint32 currentTime;
     float deltaTime;
 
+    //timer
+    Timer gameTimer;
+    initializeTimer(&gameTimer, 70); // Sätter maxTime till 15 sekunder
+
+
    // Game loop variables
     bool closeWindow = false;
     bool up = false, down = false, left = false, right = false;
@@ -93,12 +105,16 @@ int main(int argc, char **argv) {
         updatePlayerPosition(&player, up, down, left, right, &field,deltaTime);
         updateBallPosition(&ball, &player, &field, deltaTime);
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        updateTimer(&gameTimer);
+
         // Render game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
         renderPlayer(renderer, &player);
         renderBall(renderer, &ball);
+        renderTimer(renderer, font, &gameTimer, windowWidth);
+
         SDL_RenderPresent(renderer);
 
         // Delay for consistent frame rate
@@ -111,6 +127,7 @@ int main(int argc, char **argv) {
     SDL_DestroyWindow(window);
     TTF_Quit();
     SDL_Quit();
+    TTF_CloseFont(font);
 
     return 0;
 }

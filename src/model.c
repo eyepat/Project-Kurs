@@ -141,7 +141,19 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
     }
 }
 
+void initializeTimer(Timer* timer, int maxTime) {
+    timer->startTime = SDL_GetTicks();
+    timer->currentTime = 0;
+    timer->maxTime = maxTime;
+}
 
+void updateTimer(Timer* timer) {
+    unsigned int currentTicks = SDL_GetTicks();
+    timer->currentTime = (currentTicks - timer->startTime) / 1000; //change to seconds
+    if (timer->currentTime >= timer->maxTime) {
+        initializeTimer(timer, timer->maxTime);
+    }
+}
 
 
 

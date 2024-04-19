@@ -1,5 +1,6 @@
 #include "view.h"
-
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
     int newWidth = windowWidth * 1; // 100% of the window width
@@ -70,5 +71,34 @@ void drawBall(SDL_Renderer* renderer, int x, int y, int radius) {
             }
         }
     }
+}
+
+
+void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windowWidth) {
+    // Convert to Minutes and seconds
+    int totalSeconds = timer->currentTime;
+    int minutes = totalSeconds / 60;
+    int seconds = totalSeconds % 60;
+
+    // MM:SS Formatting
+    char text[20];
+    sprintf(text, "%02d:%02d", minutes, seconds);
+
+    SDL_Color color = {255, 255, 255}; // White
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    int textWidth = surface->w;
+    int textHeight = surface->h;
+    SDL_FreeSurface(surface);
+
+    // Timer Placement
+    SDL_Rect timerRect;
+    timerRect.x = (windowWidth - textWidth) / 2; // Center timer horizontally
+    timerRect.y = 15; // Move down timerr
+    timerRect.w = textWidth;
+    timerRect.h = textHeight;
+
+    SDL_RenderCopy(renderer, texture, NULL, &timerRect);
+    SDL_DestroyTexture(texture);
 }
 
