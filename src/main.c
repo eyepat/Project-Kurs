@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
 
         int teamNumber = 0; //temporary
         updateScore(&gameScore, teamNumber);//teamNumber= 1 or 2 depending on what team has scored when ball collision with goal for example
-
+//random test
         // Render game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
