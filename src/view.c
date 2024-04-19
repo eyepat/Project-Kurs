@@ -1,6 +1,5 @@
 #include "view.h"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
     int newWidth = windowWidth * 1; // 100% of the window width
@@ -27,7 +26,7 @@ void renderPlayer(SDL_Renderer *renderer, const Entity *player) {
 void renderBall(SDL_Renderer *renderer, const Entity *ball) {
     // Render the ball entity
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    drawBall(renderer, ball->x, ball->y, ball->radius*2);
+    drawBall(renderer, ball->x, ball->y, ball->radius*1);
 
 
 }

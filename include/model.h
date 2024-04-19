@@ -30,7 +30,7 @@ typedef struct {
 
 
 // Function declarations
-void initializeGame(Entity *player, Entity *ball, Field *field);
+void initializeGame(Entity *player, Entity *ball, Field *field, Entity *player2);
 void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool right, const Field *field, float deltaTime);
 void updateBallPosition(Entity *ball, Entity *player, const Field *field, float deltaTime);
 void initializeScore(Score* score);

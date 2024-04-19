@@ -17,4 +17,5 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score score, int window
 
 
 
+
 #endif /* VIEW_H */
