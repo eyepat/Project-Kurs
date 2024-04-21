@@ -20,17 +20,17 @@ void initializeGame(Entity *player, Entity *ball, Field *field, Entity *player2)
     const int GOAL_HEIGHT = 250;
 
     // Initialize player properties
-    player->x = field->width / 2;
-    player->y = field->height / 1.95;
+    player->x = field->width / 4;
+    player->y = field->height / 2;
     player->radius = field->width / 128;
 
-    player2->x = field->width / 4;
-    player2->y = field->height / 3;
+    player2->x = field->width  *3/4;
+    player2->y = field->height / 2;
     player2->radius = field->width / 128;
 
     // Initialize ball properties
-    ball->x = field->width / 4;
-    ball->y = field->height / 1.95;
+    ball->x = field->width / 2;
+    ball->y = field->height / 2;
     ball->radius = 20;
     ball->xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     ball->ySpeed = 0; // Initialize ball's speed in the y-direction to zero
@@ -76,7 +76,8 @@ void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool ri
 
 
 
-void updateBallPosition(Entity *ball, Entity *player, const Field *field, float deltaTime) {
+void updateBallPosition(Entity *ball, Entity *player, Entity *player2, Field *field, Score *score, float deltaTime) {
+    
     // Calculate the distance between the ball and the player
     float distance = sqrt(pow(player->x - ball->x, 2) + pow(player->y - ball->y, 2));
 
@@ -134,6 +135,23 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
     // Update the ball's position based on its speed
     ball->x += ball->xSpeed * deltaTime;
     ball->y += ball->ySpeed * deltaTime;
+  // Kontrollera om bollen har nått målområdet
+    for (int i = 0; i < 2; i++) {
+        if (ball->x - ball->radius > field->goals[i].box.x &&
+            ball->x + ball->radius < field->goals[i].box.x + field->goals[i].box.w &&
+            ball->y - ball->radius > field->goals[i].box.y &&
+            ball->y + ball->radius < field->goals[i].box.y + field->goals[i].box.h) {
+            // Bollen är i målet
+            ball->xSpeed = 0;
+            ball->ySpeed = 0;
+            int scoringTeam = (field->goals[i].teamID == 1) ? 2 : 1;
+            updateScore(score, scoringTeam);
+
+            // Återställ bollen till spelplanens mitt
+           resetGame(player, ball, field, player2);
+            break;
+        }
+    }
 
       // Check boundaries and apply the margins set for the player
     float verticalMargin = field->height * 0.12; // Top margin
@@ -158,7 +176,7 @@ void initializeScore(Score* score) {
     score->team2Score = 0;
 }
 
-void updateScore(Score* score, int teamNumber) {
+void updateScore(Score *score, int teamNumber) {
     if (teamNumber == 1) {
         score->team1Score++;
     } else if (teamNumber == 2) {
@@ -178,6 +196,21 @@ void updateTimer(Timer* timer) {
     if (timer->currentTime >= timer->maxTime) {
         initializeTimer(timer, timer->maxTime);
     }
+}
+void resetGame(Entity *player, Entity *ball, Field *field, Entity *player2) {
+    // Reset player positions
+    player->x = field->width / 4;
+    player->y = field->height / 2;
+    player2->x = field->width * 3 / 4;
+    player2->y = field->height / 2;
+
+    // Reset ball position
+    ball->x = field->width / 2;
+    ball->y = field->height / 2;
+    ball->xSpeed = 0;
+    ball->ySpeed = 0;
+
+    // Goals remain unchanged if no need to modify dimensions
 }
 
 

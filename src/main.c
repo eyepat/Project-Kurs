@@ -73,6 +73,8 @@ int main(int argc, char **argv) {
         SDL_Quit();
         return 1;
     }
+    
+    
 
     // Initialize game entities and field
     Entity player, ball, player2;
@@ -111,8 +113,9 @@ int main(int argc, char **argv) {
         // Update game state
         updatePlayerPosition(&player, up, down, left, right, &field,deltaTime);
         updatePlayerPosition(&player2, up2, down2, left2, right2, &field,deltaTime);
-        updateBallPosition(&ball, &player, &field, deltaTime);
-        updateBallPosition(&ball, &player2, &field, deltaTime);
+        updateBallPosition(&ball, &player, &player2, &field, &gameScore, deltaTime);
+        updateBallPosition(&ball, &player2, &player, &field, &gameScore, deltaTime);
+
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         updateTimer(&gameTimer);
 
@@ -123,13 +126,15 @@ int main(int argc, char **argv) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
-        renderPlayer(renderer, &player2);
-        renderGoals(renderer, &field); // Lägg till detta anrop
+        renderGoals(renderer, &field);
         renderPlayer(renderer, &player);
+        renderPlayer(renderer, &player2);
         renderBall(renderer, &ball);
-        renderTimer(renderer, font, &gameTimer, windowWidth);
         renderScore(renderer, font, gameScore, windowWidth, windowHeight);
+        renderTimer(renderer, font, &gameTimer, windowWidth);
+        SDL_RenderPresent(renderer);
         int test = 2; // Testtest
+        
         
 
 

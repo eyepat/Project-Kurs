@@ -117,22 +117,12 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windo
 }
 
 // Render the score text
-void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score score, int windowWidth, int windowHeight) {
-    // Score formatting
+void renderScore(SDL_Renderer *renderer, TTF_Font *font, Score score, int windowWidth, int windowHeight) {
     char text[20];
-    sprintf(text, "%01d:%01d", score.team1Score, score.team2Score);
+    sprintf(text, "%d : %d", score.team1Score, score.team2Score);  // Format: "Team1Score : Team2Score"
 
-    // White color
-    SDL_Color color = {255, 255, 255};
-
-    // Calculate position for the score text
-    int textWidth, textHeight;
-    TTF_SizeText(font, text, &textWidth, &textHeight);
-    int scoreX = (windowWidth - textWidth) / 2; // Centered horizontally
-    int scoreY = 33; // Top-aligned
-
-    // Render the text
-    renderText(renderer, font, text, color, scoreX, scoreY);
+    SDL_Color color = {255, 255, 255};  // vit färg för poängtexten
+    renderText(renderer, font, text, color, windowWidth / 2 - 50, 50);  // Justera positionen vid behov
 }
 void renderGoals(SDL_Renderer *renderer, const Field *field) {
     // Ange färgen för outlinen, exempelvis vit
@@ -160,4 +150,5 @@ void renderGoals(SDL_Renderer *renderer, const Field *field) {
     // Fyll högra målet
     SDL_RenderFillRect(renderer, &field->goals[1].box);
 }
+
 
