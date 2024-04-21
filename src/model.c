@@ -16,6 +16,9 @@ void initializeGame(Entity *player, Entity *ball, Field *field) {
     field->width = displayMode.w;
     field->height = displayMode.h;
 
+    const int GOAL_WIDTH = 80; // Ersätt med faktiska värdet
+    const int GOAL_HEIGHT = 250;
+
     // Initialize player properties
     player->x = field->width / 2;
     player->y = field->height / 1.95;
@@ -27,6 +30,11 @@ void initializeGame(Entity *player, Entity *ball, Field *field) {
     ball->radius = 20;
     ball->xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     ball->ySpeed = 0; // Initialize ball's speed in the y-direction to zero
+    // ... dina befintliga initialiseringar ...
+    field->goals[0].box = (SDL_Rect){field->width*0.063,(field->height*1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
+    field->goals[0].teamID = 1; // Team 1's mål
+    field->goals[1].box = (SDL_Rect){field->width*0.937 - GOAL_WIDTH, (field->height*1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
+    field->goals[1].teamID = 2; // Team 2's mål
 }
 
 
@@ -125,7 +133,7 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
 
       // Check boundaries and apply the margins set for the player
     float verticalMargin = field->height * 0.12; // Top margin
-    float bottomMargin = field->height * 0.09; // Bottom margin
+    float bottomMargin = field->height * 0.10; // Bottom margin
     float horizontalMargin = field->width * 0.07; // Side margins dvs left right
 
     // Check if the ball hits the left or right wall
@@ -167,6 +175,8 @@ void updateTimer(Timer* timer) {
         initializeTimer(timer, timer->maxTime);
     }
 }
+
+
 
 
 

@@ -42,6 +42,9 @@ int main(int argc, char **argv) {
         SDL_Quit();
         return 1;
     }
+     // Hämta dimensionerna av fönstret
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
     // Create the renderer
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -94,7 +97,7 @@ int main(int argc, char **argv) {
     bool closeWindow = false;
     bool up = false, down = false, left = false, right = false;
     float ballVelocityX = 0, ballVelocityY = 0;
-    int windowWidth, windowHeight;  
+    
     // Main game loop
     while (!closeWindow) {
         currentTime = SDL_GetTicks();
@@ -117,6 +120,7 @@ int main(int argc, char **argv) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
+        renderGoals(renderer, &field); // Lägg till detta anrop
         renderPlayer(renderer, &player);
         renderBall(renderer, &ball);
         renderTimer(renderer, font, &gameTimer, windowWidth);

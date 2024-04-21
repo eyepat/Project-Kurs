@@ -110,8 +110,8 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windo
 
     // Position the timer text
 
-    int timerX = 170; // Center timer horizontally
-    int timerY = 15; // Move down timer
+    int timerX = 350; // Center timer horizontally
+    int timerY = 33; // Move down timer
 
     // Render the text
     renderText(renderer, font, text, color, timerX, timerY);
@@ -121,7 +121,7 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windo
 void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score score, int windowWidth, int windowHeight) {
     // Score formatting
     char text[20];
-    sprintf(text, "%02d:%02d", score.team1Score, score.team2Score);
+    sprintf(text, "%01d:%01d", score.team1Score, score.team2Score);
 
     // White color
     SDL_Color color = {255, 255, 255};
@@ -130,8 +130,35 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score score, int window
     int textWidth, textHeight;
     TTF_SizeText(font, text, &textWidth, &textHeight);
     int scoreX = (windowWidth - textWidth) / 2; // Centered horizontally
-    int scoreY = 15; // Top-aligned
+    int scoreY = 33; // Top-aligned
 
     // Render the text
     renderText(renderer, font, text, color, scoreX, scoreY);
 }
+void renderGoals(SDL_Renderer *renderer, const Field *field) {
+    // Ange färgen för outlinen, exempelvis vit
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    // Ange tjockleken på linjen för outlinen
+    int outlineThickness = 2; // Du kan justera tjockleken efter behov
+
+    // Rendera vänstra målet med outline
+    SDL_Rect outlineRectLeft = {field->goals[0].box.x - outlineThickness, field->goals[0].box.y - outlineThickness,
+                                field->goals[0].box.w + outlineThickness * 2, field->goals[0].box.h + outlineThickness * 2};
+    SDL_RenderDrawRect(renderer, &outlineRectLeft);
+
+    // Rendera högra målet med outline
+    SDL_Rect outlineRectRight = {field->goals[1].box.x - outlineThickness, field->goals[1].box.y - outlineThickness,
+                                 field->goals[1].box.w + outlineThickness * 2, field->goals[1].box.h + outlineThickness * 2};
+    SDL_RenderDrawRect(renderer, &outlineRectRight);
+
+    // Ange färgen för att fylla målen, exempelvis grå
+    SDL_SetRenderDrawColor(renderer, 190, 190, 190, 190); // Ändra färgvärden efter behov
+
+    // Fyll vänstra målet
+    SDL_RenderFillRect(renderer, &field->goals[0].box);
+
+    // Fyll högra målet
+    SDL_RenderFillRect(renderer, &field->goals[1].box);
+}
+
