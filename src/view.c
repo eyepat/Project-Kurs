@@ -125,10 +125,9 @@ void renderScore(SDL_Renderer *renderer, TTF_Font *font, Score score, int window
     renderText(renderer, font, text, color, windowWidth / 2 - 50, 50);  // Justera positionen vid behov
 }
 void renderGoals(SDL_Renderer *renderer, const Field *field) {
-    // Ange färgen för outlinen, exempelvis vit
+    // color for outlin, exempelvis vit
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-    // Ange tjockleken på linjen för outlinen
     int outlineThickness = 2; // Du kan justera tjockleken efter behov
 
     // Rendera vänstra målet med outline
@@ -141,13 +140,13 @@ void renderGoals(SDL_Renderer *renderer, const Field *field) {
                                  field->goals[1].box.w + outlineThickness * 2, field->goals[1].box.h + outlineThickness * 2};
     SDL_RenderDrawRect(renderer, &outlineRectRight);
 
-    // Ange färgen för att fylla målen, exempelvis grå
+    // color for goal
     SDL_SetRenderDrawColor(renderer, 190, 190, 190, 190); // Ändra färgvärden efter behov
 
-    // Fyll vänstra målet
+    // render left goal
     SDL_RenderFillRect(renderer, &field->goals[0].box);
 
-    // Fyll högra målet
+    // render right goal
     SDL_RenderFillRect(renderer, &field->goals[1].box);
 }
 

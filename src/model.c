@@ -152,7 +152,6 @@ void updateBallPosition(Entity *ball, Entity *player, Entity *player2, Field *fi
             break;
         }
     }
-
       // Check boundaries and apply the margins set for the player
     float verticalMargin = field->height * 0.12; // Top margin
     float bottomMargin = field->height * 0.10; // Bottom margin
@@ -210,7 +209,7 @@ void resetGame(Entity *player, Entity *ball, Field *field, Entity *player2) {
     ball->xSpeed = 0;
     ball->ySpeed = 0;
 
-    // Goals remain unchanged if no need to modify dimensions
+    // Goals remain unchanged 
 }
 
 
