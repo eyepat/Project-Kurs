@@ -95,7 +95,7 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
         dy /= magnitude;
 
         // Apply kicking force with a higher magnitude for faster kick
-        float kickMagnitude = 650.0f; // Adjust the kick magnitude for faster kick
+        float kickMagnitude = 900.0f; // Adjust the kick magnitude for faster kick
         ball->xSpeed = dx * kickMagnitude;
         ball->ySpeed = dy * kickMagnitude;
     }
