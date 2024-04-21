@@ -75,9 +75,9 @@ int main(int argc, char **argv) {
     }
 
     // Initialize game entities and field
-    Entity player, ball;
+    Entity player, ball, player2;
     Field field;
-    initializeGame(&player, &ball, &field);
+    initializeGame(&player, &ball, &field, &player2);
 
  
     //to track player movement
@@ -95,7 +95,8 @@ int main(int argc, char **argv) {
 
    // Game loop variables
     bool closeWindow = false;
-    bool up = false, down = false, left = false, right = false;
+    bool up = false, down = false, left = false, right = false; //Player 1 movement variables
+    bool up2 = false, down2 = false, left2 = false, right2 = false; //Player 2 movement variables
     float ballVelocityX = 0, ballVelocityY = 0;
     
     // Main game loop
@@ -104,12 +105,14 @@ int main(int argc, char **argv) {
         deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
         // Handle events
-        handleEvents(&closeWindow, &up, &down, &left, &right);
+        handleEvents(&closeWindow, &up, &down, &left, &right, &up2, &down2, &left2, &right2);
         
 
         // Update game state
         updatePlayerPosition(&player, up, down, left, right, &field,deltaTime);
+        updatePlayerPosition(&player2, up2, down2, left2, right2, &field,deltaTime);
         updateBallPosition(&ball, &player, &field, deltaTime);
+        updateBallPosition(&ball, &player2, &field, deltaTime);
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         updateTimer(&gameTimer);
 
@@ -120,11 +123,14 @@ int main(int argc, char **argv) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
+        renderPlayer(renderer, &player2);
         renderGoals(renderer, &field); // Lägg till detta anrop
         renderPlayer(renderer, &player);
         renderBall(renderer, &ball);
         renderTimer(renderer, font, &gameTimer, windowWidth);
         renderScore(renderer, font, gameScore, windowWidth, windowHeight);
+        int test = 2; // Testtest
+        
 
 
         SDL_RenderPresent(renderer);

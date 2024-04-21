@@ -4,7 +4,7 @@
 #define SPEED 900
 
 // Function to initialize the game
-void initializeGame(Entity *player, Entity *ball, Field *field) {
+void initializeGame(Entity *player, Entity *ball, Field *field, Entity *player2) {
     // Get the current display mode
     SDL_DisplayMode displayMode;
     if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
@@ -23,6 +23,10 @@ void initializeGame(Entity *player, Entity *ball, Field *field) {
     player->x = field->width / 2;
     player->y = field->height / 1.95;
     player->radius = field->width / 128;
+
+    player2->x = field->width / 4;
+    player2->y = field->height / 3;
+    player2->radius = field->width / 128;
 
     // Initialize ball properties
     ball->x = field->width / 4;
@@ -91,7 +95,7 @@ void updateBallPosition(Entity *ball, Entity *player, const Field *field, float 
         dy /= magnitude;
 
         // Apply kicking force with a higher magnitude for faster kick
-        float kickMagnitude = 1300.0f; // Adjust the kick magnitude for faster kick
+        float kickMagnitude = 650.0f; // Adjust the kick magnitude for faster kick
         ball->xSpeed = dx * kickMagnitude;
         ball->ySpeed = dy * kickMagnitude;
     }

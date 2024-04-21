@@ -17,4 +17,6 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score score, int window
 void renderGoals(SDL_Renderer *renderer, const Field *field);
 
 
+
+
 #endif /* VIEW_H */

@@ -1,6 +1,6 @@
 #include "controller.h"
 
-void handleEvents(bool *closeWindow, bool *up, bool *down, bool *left, bool *right) {
+void handleEvents(bool *closeWindow, bool *up, bool *down, bool *left, bool *right, bool *up2, bool *down2, bool *left2, bool *right2) {
     // Handle user input and events to control game state
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -11,43 +11,60 @@ void handleEvents(bool *closeWindow, bool *up, bool *down, bool *left, bool *rig
             case SDL_KEYDOWN:
                 switch (event.key.keysym.scancode) {
                     case SDL_SCANCODE_W:
-                    case SDL_SCANCODE_UP:
                         *up = true;
                         break;
+                    case SDL_SCANCODE_UP:
+                        *up2 = true;
+                        break;    
                     case SDL_SCANCODE_S:
-                    case SDL_SCANCODE_DOWN:
                         *down = true;
                         break;
+                    case SDL_SCANCODE_DOWN:
+                        *down2 = true;
+                        break;
                     case SDL_SCANCODE_A:
-                    case SDL_SCANCODE_LEFT:
                         *left = true;
                         break;
+                    case SDL_SCANCODE_LEFT:
+                        *left2 = true;
+                        break;
                     case SDL_SCANCODE_D:
-                    case SDL_SCANCODE_RIGHT:
                         *right = true;
+                        break;
+                    case SDL_SCANCODE_RIGHT:
+                        *right2 = true;
                         break;
                 }
                 break;
             case SDL_KEYUP:
                 switch (event.key.keysym.scancode) {
                     case SDL_SCANCODE_W:
-                    case SDL_SCANCODE_UP:
                         *up = false;
                         break;
+                    case SDL_SCANCODE_UP:
+                        *up2 = false;
+                        break;    
                     case SDL_SCANCODE_S:
-                    case SDL_SCANCODE_DOWN:
                         *down = false;
                         break;
+                    case SDL_SCANCODE_DOWN:
+                        *down2 = false;
+                        break;
                     case SDL_SCANCODE_A:
-                    case SDL_SCANCODE_LEFT:
                         *left = false;
                         break;
+                    case SDL_SCANCODE_LEFT:
+                        *left2 = false;
+                        break;
                     case SDL_SCANCODE_D:
-                    case SDL_SCANCODE_RIGHT:
                         *right = false;
+                        break;
+                    case SDL_SCANCODE_RIGHT:
+                        *right2 = false;
                         break;
                 }
                 break;
         }
     }
 }
+
