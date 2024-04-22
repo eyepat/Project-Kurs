@@ -47,29 +47,29 @@ void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool ri
     float speed = SPEED * deltaTime;
     if (up) {
         player->y -= speed;
-        if (player->y < player->radius + field->height * 0.11) {
-            player->y = player->radius + field->height * 0.11;
+        if (player->y < player->radius + field->height * 0.06) {
+            player->y = player->radius + field->height * 0.06;
         }
     }
 
     if (down) {
         player->y += speed;
-        if (player->y > field->height - player->radius - field->height * 0.09) {
-            player->y = field->height - player->radius - field->height * 0.09;
+        if (player->y > field->height - player->radius - field->height * 0.06) {
+            player->y = field->height - player->radius - field->height * 0.06;
         }
     }
 
     if (left) {
         player->x -= speed;
-        if (player->x < player->radius + field->height * 0.11) {
-            player->x = player->radius + field->height * 0.11;
+        if (player->x < player->radius + field->height * 0.06) {
+            player->x = player->radius + field->height * 0.06;
         }
     }
 
     if (right) {
         player->x += speed;
-        if (player->x > field->width - player->radius - field->height * 0.11) {
-            player->x = field->width - player->radius - field->height * 0.11;
+        if (player->x > field->width - player->radius - field->height * 0.06) {
+            player->x = field->width - player->radius - field->height * 0.06;
         }
     }
 }

@@ -16,10 +16,10 @@ void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWid
 }
 
 
-void renderPlayer(SDL_Renderer *renderer, const Entity *player) {
+void renderPlayer(SDL_Renderer *renderer, const Entity *player, int colorDataArray[4]) {
     // Render the player entity
     SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    drawDetailedCircle(renderer, player->x, player->y, player->radius*1.2, 3);
+    drawDetailedCircle(renderer, player->x, player->y, player->radius*1.2, 3, colorDataArray);
 
 }
 
@@ -31,7 +31,7 @@ void renderBall(SDL_Renderer *renderer, const Entity *ball) {
 
 }
 
-void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, int outlineThickness) {
+void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, int outlineThickness, int colorData[4]) {
    // Outline color
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black for the outline
         for (int w = -radius - outlineThickness; w <= radius + outlineThickness; w++) {
@@ -43,10 +43,10 @@ void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int ra
             }
         }
         // Player color RGB dvs changing of this colors bettween 255 and 0 make a different collor 
-        int playerR = 255; // Red 
-        int playerG = 255;   // Green
-        int playerB = 0;   // Blue 
-        int playerA = 0; // Alpha component of the player's color (255 is fully opaque)
+        int playerR = colorData[0]; // Red 
+        int playerG = colorData[1];   // Green
+        int playerB = colorData[2];   // Blue 
+        int playerA = colorData[3]; // Alpha component of the player's color (255 is fully opaque)
 
         // Gradient fill
         for (int w = -radius; w <= radius; w++) {
@@ -148,6 +148,14 @@ void renderGoals(SDL_Renderer *renderer, const Field *field) {
 
     // render right goal
     SDL_RenderFillRect(renderer, &field->goals[1].box);
+}
+
+void modifyPlayerColors(int red, int blue, int green, int opacity, int playerColorData[4]){
+    playerColorData[0] = red;
+    playerColorData[1] = blue;
+    playerColorData[2] = green;
+    playerColorData[3] = opacity; //Genomskinlighet
+
 }
 
 

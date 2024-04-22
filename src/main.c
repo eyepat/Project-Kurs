@@ -78,6 +78,8 @@ int main(int argc, char **argv) {
 
     // Initialize game entities and field
     Entity player, ball, player2;
+    modifyPlayerColors(255, 255, 0, 255, player.colorData); //Default är gul och blå
+    modifyPlayerColors(0, 0, 255, 255, player2.colorData); //Använd modifyPlayerColors för att ändra spelarnas färger dynamiskt senare
     Field field;
     initializeGame(&player, &ball, &field, &player2);
 
@@ -127,13 +129,12 @@ int main(int argc, char **argv) {
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
         renderGoals(renderer, &field);
-        renderPlayer(renderer, &player);
-        renderPlayer(renderer, &player2);
+        renderPlayer(renderer, &player, player.colorData);
+        renderPlayer(renderer, &player2, player2.colorData); 
         renderBall(renderer, &ball);
         renderScore(renderer, font, gameScore, windowWidth, windowHeight);
         renderTimer(renderer, font, &gameTimer, windowWidth);
         SDL_RenderPresent(renderer);
-        int test = 2; // Testtest
         
         
 
@@ -141,7 +142,7 @@ int main(int argc, char **argv) {
         SDL_RenderPresent(renderer);
 
         // Delay for consistent frame rate
-        SDL_Delay(16);
+        SDL_Delay(1);
     }
 
     // Clean up

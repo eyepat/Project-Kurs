@@ -8,7 +8,8 @@
 typedef struct {
     float x, y;
     int radius;
-    float xSpeed,ySpeed;  
+    float xSpeed,ySpeed; 
+    int colorData[4]; // En array som innehåller all färginformation om objektet (RGB och opacity från 0-255)
 } Entity;
 typedef struct {
     SDL_Rect box;
