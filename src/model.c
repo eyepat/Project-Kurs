@@ -76,7 +76,7 @@ void updatePlayerPosition(Entity *player, bool up, bool down, bool left, bool ri
 
 
 
-void updateBallPosition(Entity *ball, Entity *player, Entity *player2, Field *field, Score *score, float deltaTime) {
+int updateBallPosition(Entity *ball, Entity *player, Entity *player2, Field *field, Score *score, float deltaTime, int *scoreFlag) {
     
     // Calculate the distance between the ball and the player
     float distance = sqrt(pow(player->x - ball->x, 2) + pow(player->y - ball->y, 2));
@@ -146,11 +146,11 @@ void updateBallPosition(Entity *ball, Entity *player, Entity *player2, Field *fi
             ball->ySpeed = 0;
             int scoringTeam = (field->goals[i].teamID == 1) ? 2 : 1;
             updateScore(score, scoringTeam);
-
-            // Återställ bollen till spelplanens mitt
-           resetGame(player, ball, field, player2);
+            *scoreFlag = 1;
+           
             break;
         }
+  
     }
       // Check boundaries and apply the margins set for the player
     float verticalMargin = field->height * 0.12; // Top margin
@@ -168,6 +168,8 @@ void updateBallPosition(Entity *ball, Entity *player, Entity *player2, Field *fi
         ball->ySpeed *= -1;
         ball->y = fmax(ball->radius + verticalMargin, fmin(ball->y, field->height - ball->radius - bottomMargin));
     }
+
+    return 1;
 }
 
 void initializeScore(Score* score) {

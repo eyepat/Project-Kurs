@@ -102,6 +102,7 @@ int main(int argc, char **argv) {
     bool up = false, down = false, left = false, right = false; //Player 1 movement variables
     bool up2 = false, down2 = false, left2 = false, right2 = false; //Player 2 movement variables
     float ballVelocityX = 0, ballVelocityY = 0;
+    int scoreTrue = 0;
     
     // Main game loop
     while (!closeWindow) {
@@ -115,8 +116,14 @@ int main(int argc, char **argv) {
         // Update game state
         updatePlayerPosition(&player, up, down, left, right, &field,deltaTime);
         updatePlayerPosition(&player2, up2, down2, left2, right2, &field,deltaTime);
-        updateBallPosition(&ball, &player, &player2, &field, &gameScore, deltaTime);
-        updateBallPosition(&ball, &player2, &player, &field, &gameScore, deltaTime);
+        updateBallPosition(&ball, &player, &player2, &field, &gameScore, deltaTime, &scoreTrue);
+        updateBallPosition(&ball, &player2, &player, &field, &gameScore, deltaTime, &scoreTrue);
+        if (scoreTrue)
+        {
+            resetGame(&player, &ball, &field, &player2);
+            scoreTrue = 0;
+        }
+        
 
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         updateTimer(&gameTimer);

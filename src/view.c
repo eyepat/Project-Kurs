@@ -44,8 +44,8 @@ void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int ra
         }
         // Player color RGB dvs changing of this colors bettween 255 and 0 make a different collor 
         int playerR = colorData[0]; // Red 
-        int playerG = colorData[1];   // Green
-        int playerB = colorData[2];   // Blue 
+        int playerG = colorData[1];  // Green
+        int playerB = colorData[2];  // Blue 
         int playerA = colorData[3]; // Alpha component of the player's color (255 is fully opaque)
 
         // Gradient fill
