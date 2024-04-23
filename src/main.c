@@ -162,3 +162,60 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+/*
+int main(int argc, char* argv[]) {
+
+    SDL_Texture* loadImage(const char* filepath, SDL_Renderer* renderer) {
+    SDL_Surface* loadedSurface = IMG_Load(filepath);
+    if (loadedSurface == NULL) {
+        printf("Error: %s\n", IMG_GetError());
+        return NULL;
+    }
+
+    SDL_Texture* newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    if (newTexture == NULL) {
+        printf("Error: %s\n", SDL_GetError());
+    }
+
+    SDL_FreeSurface(loadedSurface);
+
+    return newTexture;
+    }
+    SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
+    IMG_Init(IMG_INIT_PNG);
+    SDL_Window* window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    TTF_Font* font = TTF_OpenFont("path_to_your_font.ttf", 24); // replace with your font path and size
+
+    GameState gameState;
+    gameState.menuState = 1; //main menu
+    gameState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
+    gameState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
+    gameState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
+    gameState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
+    gameState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
+
+    SDL_Event e;
+    while (SDL_WaitEvent(&e) && e.type != SDL_QUIT) {
+        handleMenuEvent(&e, &gameState);
+        SDL_RenderClear(renderer);
+        drawMenu(renderer, font, &gameState);
+        SDL_RenderPresent(renderer);
+    }
+
+    // Cleanup...
+    SDL_DestroyTexture(gameState.hostButton.texture);
+    SDL_DestroyTexture(gameState.joinButton.texture);
+    SDL_DestroyTexture(gameState.exitButton.texture);
+    SDL_DestroyTexture(gameState.menuBackground);
+    SDL_DestroyTexture(gameState.gameBackground);
+    TTF_CloseFont(font);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    IMG_Quit();
+    TTF_Quit();
+    SDL_Quit();
+
+    return 0;
+}*/

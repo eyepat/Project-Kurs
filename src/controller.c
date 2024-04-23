@@ -68,3 +68,22 @@ void handleEvents(bool *closeWindow, bool *up, bool *down, bool *left, bool *rig
     }
 }
 
+
+/*void handleMenuEvent(SDL_Event* e, GameState* gameState) {
+    if (e->type == SDL_MOUSEBUTTONDOWN) {
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        if (SDL_PointInRect((SDL_Point){x, y}, &gameState->hostButton.bounds)) {
+            // The host button was clicked
+            //ip adress to give to other players
+            //start button
+        } else if (SDL_PointInRect((SDL_Point){x, y}, &gameState->joinButton.bounds)) {
+            // The join button was clicked
+            //enter ip adress
+            //join
+        } else if (SDL_PointInRect((SDL_Point){x, y}, &gameState->exitButton.bounds)) {
+            // The exit button was clicked
+            //exits the game
+        }
+    }
+}*/

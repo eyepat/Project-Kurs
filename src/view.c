@@ -159,3 +159,15 @@ void modifyPlayerColors(int red, int blue, int green, int opacity, int playerCol
 }
 
 
+/*void renderButton(SDL_Renderer* renderer, Button* button) {
+    SDL_RenderCopy(renderer, button->image, NULL, &button->rect);
+}
+
+void drawMenu(SDL_Renderer* renderer, TTF_Font* font, GameState* gameState) {
+    // Draw the host button
+    SDL_RenderCopy(renderer, gameState->hostButton.texture, NULL, &gameState->hostButton.bounds);
+    // Draw the join button
+    SDL_RenderCopy(renderer, gameState->joinButton.texture, NULL, &gameState->joinButton.bounds);
+    // Draw the exit button
+    SDL_RenderCopy(renderer, gameState->exitButton.texture, NULL, &gameState->exitButton.bounds);
+}*/
