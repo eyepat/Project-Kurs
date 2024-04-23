@@ -140,7 +140,7 @@ int updateBallPosition(Entity *ball, Entity *player, Entity *player2, Field *fie
         if (ball->x - ball->radius > field->goals[i].box.x &&
             ball->x + ball->radius < field->goals[i].box.x + field->goals[i].box.w &&
             ball->y - ball->radius > field->goals[i].box.y &&
-            ball->y + ball->radius < field->goals[i].box.y + field->goals[i].box.h) {
+            ball->y + ball->radius < field->goals[i].box.y + field->goals[i].box.h && *scoreFlag !=1 ) {
             // Bollen är i målet
             ball->xSpeed = 0;
             ball->ySpeed = 0;
