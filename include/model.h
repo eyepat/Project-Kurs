@@ -47,7 +47,7 @@ void initializeTimer(Timer *timer, int maxTime);
 void updateTimer(Timer *timer);
 
 
-/*typedef struct {
+typedef struct {
     SDL_Rect bounds;
     SDL_Texture* texture;
 } Button;
@@ -55,13 +55,14 @@ void updateTimer(Timer *timer);
 typedef struct {
     char username[40];
     char ip[16];
-    int menuState; //for buttons 
+    int menuState; //for buttons 11=host 22=join 33=exit 44=start
     Button hostButton;
     Button joinButton;
     Button exitButton;
+    Button startButton;
     SDL_Texture* menuBackground;
     SDL_Texture* gameBackground;
-} GameState;*/
+} GameState;
 
 
 

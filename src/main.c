@@ -181,10 +181,13 @@ int main(int argc, char* argv[]) {
 
     return newTexture;
     }
+
+
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
     IMG_Init(IMG_INIT_PNG);
-    SDL_Window* window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     TTF_Font* font = TTF_OpenFont("path_to_your_font.ttf", 24); // replace with your font path and size
 
@@ -193,8 +196,29 @@ int main(int argc, char* argv[]) {
     gameState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
     gameState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
     gameState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
+    gameState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
     gameState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
     gameState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
+    
+    gameState.hostButton.bounds.x = 100; // 100 pixels from the left edge of the window
+    gameState.hostButton.bounds.y = 100; // 100 pixels from the top edge of the window
+    gameState.hostButton.bounds.w = 200; // Button width is 200 pixels
+    gameState.hostButton.bounds.h = 50;  // Button height is 50 pixels
+    
+    gameState.joinButton.bounds.x = 100; // Same x as hostButton for alignment
+    gameState.joinButton.bounds.y = 200; // 200 pixels from the top, so it's below hostButton
+    gameState.joinButton.bounds.w = 200; // Same width as hostButton
+    gameState.joinButton.bounds.h = 50;  // Same height as hostButton
+    
+    gameState.exitButton.bounds.x = 100; // Same x as other buttons for alignment
+    gameState.exitButton.bounds.y = 300; // Below the other buttons
+    gameState.exitButton.bounds.w = 200; // Same width as other buttons
+    gameState.exitButton.bounds.h = 50;  // Same height as other buttons
+    
+    gameState.startButton.bounds.x = 100; // Same x as other buttons for alignment
+    gameState.startButton.bounds.y = 300; // Below the other buttons
+    gameState.startButton.bounds.w = 200; // Same width as other buttons
+    gameState.startButton.bounds.h = 50;  // Same height as other buttons
 
     SDL_Event e;
     while (SDL_WaitEvent(&e) && e.type != SDL_QUIT) {
@@ -208,6 +232,7 @@ int main(int argc, char* argv[]) {
     SDL_DestroyTexture(gameState.hostButton.texture);
     SDL_DestroyTexture(gameState.joinButton.texture);
     SDL_DestroyTexture(gameState.exitButton.texture);
+    SDL_DestroyTexture(gameState.startButton.texture);
     SDL_DestroyTexture(gameState.menuBackground);
     SDL_DestroyTexture(gameState.gameBackground);
     TTF_CloseFont(font);
