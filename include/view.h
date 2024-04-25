@@ -7,7 +7,7 @@
 
 // Function declarations for rendering game elements
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight);
-void renderPlayer(SDL_Renderer *renderer, const Entity *player, int colorDataArray[4]);
+void renderPlayers(SDL_Renderer *renderer, const Entity players[], int numPlayers);
 void renderBall(SDL_Renderer *renderer, const Entity *ball);
 void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, int outlineThickness, int colorData[4]);
 void drawBall(SDL_Renderer* renderer, int x, int y, int radius);

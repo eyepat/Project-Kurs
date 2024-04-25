@@ -15,13 +15,16 @@ void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWid
     SDL_RenderCopy(renderer, fieldTexture, NULL, &fieldRect);
 }
 
-
-void renderPlayer(SDL_Renderer *renderer, const Entity *player, int colorDataArray[4]) {
-    // Render the player entity
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    drawDetailedCircle(renderer, player->x, player->y, player->radius*1.2, 3, colorDataArray);
-
+void renderPlayers(SDL_Renderer *renderer, const Entity players[], int numPlayers) {
+    // Iterate over each player in the array
+    for (int i = 0; i < numPlayers; i++) {
+        // Render the player entity
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        drawDetailedCircle(renderer, players[i].x, players[i].y, players[i].radius * 1.2, 3, players[i].colorData);
+    }
 }
+
+
 
 void renderBall(SDL_Renderer *renderer, const Entity *ball) {
     // Render the ball entity

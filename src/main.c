@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+// #include <SDL2/SDL_net.h>
 #include "view.h"
 #include "model.h"
 #include "controller.h"
@@ -13,6 +14,12 @@ int main(int argc, char **argv) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
+
+    // // Initialize SDL_net
+    // if (SDLNet_Init() == -1) {
+    //     printf("Error: %s\n", SDL_GetError());
+    //     return 1;    
+    // }
 
     // Initialize SDL_ttf for text rendering
     if (TTF_Init() == -1) {
@@ -74,16 +81,14 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    
-
-    // Initialize game entities and field
-    Entity player, ball, player2;
-    modifyPlayerColors(255, 255, 0, 255, player.colorData); //Default är gul och blå
-    modifyPlayerColors(0, 0, 255, 255, player2.colorData); //Använd modifyPlayerColors för att ändra spelarnas färger dynamiskt senare
+    //initialize game
+    int numPlayers = 3; // Initialize numPlayers with the actual number of players; 
+    Entity players[4]; // number of players you want to initialize
+    Entity ball;
     Field field;
-    initializeGame(&player, &ball, &field, &player2);
+    MovementFlags flags[4] = {0}; // Using {0} initializes all fields to false
+    initializeGame(players, numPlayers, &ball, &field);
 
- 
     //to track player movement
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime;
@@ -99,53 +104,43 @@ int main(int argc, char **argv) {
 
    // Game loop variables
     bool closeWindow = false;
-    bool up = false, down = false, left = false, right = false; //Player 1 movement variables
-    bool up2 = false, down2 = false, left2 = false, right2 = false; //Player 2 movement variables
     float ballVelocityX = 0, ballVelocityY = 0;
     int scoreTrue = 0;
     
     // Main game loop
     while (!closeWindow) {
         currentTime = SDL_GetTicks();
-        deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
+        float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
-        // Handle events
-        handleEvents(&closeWindow, &up, &down, &left, &right, &up2, &down2, &left2, &right2);
-        
+        // Client function: Send player array data to host temp example
+        // sendPlayerArrayToHost(players, numPlayers);
 
-        // Update game state
-        updatePlayerPosition(&player, up, down, left, right, &field,deltaTime);
-        updatePlayerPosition(&player2, up2, down2, left2, right2, &field,deltaTime);
-        updateBallPosition(&ball, &player, &player2, &field, &gameScore, deltaTime, &scoreTrue);
-        updateBallPosition(&ball, &player2, &player, &field, &gameScore, deltaTime, &scoreTrue);
-        if (scoreTrue)
-        {
-            resetGame(&player, &ball, &field, &player2);
+        // Host function: Receive player array data from clients and update game state temp example
+        // receivePlayerArrayFromClientsAndUpdateGameState(players, numPlayers);
+
+        // Handle events
+        handleEvents(&closeWindow, flags, numPlayers);
+        updatePlayerPosition(players, flags, numPlayers, &field, deltaTime);
+
+        updateBallPosition(&ball, players, numPlayers, &field, &gameScore, deltaTime, &scoreTrue);
+        
+        if (scoreTrue) {
+            resetGame(players, &ball, &field, numPlayers);
             scoreTrue = 0;
         }
-        
 
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         updateTimer(&gameTimer);
-
-        int teamNumber = 0; //temporary
-        updateScore(&gameScore, teamNumber);//teamNumber= 1 or 2 depending on what team has scored when ball collision with goal for example
 
         // Render game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
         renderGoals(renderer, &field);
-        renderPlayer(renderer, &player, player.colorData);
-        renderPlayer(renderer, &player2, player2.colorData); 
+        renderPlayers(renderer, players, numPlayers);
         renderBall(renderer, &ball);
         renderScore(renderer, font, gameScore, windowWidth, windowHeight);
         renderTimer(renderer, font, &gameTimer, windowWidth);
-        SDL_RenderPresent(renderer);
-        
-        
-
-
         SDL_RenderPresent(renderer);
 
         // Delay for consistent frame rate
@@ -157,12 +152,16 @@ int main(int argc, char **argv) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
+    // SDLNet_Quit();
     SDL_Quit();
     TTF_CloseFont(font);
 
     return 0;
 }
+
+
 /*
+
 int main(int argc, char* argv[]) {
 
     SDL_Texture* loadImage(const char* filepath, SDL_Renderer* renderer) {

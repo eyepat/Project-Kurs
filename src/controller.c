@@ -3,70 +3,44 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-void handleEvents(bool *closeWindow, bool *up, bool *down, bool *left, bool *right, bool *up2, bool *down2, bool *left2, bool *right2) {
-    // Handle user input and events to control game state
+void handleEvents(bool *closeWindow, MovementFlags flags[], int numPlayers) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_QUIT:
-                *closeWindow = true;
-                break;
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.scancode) {
-                    case SDL_SCANCODE_W:
-                        *up = true;
-                        break;
-                    case SDL_SCANCODE_UP:
-                        *up2 = true;
-                        break;    
-                    case SDL_SCANCODE_S:
-                        *down = true;
-                        break;
-                    case SDL_SCANCODE_DOWN:
-                        *down2 = true;
-                        break;
-                    case SDL_SCANCODE_A:
-                        *left = true;
-                        break;
-                    case SDL_SCANCODE_LEFT:
-                        *left2 = true;
-                        break;
-                    case SDL_SCANCODE_D:
-                        *right = true;
-                        break;
-                    case SDL_SCANCODE_RIGHT:
-                        *right2 = true;
-                        break;
-                }
-                break;
-            case SDL_KEYUP:
-                switch (event.key.keysym.scancode) {
-                    case SDL_SCANCODE_W:
-                        *up = false;
-                        break;
-                    case SDL_SCANCODE_UP:
-                        *up2 = false;
-                        break;    
-                    case SDL_SCANCODE_S:
-                        *down = false;
-                        break;
-                    case SDL_SCANCODE_DOWN:
-                        *down2 = false;
-                        break;
-                    case SDL_SCANCODE_A:
-                        *left = false;
-                        break;
-                    case SDL_SCANCODE_LEFT:
-                        *left2 = false;
-                        break;
-                    case SDL_SCANCODE_D:
-                        *right = false;
-                        break;
-                    case SDL_SCANCODE_RIGHT:
-                        *right2 = false;
-                        break;
-                }
-                break;
+        if (event.type == SDL_QUIT) {
+            *closeWindow = true;
+            return;
+        }
+        if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+            // Determine the value based on whether the event is key down or key up
+            bool value = (event.type == SDL_KEYDOWN);
+
+            switch (event.key.keysym.scancode) {
+                case SDL_SCANCODE_W:
+                    flags[0].up = value;
+                    break;
+                case SDL_SCANCODE_UP:
+                    flags[1].up = value;
+                    break;
+                case SDL_SCANCODE_S:
+                    flags[0].down = value;
+                    break;
+                case SDL_SCANCODE_DOWN:
+                    flags[1].down = value;
+                    break;
+                case SDL_SCANCODE_A:
+                    flags[0].left = value;
+                    break;
+                case SDL_SCANCODE_LEFT:
+                    flags[1].left = value;
+                    break;
+                case SDL_SCANCODE_D:
+                    flags[0].right = value;
+                    break;
+                case SDL_SCANCODE_RIGHT:
+                    flags[1].right = value;
+                    break;
+                
+            }
         }
     }
 }
