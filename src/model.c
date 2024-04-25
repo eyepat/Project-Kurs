@@ -36,7 +36,7 @@ void initializeGame(Entity players[], int numPlayers, Entity *ball, Field *field
 
     // Initialize ball properties
     ball->x = field->width / 2;
-    ball->y = field->height / 4; 
+    ball->y = field->height / 2; 
     ball->radius = 20;
     ball->xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     ball->ySpeed = 0; // Initialize ball's speed in the y-direction to zero

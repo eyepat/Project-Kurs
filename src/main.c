@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     }
     
     //initialize game
-    int numPlayers = 3; // Initialize numPlayers with the actual number of players; 
+    int numPlayers = 2; // Initialize numPlayers with the actual number of players; 
     Entity players[4]; // number of players you want to initialize
     Entity ball;
     Field field;
