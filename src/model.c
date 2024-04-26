@@ -54,31 +54,35 @@ void updatePlayerPosition(Entity players[], MovementFlags flags[], int numPlayer
     for (int i = 0; i < numPlayers; i++) {
         float speed = SPEED * deltaTime;
 
+        float verticalMargin = field->height * 0.12; // Top margin
+        float bottomMargin = field->height * 0.10; // Bottom margin
+        float horizontalMargin = field->width * 0.07; // Side margins dvs left right
+
         if (flags[i].up) {
             players[i].y -= speed;
-            if (players[i].y < players[i].radius + field->height * 0.06) {
-                players[i].y = players[i].radius + field->height * 0.06;
+            if (players[i].y - players[i].radius < verticalMargin) {
+                players[i].y = verticalMargin;
             }
         }
 
         if (flags[i].down) {
             players[i].y += speed;
-            if (players[i].y > field->height - players[i].radius - field->height * 0.06) {
-                players[i].y = field->height - players[i].radius - field->height * 0.06;
+            if (players[i].y + players[i].radius > field->height - bottomMargin) {
+                players[i].y = field->height - bottomMargin;
             }
         }
 
         if (flags[i].left) {
             players[i].x -= speed;
-            if (players[i].x < players[i].radius + field->height * 0.06) {
-                players[i].x = players[i].radius + field->height * 0.06;
+            if (players[i].x - players[i].radius < horizontalMargin) {
+                players[i].x = horizontalMargin;
             }
         }
 
         if (flags[i].right) {
             players[i].x += speed;
-            if (players[i].x > field->width - players[i].radius - field->height * 0.06) {
-                players[i].x = field->width - players[i].radius - field->height * 0.06;
+            if (players[i].x + players[i].radius > field->width - horizontalMargin) {
+                players[i].x = field->width - horizontalMargin;
             }
         }
     }
