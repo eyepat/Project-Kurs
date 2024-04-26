@@ -210,8 +210,9 @@ int main(int argc, char **argv) {
 }
 
 
-/*
 
+
+/*
 int main(int argc, char* argv[]) {
 
     SDL_Texture* loadImage(const char* filepath, SDL_Renderer* renderer) {
@@ -269,9 +270,9 @@ int main(int argc, char* argv[]) {
     gameState.startButton.bounds.w = 200; // Same width as other buttons
     gameState.startButton.bounds.h = 50;  // Same height as other buttons
 
-    SDL_Event e;
-    while (SDL_WaitEvent(&e) && e.type != SDL_QUIT) {
-        handleMenuEvent(&e, &gameState);
+    bool closeWindow = false;
+    while (!closeWindow) {
+        handleMenuEvent(&closeWindow, &gameState);
         SDL_RenderClear(renderer);
         drawMenu(renderer, font, &gameState);
         SDL_RenderPresent(renderer);

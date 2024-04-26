@@ -195,5 +195,10 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, GameState* gameState) {
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         */
     }
+    if (gameState->menuState == 22)//join
+    {
+        //fix "enter ip"
+        //join host if a host with that ip exist menuState == 55    
+    }
 
 }

@@ -61,7 +61,7 @@ typedef struct {
 typedef struct {
     char username[40];
     char ip[16];
-    int menuState; //for buttons 11=host 22=join 33=exit 44=start
+    int menuState; //for buttons 
     Button hostButton;
     Button joinButton;
     Button exitButton;
