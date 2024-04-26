@@ -1,12 +1,14 @@
+#define MAX_PLAYERS 4
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-// #include <SDL2/SDL_net.h>
+#include <SDL2/SDL_net.h>
 #include "view.h"
 #include "model.h"
 #include "controller.h"
+#include "network.h"
 
 int main(int argc, char **argv) {
     // Initialize SDL
@@ -15,11 +17,62 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // // Initialize SDL_net
-    // if (SDLNet_Init() == -1) {
-    //     printf("Error: %s\n", SDL_GetError());
-    //     return 1;    
+
+    if (SDLNet_Init() == -1) {
+        fprintf(stderr, "Error initializing SDL_net: %s\n", SDLNet_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    int choice;
+    GameIPAddress ip;
+    char hostIP[20]; // Buffer for storing IP address
+    int port;
+    Entity players[MAX_PLAYERS]; // Array to hold player data
+    int numPlayers = 2;
+
+    // basic join menu for terminal, but freezes when going into startServer startClient
+    // printf("\nChoose an option:\n");
+    // printf("1. Host a server\n");
+    // printf("2. Connect as a client\n");
+    // printf("Enter your choice: ");
+    // scanf("%d", &choice);
+    // getchar(); // Clear the newline character from input buffer
+
+    // switch (choice) {
+    //     case 1:
+    //         printf("Enter IP address to bind (e.g., 127.0.0.1): ");
+    //         fgets(hostIP, sizeof(hostIP), stdin);
+    //         strtok(hostIP, "\n"); // Remove newline character
+
+    //         printf("Enter port number: ");
+    //         scanf("%d", &port);
+    //         getchar(); // Clear the newline character from input buffer
+
+    //         ip.host = SDLNet_Read32(&hostIP); // Convert string IP to Uint32
+    //         ip.port = (Uint16)port;
+         
+    //         startServer(ip, players, &numPlayers);
+    //         break;
+    //     case 2:
+    //         printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
+    //         fgets(hostIP, sizeof(hostIP), stdin);
+    //         strtok(hostIP, "\n"); // Remove newline character
+
+    //         printf("Enter server port number: ");
+    //         scanf("%d", &port);
+    //         getchar(); // Clear the newline character from input buffer
+
+    //         ip.host = SDLNet_Read32(&hostIP); // Convert string IP to Uint32
+    //         ip.port = (Uint16)port;
+
+    //         startClient(ip, players, numPlayers);
+    //         break;
+    //     default:
+    //         printf("Invalid choice! Please enter a valid option.\n");
+    //         break;
     // }
+
 
     // Initialize SDL_ttf for text rendering
     if (TTF_Init() == -1) {
@@ -81,13 +134,12 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    //initialize game
-    int numPlayers = 2; // Initialize numPlayers with the actual number of players; 
-    Entity players[4]; // number of players you want to initialize
+    // //initialize game
     Entity ball;
     Field field;
-    MovementFlags flags[4] = {0}; // Using {0} initializes all fields to false
+    MovementFlags flags[4] = {0};   
     initializeGame(players, numPlayers, &ball, &field);
+
 
     //to track player movement
     Uint32 previousTime = SDL_GetTicks();
@@ -112,14 +164,10 @@ int main(int argc, char **argv) {
         currentTime = SDL_GetTicks();
         float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
-        // Client function: Send player array data to host temp example
-        // sendPlayerArrayToHost(players, numPlayers);
-
-        // Host function: Receive player array data from clients and update game state temp example
-        // receivePlayerArrayFromClientsAndUpdateGameState(players, numPlayers);
-
+      
         // Handle events
         handleEvents(&closeWindow, flags, numPlayers);
+
         updatePlayerPosition(players, flags, numPlayers, &field, deltaTime);
 
         updateBallPosition(&ball, players, numPlayers, &field, &gameScore, deltaTime, &scoreTrue);
@@ -152,7 +200,9 @@ int main(int argc, char **argv) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
-    // SDLNet_Quit();
+    // SDLNet_TCP_Close(clientSocket);
+    // SDLNet_TCP_Close(serverSocket);
+    SDLNet_Quit();
     SDL_Quit();
     TTF_CloseFont(font);
 

@@ -3,13 +3,13 @@ SRCDIR=./src
 INCDIR=./include
 CC=clang
 CFLAGS = -g -c $(shell sdl2-config --cflags) -I$(INCDIR)
-LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lm -lSDL2_ttf
+LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lm -lSDL2_ttf -lSDL2_net
 
 # Namnet på ditt mål (exekverbar fil)
 TARGET = Football
 
 # Objektfiler som ska byggas
-OBJS = $(SRCDIR)/main.o $(SRCDIR)/controller.o $(SRCDIR)/model.o $(SRCDIR)/view.o
+OBJS = $(SRCDIR)/main.o $(SRCDIR)/controller.o $(SRCDIR)/model.o $(SRCDIR)/view.o $(SRCDIR)/network.o
 
 # Standard byggregel
 $(TARGET): $(OBJS)
