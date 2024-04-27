@@ -161,7 +161,6 @@ void modifyPlayerColors(int red, int blue, int green, int opacity, int playerCol
 
 }
 
-
 void renderButton(SDL_Renderer* renderer, Button* button) {
     SDL_RenderCopy(renderer, button->texture, NULL, &button->bounds);
 }
@@ -198,7 +197,7 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, GameState* gameState) {
     if (gameState->menuState == 22)//join
     {
         //fix "enter ip"
-        //join host if a host with that ip exist menuState == 55    
+        //join host if a host with that ip exist menuState == 55  if ip==userInputIp
     }
 
 }

@@ -61,6 +61,7 @@ typedef struct {
 typedef struct {
     char username[40];
     char ip[16];
+    char userInputIp[16];
     int menuState; //for buttons 
     Button hostButton;
     Button joinButton;
