@@ -276,6 +276,21 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
         drawMenu(renderer, font, &gameState);
         SDL_RenderPresent(renderer);
+        if (gameState.menuState == 33)
+        {
+            SDL_DestroyTexture(gameState.hostButton.texture);
+            SDL_DestroyTexture(gameState.joinButton.texture);
+            SDL_DestroyTexture(gameState.exitButton.texture);
+            SDL_DestroyTexture(gameState.startButton.texture);
+            SDL_DestroyTexture(gameState.menuBackground);
+            SDL_DestroyTexture(gameState.gameBackground);
+            TTF_CloseFont(font);
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroyWindow(window);
+            IMG_Quit();
+            TTF_Quit();
+            SDL_Quit();
+        }
     }
 
     // Cleanup...
