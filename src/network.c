@@ -3,11 +3,11 @@
 #include <stdlib.h>    
 #include <string.h>     
 #include <SDL2/SDL_net.h> 
-#include "network.h"
 #include "model.h"
+#include "network.h"
 
 
-void initServer(IPaddress ip, Entity *players, int *numPlayers, TCPsocket *serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet *socketSet) {
+void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet *socketSet) {
     printf("Initializing server...\n");
 
     // Open the server socket
@@ -29,7 +29,7 @@ void initServer(IPaddress ip, Entity *players, int *numPlayers, TCPsocket *serve
     printf("Server initialized and listening...\n");
 }
 
-void initClient(IPaddress ip, Entity *players, int numPlayers, TCPsocket *clientSocket) {
+void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {
     printf("Initializing client...\n");
 
     // Open the client socket
@@ -40,37 +40,34 @@ void initClient(IPaddress ip, Entity *players, int numPlayers, TCPsocket *client
         exit(EXIT_FAILURE);  // Or handle more gracefully
     }
 
-    printf("Client connected to server...\n");
+    printf("Client connected to server.\n");
 }
 
-
-void updateGameState(Entity* players, int numPlayers, Entity* incomingPlayers) {
-    for (int i = 0; i < numPlayers; i++) {
-        players[i].x = incomingPlayers[i].x;
-        players[i].y = incomingPlayers[i].y;
-        players[i].xSpeed = incomingPlayers[i].xSpeed;
-        players[i].ySpeed = incomingPlayers[i].ySpeed;
-        memcpy(players[i].colorData, incomingPlayers[i].colorData, sizeof(players[i].colorData));
+void updateGameState(GameState *gameState, Entity *incomingPlayers) {
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        gameState->players[i].x = incomingPlayers[i].x;
+        gameState->players[i].y = incomingPlayers[i].y;
+        gameState->players[i].xSpeed = incomingPlayers[i].xSpeed;
+        gameState->players[i].ySpeed = incomingPlayers[i].ySpeed;
+        memcpy(gameState->players[i].colorData, incomingPlayers[i].colorData, sizeof(gameState->players[i].colorData));
     }
 }
 
-
-void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet, Entity* players, int* numPlayers) {
-    for (int i = 0; i < *numPlayers; i++) {
+void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState) {
+    for (int i = 0; i < gameState->numPlayers; i++) {
         if (SDLNet_SocketReady(clientSockets[i])) {
-            Entity incomingPlayers[*numPlayers]; // Use VLA based on the number of players
-            int recvResult = SDLNet_TCP_Recv(clientSockets[i], incomingPlayers, sizeof(Entity) * (*numPlayers));
+            Entity incomingPlayers[gameState->numPlayers];
+            int recvResult = SDLNet_TCP_Recv(clientSockets[i], incomingPlayers, sizeof(Entity) * gameState->numPlayers);
             if (recvResult > 0) {
-                updateGameState(players, *numPlayers, incomingPlayers);
+                updateGameState(gameState, incomingPlayers);
             } else if (recvResult == 0) {
                 printf("Client disconnected. Removing from game.\n");
                 SDLNet_TCP_DelSocket(socketSet, clientSockets[i]);
                 SDLNet_TCP_Close(clientSockets[i]);
-                // Shift remaining clients in the array
-                for (int j = i; j < *numPlayers - 1; j++) {
+                for (int j = i; j < gameState->numPlayers - 1; j++) {
                     clientSockets[j] = clientSockets[j + 1];
                 }
-                (*numPlayers)--;
+                gameState->numPlayers--;
                 i--; // Adjust for shifted array
             } else {
                 fprintf(stderr, "Error receiving data from client %d: %s\n", i, SDLNet_GetError());
@@ -79,27 +76,25 @@ void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet
     }
 }
 
-
-void sendDataToClients(TCPsocket* clientSockets, int numPlayers, Entity* players) {
-    for (int i = 0; i < numPlayers; i++) {
+void sendDataToClients(TCPsocket* clientSockets, GameState *gameState) {
+    for (int i = 0; i < gameState->numPlayers; i++) {
         if (clientSockets[i] != NULL) {
-            SDLNet_TCP_Send(clientSockets[i], players, sizeof(Entity) * numPlayers);
+            SDLNet_TCP_Send(clientSockets[i], gameState, sizeof(GameState));
         }
     }
 }
 
-void sendDataToServer(TCPsocket clientSocket, Entity* players, int numPlayers) {
-    SDLNet_TCP_Send(clientSocket, players, sizeof(Entity) * numPlayers);
+void sendDataToServer(TCPsocket clientSocket, GameState *gameState) {
+    SDLNet_TCP_Send(clientSocket, gameState, sizeof(GameState));
 }
 
-
-void receiveDataFromServer(TCPsocket clientSocket, Entity* players, int numPlayers) {
-    int len = SDLNet_TCP_Recv(clientSocket, players, sizeof(Entity) * numPlayers);
+void receiveDataFromServer(TCPsocket clientSocket, GameState *gameState) {
+    int len = SDLNet_TCP_Recv(clientSocket, gameState, sizeof(GameState));
     if (len <= 0) {
-        // Handle error or disconnection
         fprintf(stderr, "Error receiving data or server disconnected: %s\n", SDLNet_GetError());
         SDLNet_TCP_Close(clientSocket);
         SDLNet_Quit();
         exit(EXIT_FAILURE);
     }
 }
+

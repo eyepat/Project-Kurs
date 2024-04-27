@@ -4,8 +4,7 @@
 #include <SDL2/SDL.h>
 #define SPEED 900
 
-// Function to initialize the game
-void initializeGame(Entity players[], int numPlayers, Entity *ball, Field *field) {
+void initializeGame(GameState *gameState, Entity *ball, Field *field) {
     // Get the current display mode
     SDL_DisplayMode displayMode;
     if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
@@ -22,15 +21,14 @@ void initializeGame(Entity players[], int numPlayers, Entity *ball, Field *field
 
     // Initialize players' properties
    
-    for (int i = 0; i < numPlayers; i++) {
-        players[i].x = (i + 1) * (field->width / (numPlayers + 1)); // Spread players evenly along the x-axis
-        players[i].y = field->height / 2;
-        players[i].radius = field->width / 128;
-        // Initialize player colors dynamically
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
+        gameState->players[i].y = field->height / 2;
+        gameState->players[i].radius = field->width / 128;
         if (i == 0) {
-            modifyPlayerColors(255, 255, 0, 255, players[i].colorData); // Default is yellow and blue for player 1
+            modifyPlayerColors(255, 255, 0, 255, gameState->players[i].colorData);
         } else {
-            modifyPlayerColors(0, 0, 255, 255, players[i].colorData); // Default is blue and red for other players
+            modifyPlayerColors(0, 0, 255, 255, gameState->players[i].colorData);
         }
     }
 
@@ -48,70 +46,49 @@ void initializeGame(Entity players[], int numPlayers, Entity *ball, Field *field
     field->goals[1].teamID = 2; // Team 2's goal
 }
 
-
 // Function to update the player's position based on user input
-void updatePlayerPosition(Entity players[], MovementFlags flags[], int numPlayers, const Field *field, float deltaTime) {
-    for (int i = 0; i < numPlayers; i++) {
+void updatePlayerPosition(GameState *gameState, MovementFlags flags[], const Field *field, float deltaTime) {
+    for (int i = 0; i < gameState->numPlayers; i++) {
         float speed = SPEED * deltaTime;
 
-        float verticalMargin = field->height * 0.12; // Top margin
-        float bottomMargin = field->height * 0.10; // Bottom margin
-        float horizontalMargin = field->width * 0.07; // Side margins dvs left right
+        float verticalMargin = field->height * 0.12;
+        float bottomMargin = field->height * 0.10;
+        float horizontalMargin = field->width * 0.07;
 
-        if (flags[i].up) {
-            players[i].y -= speed;
-            if (players[i].y - players[i].radius < verticalMargin) {
-                players[i].y = verticalMargin;
-            }
+        if (flags[i].up && gameState->players[i].y - gameState->players[i].radius > verticalMargin) {
+            gameState->players[i].y -= speed;
         }
-
-        if (flags[i].down) {
-            players[i].y += speed;
-            if (players[i].y + players[i].radius > field->height - bottomMargin) {
-                players[i].y = field->height - bottomMargin;
-            }
+        if (flags[i].down && gameState->players[i].y + gameState->players[i].radius < field->height - bottomMargin) {
+            gameState->players[i].y += speed;
         }
-
-        if (flags[i].left) {
-            players[i].x -= speed;
-            if (players[i].x - players[i].radius < horizontalMargin) {
-                players[i].x = horizontalMargin;
-            }
+        if (flags[i].left && gameState->players[i].x - gameState->players[i].radius > horizontalMargin) {
+            gameState->players[i].x -= speed;
         }
-
-        if (flags[i].right) {
-            players[i].x += speed;
-            if (players[i].x + players[i].radius > field->width - horizontalMargin) {
-                players[i].x = field->width - horizontalMargin;
-            }
+        if (flags[i].right && gameState->players[i].x + gameState->players[i].radius < field->width - horizontalMargin) {
+            gameState->players[i].x += speed;
         }
     }
 }
 
+
 // Function to update ball position
-int updateBallPosition(Entity *ball, Entity players[], int numPlayers, Field *field, Score *score, float deltaTime, int *scoreFlag) {
+int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag) {
     
     // Loop through all players to check for interactions with the ball
-    for (int i = 0; i < numPlayers; i++) {
-        // Direct access to the player object in the array
-        Entity player = players[i];
-        // Calculate the distance between the ball and the player
-        float distance = sqrt(pow(player.x - ball->x, 2) + pow(player.y - ball->y, 2));
-        // Define a threshold for player-ball collision
-        float kickThreshold = player.radius + ball->radius * 2;
-        // If the distance is less than the kick threshold, the player has kicked the ball
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        Entity *player = &gameState->players[i];
+        float distance = sqrt(pow(player->x - ball->x, 2) + pow(player->y - ball->y, 2));
+        float kickThreshold = player->radius + ball->radius;
+
         if (distance < kickThreshold) {
-            // Calculate the direction from player to ball
-            float dx = ball->x - player.x;
-            float dy = ball->y - player.y;
+            float dx = ball->x - player->x;
+            float dy = ball->y - player->y;
             float magnitude = sqrt(dx * dx + dy * dy);
-            // Normalize the direction
-            dx /= magnitude;
+            dx /= magnitude; // Normalize the direction vector
             dy /= magnitude;
-            // Apply kicking force with a higher magnitude for faster kick
-            float kickMagnitude = 900.0f; // Adjust the kick magnitude for faster kick
-            ball->xSpeed = dx * kickMagnitude;
-            ball->ySpeed = dy * kickMagnitude;
+            float kickForce = 900.0f; // Kick force magnitude
+            ball->xSpeed = dx * kickForce;
+            ball->ySpeed = dy * kickForce;
         }
     }
 
@@ -213,11 +190,10 @@ void updateTimer(Timer* timer) {
     }
 }
 
-void resetGame(Entity players[], Entity *ball, Field *field, int numPlayers) {
-    // Reset player positions
-    for (int i = 0; i < numPlayers; i++) {
-        players[i].x = (i % 2 == 0) ? field->width / 4 : field->width * 3 / 4;
-        players[i].y = field->height / 2;
+void resetGame(GameState *gameState, Entity *ball, Field *field) {
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        gameState->players[i].x = (i % 2 == 0) ? field->width / 4 : field->width * 3 / 4;
+        gameState->players[i].y = field->height / 2;
     }
 
     // Reset ball position
@@ -228,9 +204,6 @@ void resetGame(Entity players[], Entity *ball, Field *field, int numPlayers) {
 
     // Goals remain unchanged 
 }
-
-
-
 
 
 
