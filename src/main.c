@@ -17,61 +17,72 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-
-    if (SDLNet_Init() == -1) {
-        fprintf(stderr, "Error initializing SDL_net: %s\n", SDLNet_GetError());
-        SDL_Quit();
-        return 1;
+    // Initialize SDL_net
+    if (SDLNet_Init() != 0) {
+        fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+        exit(EXIT_FAILURE);
     }
 
-    int choice;
-    GameIPAddress ip;
-    char hostIP[20]; // Buffer for storing IP address
-    int port;
-    Entity players[MAX_PLAYERS]; // Array to hold player data
-    int numPlayers = 2;
 
-    // basic join menu for terminal, but freezes when going into startServer startClient
-    // printf("\nChoose an option:\n");
-    // printf("1. Host a server\n");
-    // printf("2. Connect as a client\n");
-    // printf("Enter your choice: ");
-    // scanf("%d", &choice);
-    // getchar(); // Clear the newline character from input buffer
+    bool isServer;
+    Entity players[MAX_PLAYERS];
+    int numPlayers = 2; 
+    TCPsocket clientSocket;  // Client's socket
+    TCPsocket serverSockets[MAX_PLAYERS];  // Array of client sockets for the server
+    SDLNet_SocketSet socketSet;
 
-    // switch (choice) {
-    //     case 1:
-    //         printf("Enter IP address to bind (e.g., 127.0.0.1): ");
-    //         fgets(hostIP, sizeof(hostIP), stdin);
-    //         strtok(hostIP, "\n"); // Remove newline character
+    int choice, port;
+    IPaddress ip;
+    char hostIP[20];  // Buffer for storing IP address
 
-    //         printf("Enter port number: ");
-    //         scanf("%d", &port);
-    //         getchar(); // Clear the newline character from input buffer
+    // Basic join menu for terminal
+    printf("\nChoose an option:\n");
+    printf("1. Host a server\n");
+    printf("2. Connect as a client\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+    getchar();  
 
-    //         ip.host = SDLNet_Read32(&hostIP); // Convert string IP to Uint32
-    //         ip.port = (Uint16)port;
-         
-    //         startServer(ip, players, &numPlayers);
-    //         break;
-    //     case 2:
-    //         printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
-    //         fgets(hostIP, sizeof(hostIP), stdin);
-    //         strtok(hostIP, "\n"); // Remove newline character
+    switch (choice) {
+        case 1:  // Server
+            isServer = true;
+            printf("Enter port number: ");
+            scanf("%d", &port);
+            getchar(); // Clear the newline character from input buffer
 
-    //         printf("Enter server port number: ");
-    //         scanf("%d", &port);
-    //         getchar(); // Clear the newline character from input buffer
+            // Set up the server to listen on all interfaces
+            if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
+            }
 
-    //         ip.host = SDLNet_Read32(&hostIP); // Convert string IP to Uint32
-    //         ip.port = (Uint16)port;
+            initServer(ip, players, &numPlayers, &serverSockets[0], serverSockets, &socketSet);
+            break;
 
-    //         startClient(ip, players, numPlayers);
-    //         break;
-    //     default:
-    //         printf("Invalid choice! Please enter a valid option.\n");
-    //         break;
-    // }
+        case 2:  // Client
+            isServer = false;
+            printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
+            fgets(hostIP, sizeof(hostIP), stdin);
+            strtok(hostIP, "\n");  // Remove newline character
+
+            printf("Enter server port number: ");
+            scanf("%d", &port);
+            getchar(); // Clear the newline character from input buffer
+
+            if (SDLNet_ResolveHost(&ip, hostIP, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
+            }
+
+            initClient(ip, players, numPlayers, &clientSocket);
+            break;
+
+        default:
+            printf("Invalid choice! Please enter a valid option.\n");
+            return -1; // Exit if no valid choice
+    }
 
 
     // Initialize SDL_ttf for text rendering
@@ -168,6 +179,18 @@ int main(int argc, char **argv) {
         // Handle events
         handleEvents(&closeWindow, flags, numPlayers);
 
+        if (isServer) {
+        // Server operations
+            receiveDataFromClients(serverSockets, socketSet, players, &numPlayers);  // Receive updates from clients
+            updateGameState(players, numPlayers, players);  // Update the game state based on new data
+            sendDataToClients(serverSockets, numPlayers, players);  // Send the updated state to all clients
+        } else {
+            // Client operations
+            sendDataToServer(clientSocket, players, numPlayers);  // Send updates to the server
+            receiveDataFromServer(clientSocket, players, numPlayers);  // Receive the updated game state from the server
+            updateGameState(players, numPlayers, players);  // Update local game state
+        }
+
         updatePlayerPosition(players, flags, numPlayers, &field, deltaTime);
 
         updateBallPosition(&ball, players, numPlayers, &field, &gameScore, deltaTime, &scoreTrue);
@@ -200,8 +223,17 @@ int main(int argc, char **argv) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
-    // SDLNet_TCP_Close(clientSocket);
-    // SDLNet_TCP_Close(serverSocket);
+
+    if (isServer) {
+    for (int i = 0; i < numPlayers; i++) {
+        if (serverSockets[i]) {
+            SDLNet_TCP_Close(serverSockets[i]);
+        }
+    }
+    } else {
+        SDLNet_TCP_Close(clientSocket);
+    }
+
     SDLNet_Quit();
     SDL_Quit();
     TTF_CloseFont(font);

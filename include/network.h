@@ -3,14 +3,14 @@
 #include <SDL2/SDL_net.h>
 #include "model.h" 
 
-typedef struct {
-    Uint32 host;    // IP address
-    Uint16 port;    // Port number
-} GameIPAddress;
-
+void initServer(IPaddress ip, Entity *players, int *numPlayers, TCPsocket *serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet *socketSet);
+void initClient(IPaddress ip, Entity *players, int numPlayers, TCPsocket *clientSocket);
 void updateGameState(Entity* players, int numPlayers, Entity* incomingPlayers);
-void broadcastGameState(TCPsocket* clientSockets, int numClients, Entity* players, int numPlayers);
-void startServer(GameIPAddress ip, Entity *players, int *numPlayers);
-void startClient(GameIPAddress ip, Entity *players, int numPlayers);
+void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet, Entity* players, int* numPlayers);
+void sendDataToClients(TCPsocket* clientSockets, int numPlayers, Entity* players);
+void sendDataToServer(TCPsocket clientSocket, Entity* players, int numPlayers);
+void receiveDataFromServer(TCPsocket clientSocket, Entity* players, int numPlayers);
+ 
+
 
 #endif
