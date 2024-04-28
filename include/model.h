@@ -2,7 +2,7 @@
 #define MODEL_H
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-#define MAX_PLAYERS 4
+#define MAX_PLAYERS 2
 
 // Define data structures for game entities and playing field
 

@@ -1,4 +1,3 @@
-#define MAX_PLAYERS 4
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
@@ -26,7 +25,7 @@ int main(int argc, char **argv) {
 
     bool isServer;
     GameState gameState;
-    gameState.numPlayers = 2;
+    gameState.numPlayers = 1;
 
 
     // TCPsocket clientSocket;  // Client's socket
@@ -60,9 +59,9 @@ int main(int argc, char **argv) {
     //         }
 
     //         initServer(ip, &gameState, &serverSockets[0], serverSockets, &socketSet);
-    //         printf("Waiting for clients continue? 1/yes \n ");
-    //         int yes;
-    //         scanf("%d", &yes);
+    //         // printf("Waiting for clients continue? 1/yes \n ");
+    //         // int yes;
+    //         // scanf("%d", &yes);
 
     //         break;
 
@@ -179,19 +178,26 @@ int main(int argc, char **argv) {
         currentTime = SDL_GetTicks();
         float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
-      
+
         // Handle events
         handleEvents(&closeWindow, flags, &gameState);
 
         // if (isServer) {
         //     // Server operations
-        //     receiveDataFromClients(serverSockets, socketSet, &gameState); 
+        //     receiveDataFromClients(serverSockets, socketSet, &gameState);
+        //     // printf("server recive.\n");
+ 
         //     sendDataToClients(serverSockets, &gameState);  
+        //     // printf("server send.\n");
+
         // } else {
         //     // Client operations
         //     sendDataToServer(clientSocket, &gameState); 
-        //     receiveDataFromServer(clientSocket, &gameState); 
+        //     // // printf("server send.\n");
+
+        //     receiveDataFromServer(clientSocket, &gameState); //dark screen when this one is on and crashed when server started the gameloop
         // }   
+        // printf("Servers or client.\n");// här
 
         updatePlayerPosition(&gameState, flags, &field, deltaTime);
         updateBallPosition(&ball, &gameState, &field, &gameScore, deltaTime, &scoreTrue);

@@ -1,11 +1,9 @@
-#define MAX_PLAYERS 4
 #include <stdio.h>      
 #include <stdlib.h>    
 #include <string.h>     
 #include <SDL2/SDL_net.h> 
 #include "model.h"
 #include "network.h"
-
 
 void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet *socketSet) {
     printf("Initializing server...\n");
@@ -14,7 +12,7 @@ void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCP
     *serverSocket = SDLNet_TCP_Open(&ip);
     if (!*serverSocket) {
         fprintf(stderr, "Failed to open server socket: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);  // Or handle more gracefully
+        exit(EXIT_FAILURE);  
     }
 
     // Allocate and initialize the socket set
@@ -27,7 +25,27 @@ void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCP
 
     SDLNet_TCP_AddSocket(*socketSet, *serverSocket);
     printf("Server initialized and listening...\n");
+
+    // Accept incoming connections and update numPlayers
+    int numConnectedPlayers = 1;
+    while (numConnectedPlayers < MAX_PLAYERS) {
+        TCPsocket newClientSocket = SDLNet_TCP_Accept(*serverSocket);
+        if (newClientSocket) {
+            printf("New client connected.\n");
+            clientSockets[numConnectedPlayers] = newClientSocket;
+            numConnectedPlayers++;
+            gameState->numPlayers = numConnectedPlayers; // Update numPlayers in GameState
+        }
+        printf("waiting %d.\n", numConnectedPlayers);
+
+    }
+        printf("All connected.\n");
+
+    // Increment numPlayers for the host
+    gameState->numPlayers++;
 }
+
+
 
 void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {
     printf("Initializing client...\n");
@@ -37,7 +55,7 @@ void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {
     if (!*clientSocket) {
         fprintf(stderr, "Failed to open client socket: %s\n", SDLNet_GetError());
         SDLNet_Quit();
-        exit(EXIT_FAILURE);  // Or handle more gracefully
+        exit(EXIT_FAILURE);  
     }
 
     printf("Client connected to server.\n");
@@ -68,7 +86,7 @@ void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet
                     clientSockets[j] = clientSockets[j + 1];
                 }
                 gameState->numPlayers--;
-                i--; // Adjust for shifted array
+                i--;
             } else {
                 fprintf(stderr, "Error receiving data from client %d: %s\n", i, SDLNet_GetError());
             }
