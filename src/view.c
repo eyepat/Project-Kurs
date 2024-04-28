@@ -173,39 +173,39 @@ void renderButton(SDL_Renderer* renderer, Button* button) {
     SDL_RenderCopy(renderer, button->texture, NULL, &button->bounds);
 }
 
-// void drawMenu(SDL_Renderer* renderer, TTF_Font* font, GameState* gameState) {
-//     SDL_RenderCopy(renderer, gameState->menuBackground, NULL, NULL);
-//     // Draw the host button
-//     SDL_RenderCopy(renderer, gameState->hostButton.texture, NULL, &gameState->hostButton.bounds);
-//     // Draw the join button
-//     SDL_RenderCopy(renderer, gameState->joinButton.texture, NULL, &gameState->joinButton.bounds);
-//     // Draw the exit button
-//     SDL_RenderCopy(renderer, gameState->exitButton.texture, NULL, &gameState->exitButton.bounds);
-//     // Draw the start button
-//     if (gameState->menuState == 11) {
-//         // Show the IP address
-//         SDL_RenderCopy(renderer, gameState->startButton.texture, NULL, &gameState->startButton.bounds);
-//         strcpy(gameState->ip, "192.168.1.1"); // Replace this to the real IP 
+void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* gameState) {
+    SDL_RenderCopy(renderer, gameState->menuBackground, NULL, NULL);
+    // Draw the host button
+    SDL_RenderCopy(renderer, gameState->hostButton.texture, NULL, &gameState->hostButton.bounds);
+    // Draw the join button
+    SDL_RenderCopy(renderer, gameState->joinButton.texture, NULL, &gameState->joinButton.bounds);
+    // Draw the exit button
+    SDL_RenderCopy(renderer, gameState->exitButton.texture, NULL, &gameState->exitButton.bounds);
+    // Draw the start button
+    if (gameState->menuState == 11) {
+        // Show the IP address
+        SDL_RenderCopy(renderer, gameState->startButton.texture, NULL, &gameState->startButton.bounds);
+        strcpy(gameState->ip, "192.168.1.1"); // Replace this to the real IP 
 
-//         //gameState.startButton.bounds.x = 100; // Same x as other buttons for alignment
-//         //gameState.startButton.bounds.y = 300; // Below the other buttons
-//         //gameState.startButton.bounds.w = 200; // Same width as other buttons
-//         //gameState.startButton.bounds.h = 50;  // Same height as other buttons
-//         //fix ip so that it shows above the start button
+        //gameState.startButton.bounds.x = 100; // Same x as other buttons for alignment
+        //gameState.startButton.bounds.y = 300; // Below the other buttons
+        //gameState.startButton.bounds.w = 200; // Same width as other buttons
+        //gameState.startButton.bounds.h = 50;  // Same height as other buttons
+        //fix ip so that it shows above the start button
 
-//         // Draw the IP address
-//         /*
-//         SDL_Color color = {255, 255, 255}; // White color
-//         SDL_Surface* surface = TTF_RenderText_Solid(font, gameState->ip, color);
-//         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-//         SDL_Rect dstrect = {100, 500, surface->w, surface->h}; // Position where you want to show the IP address
-//         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-//         */
-//     }
-//     if (gameState->menuState == 22)//join
-//     {
-//         //fix "enter ip"
-//         //join host if a host with that ip exist menuState == 55  if ip==userInputIp
-//     }
+        // Draw the IP address
+        /*
+        SDL_Color color = {255, 255, 255}; // White color
+        SDL_Surface* surface = TTF_RenderText_Solid(font, gameState->ip, color);
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Rect dstrect = {100, 500, surface->w, surface->h}; // Position where you want to show the IP address
+        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+        */
+    }
+    if (gameState->menuState == 22)//join
+    {
+        //fix "enter ip"
+        //join host if a host with that ip exist menuState == 55  if ip==userInputIp
+    }
 
-// }
+}

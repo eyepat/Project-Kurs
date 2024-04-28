@@ -280,7 +280,7 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     TTF_Font* font = TTF_OpenFont("path_to_your_font.ttf", 24); // replace with your font path and size
 
-    GameState gameState;
+    MenuState gameState;
     gameState.menuState = 1; //main menu
     gameState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
     gameState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
