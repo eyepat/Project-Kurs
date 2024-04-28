@@ -48,7 +48,7 @@ void handleEvents(bool *closeWindow, MovementFlags flags[], GameState *gameState
 }
 
 
-void handleMenuEvent (bool *closeWindow, MenuState* gameState) {
+void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) {
@@ -59,34 +59,34 @@ void handleMenuEvent (bool *closeWindow, MenuState* gameState) {
          int x, y;
         SDL_GetMouseState(&x, &y);
         SDL_Point mousePos = {x, y};
-        if (SDL_PointInRect(&mousePos, &gameState->hostButton.bounds)) {
+        if (SDL_PointInRect(&mousePos, &menuState->hostButton.bounds)) {
             // Add the action for the host button
             printf("Host button clicked.\n");
-            gameState->menuState = 11;//host menu
-            SDL_DestroyTexture(gameState->hostButton.texture);
-            SDL_DestroyTexture(gameState->joinButton.texture);
-            SDL_DestroyTexture(gameState->exitButton.texture);
-            if (SDL_PointInRect(&mousePos, &gameState->startButton.bounds)) {
+            menuState->menuState = 11;//host menu
+            SDL_DestroyTexture(menuState->hostButton.texture);
+            SDL_DestroyTexture(menuState->joinButton.texture);
+            SDL_DestroyTexture(menuState->exitButton.texture);
+            if (SDL_PointInRect(&mousePos, &menuState->startButton.bounds)) {
             // Add the action for the start button 
             printf("start button clicked.\n");
-            gameState->menuState = 44;//start game
+            menuState->menuState = 44;//start game
             }
-        } else if (SDL_PointInRect(&mousePos, &gameState->joinButton.bounds)) {
+        } else if (SDL_PointInRect(&mousePos, &menuState->joinButton.bounds)) {
             // Add the action for the join button here
             printf("join button clicked.\n");
-            gameState->menuState = 22;//join menu
-            SDL_DestroyTexture(gameState->hostButton.texture);
-            SDL_DestroyTexture(gameState->exitButton.texture);
-            if (SDL_PointInRect(&mousePos, &gameState->joinButton.bounds)) {
+            menuState->menuState = 22;//join menu
+            SDL_DestroyTexture(menuState->hostButton.texture);
+            SDL_DestroyTexture(menuState->exitButton.texture);
+            if (SDL_PointInRect(&mousePos, &menuState->joinButton.bounds)) {
             // Add the action for the join button 
             printf("join button clicked.\n");
-            gameState->menuState = 55;//join host
+            menuState->menuState = 55;//join host
             }
 
-        } else if (SDL_PointInRect(&mousePos, &gameState->exitButton.bounds)) {
+        } else if (SDL_PointInRect(&mousePos, &menuState->exitButton.bounds)) {
             // Add the action for the exit button here
             printf("exit button clicked.\n");
-            gameState->menuState = 33;//exit game
+            menuState->menuState = 33;//exit game
         }
     }
     }
