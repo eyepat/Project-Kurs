@@ -6,6 +6,6 @@
 
 // Function declarations for handling user input and events
 void handleEvents(bool *closeWindow, MovementFlags flags[], GameState *gameState);
-// void handleMenuEvent(bool *closeWindow, GameState* gameState);
+void handleMenuEvent(bool *closeWindow, MenuState* menuState);
 
 #endif /* CONTROLLER_H */
