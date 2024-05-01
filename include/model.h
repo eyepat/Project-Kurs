@@ -82,12 +82,16 @@ typedef struct {
 typedef struct {
     char username[40];
     char ip[16];
+    int hostPort;
     char userInputIp[16];
     int menuState; //for buttons 
+    int userInputPort;
+    int menuState; //menuIndex for buttons clicked 
     Button hostButton;
     Button joinButton;
     Button exitButton;
     Button startButton;
+    Button joinHostButton;
     SDL_Texture* menuBackground;
     SDL_Texture* gameBackground;
 } MenuState;

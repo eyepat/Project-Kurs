@@ -278,33 +278,14 @@ int main(int argc, char* argv[]) {
     TTF_Font* font = TTF_OpenFont("path_to_your_font.ttf", 24); // replace with your font path and size
 
     MenuState menuState;
-    menuState.menuState = 1; //main menu
+    menuState.menuState = 0; 
     menuState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
     menuState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
     menuState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
     menuState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
+    menuState.joinHostButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
     menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
     menuState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
-    
-    menuState.hostButton.bounds.x = 100; // 100 pixels from the left edge of the window
-    menuState.hostButton.bounds.y = 100; // 100 pixels from the top edge of the window
-    menuState.hostButton.bounds.w = 200; // Button width is 200 pixels
-    menuState.hostButton.bounds.h = 50;  // Button height is 50 pixels
-    
-    menuState.joinButton.bounds.x = 100; // Same x as hostButton for alignment
-    menuState.joinButton.bounds.y = 200; // 200 pixels from the top, so it's below hostButton
-    menuState.joinButton.bounds.w = 200; // Same width as hostButton
-    menuState.joinButton.bounds.h = 50;  // Same height as hostButton
-    
-    menuState.exitButton.bounds.x = 100; // Same x as other buttons for alignment
-    menuState.exitButton.bounds.y = 300; // Below the other buttons
-    menuState.exitButton.bounds.w = 200; // Same width as other buttons
-    menuState.exitButton.bounds.h = 50;  // Same height as other buttons
-    
-    menuState.startButton.bounds.x = 100; // Same x as other buttons for alignment
-    menuState.startButton.bounds.y = 300; // Below the other buttons
-    menuState.startButton.bounds.w = 200; // Same width as other buttons
-    menuState.startButton.bounds.h = 50;  // Same height as other buttons
 
     bool closeWindow = false;
     while (!closeWindow) {
@@ -312,20 +293,10 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
         drawMenu(renderer, font, &menuState);
         SDL_RenderPresent(renderer);
-        if (menuState.menuState == 33)
+
+        if (menuState.menuState == 33) //exit button clicked
         {
-            SDL_DestroyTexture(menuState.hostButton.texture);
-            SDL_DestroyTexture(menuState.joinButton.texture);
-            SDL_DestroyTexture(menuState.exitButton.texture);
-            SDL_DestroyTexture(menuState.startButton.texture);
-            SDL_DestroyTexture(menuState.menuBackground);
-            SDL_DestroyTexture(menuState.gameBackground);
-            TTF_CloseFont(font);
-            SDL_DestroyRenderer(renderer);
-            SDL_DestroyWindow(window);
-            IMG_Quit();
-            TTF_Quit();
-            SDL_Quit();
+            closeWindow=true;
         }
     }
 
@@ -334,6 +305,7 @@ int main(int argc, char* argv[]) {
     SDL_DestroyTexture(menuState.joinButton.texture);
     SDL_DestroyTexture(menuState.exitButton.texture);
     SDL_DestroyTexture(menuState.startButton.texture);
+    SDL_DestroyTexture(menuState.joinHostButton.texture);
     SDL_DestroyTexture(menuState.menuBackground);
     SDL_DestroyTexture(menuState.gameBackground);
     TTF_CloseFont(font);

@@ -174,6 +174,32 @@ void renderButton(SDL_Renderer* renderer, Button* button) {
 }
 
 void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState) {
+    
+    menuState->hostButton.bounds.x = 100; // 100 pixels from the left edge of the window
+    menuState->hostButton.bounds.y = 100; // 100 pixels from the top edge of the window
+    menuState->hostButton.bounds.w = 200; // Button width is 200 pixels
+    menuState->hostButton.bounds.h = 50;  // Button height is 50 pixels
+    
+    menuState->joinButton.bounds.x = 100; // Same x as hostButton 
+    menuState->joinButton.bounds.y = 200; // 200 pixels from the top, so it's below hostButton
+    menuState->joinButton.bounds.w = 200; // Same width as hostButton
+    menuState->joinButton.bounds.h = 50;  // Same height as hostButton
+    
+    menuState->exitButton.bounds.x = 100; // Same x as other buttons 
+    menuState->exitButton.bounds.y = 300; // Below the other buttons
+    menuState->exitButton.bounds.w = 200; // Same width as other buttons
+    menuState->exitButton.bounds.h = 50;  // Same height as other buttons
+    
+    menuState->startButton.bounds.x = 100; // Same x as other buttons 
+    menuState->startButton.bounds.y = 400; // Below the other buttons
+    menuState->startButton.bounds.w = 200; // Same width as other buttons
+    menuState->startButton.bounds.h = 50;  // Same height as other buttons
+    
+    menuState->joinHostButton.bounds.x= 100;
+    menuState->joinHostButton.bounds.y = 500; // Below the other buttons
+    menuState->joinHostButton.bounds.w = 200; 
+    menuState->joinHostButton.bounds.h = 50;  
+
     SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
     // Draw the host button
     SDL_RenderCopy(renderer, menuState->hostButton.texture, NULL, &menuState->hostButton.bounds);
@@ -182,30 +208,29 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState) {
     // Draw the exit button
     SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
     // Draw the start button
-    if (menuState->menuState == 11) {
+    
+    if (menuState->menuState == 1) {
         // Show the IP address
         SDL_RenderCopy(renderer, menuState->startButton.texture, NULL, &menuState->startButton.bounds);
-        strcpy(menuState->ip, "192.168.1.1"); // Replace this to the real IP 
+        strcpy(menuState->ip, "127.0.0.1"); 
 
-        //gameState.startButton.bounds.x = 100; // Same x as other buttons for alignment
-        //gameState.startButton.bounds.y = 300; // Below the other buttons
-        //gameState.startButton.bounds.w = 200; // Same width as other buttons
-        //gameState.startButton.bounds.h = 50;  // Same height as other buttons
         //fix ip so that it shows above the start button
+        //fix "enter port"
 
         // Draw the IP address
         /*
         SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, gameState->ip, color);
+        SDL_Surface* surface = TTF_RenderText_Solid(font, menuState->ip, color);
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {100, 500, surface->w, surface->h}; // Position where you want to show the IP address
+        SDL_Rect dstrect = {100, 0, surface->w, surface->h}; // Position where you want to show the IP address
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         */
     }
-    if (menuState->menuState == 22)//join
-    {
+    if (menuState->menuState == 2) { //join
+        SDL_RenderCopy(renderer, menuState->joinHostButton.texture, NULL, &menuState->joinHostButton.bounds);
         //fix "enter ip"
+        //fix "enter port"
         //join host if a host with that ip exist menuState == 55  if ip==userInputIp
     }
-
 }
+    
