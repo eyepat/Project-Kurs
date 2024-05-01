@@ -11,5 +11,6 @@ void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet
 void sendDataToClients(TCPsocket* clientSockets, GameState *gameState);
 void sendDataToServer(TCPsocket clientSocket, GameState *gameState);
 void receiveDataFromServer(TCPsocket clientSocket, GameState *gameState);
+void acceptNewOrReconnectingClients(TCPsocket serverSocket, TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState);
 
 #endif

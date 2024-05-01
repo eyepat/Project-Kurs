@@ -19,74 +19,70 @@ int main(int argc, char **argv) {
     // Initialize SDL_net
     if (SDLNet_Init() != 0) {
         fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
     }
 
-
-    bool isServer;
     GameState gameState;
-    gameState.numPlayers = 1;
+    gameState.numPlayers = MAX_PLAYERS;
+
+    TCPsocket serverSocket, clientSocket;
+    TCPsocket clientSockets[MAX_PLAYERS];
+    SDLNet_SocketSet socketSet;
+    IPaddress ip;
+
+    int choice, port;
+    char hostIP[20];  
+    bool isServer;
 
 
-    // TCPsocket clientSocket;  // Client's socket
-    // TCPsocket serverSockets[MAX_PLAYERS];  // Array of client sockets for the server
-    // SDLNet_SocketSet socketSet;
+    // Basic join menu for terminal
+    printf("\nChoose an option:\n");
+    printf("1. Host a server\n");
+    printf("2. Connect as a client\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+    getchar();  
 
-    // int choice, port;
-    // IPaddress ip;
-    // char hostIP[20];  // Buffer for storing IP address
+    switch (choice) {
+        case 1:  // Server
+            isServer = true;
+            printf("Enter port number: ");
+            scanf("%d", &port);
+            getchar(); 
 
-    // // Basic join menu for terminal
-    // printf("\nChoose an option:\n");
-    // printf("1. Host a server\n");
-    // printf("2. Connect as a client\n");
-    // printf("Enter your choice: ");
-    // scanf("%d", &choice);
-    // getchar();  
+            // Set up the server to listen on all interfaces
+            if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
+            }
 
-    // switch (choice) {
-    //     case 1:  // Server
-    //         isServer = true;
-    //         printf("Enter port number: ");
-    //         scanf("%d", &port);
-    //         getchar(); // Clear the newline character from input buffer
+            initServer(ip, &gameState, &serverSocket, clientSockets, &socketSet);
+        
+            break;
 
-    //         // Set up the server to listen on all interfaces
-    //         if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
-    //             fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-    //             SDLNet_Quit();
-    //             return -1;
-    //         }
+        case 2:  // clients
+            isServer = false;
+            printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
+            fgets(hostIP, sizeof(hostIP), stdin);
+            strtok(hostIP, "\n"); 
 
-    //         initServer(ip, &gameState, &serverSockets[0], serverSockets, &socketSet);
-    //         // printf("Waiting for clients continue? 1/yes \n ");
-    //         // int yes;
-    //         // scanf("%d", &yes);
+            printf("Enter server port number: ");
+            scanf("%d", &port);
+            getchar();
 
-    //         break;
+            if (SDLNet_ResolveHost(&ip, hostIP, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
+            }
+            initClient(ip, &gameState, &clientSocket);
+            break;
 
-    //     case 2:  // Client
-    //         isServer = false;
-    //         printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
-    //         fgets(hostIP, sizeof(hostIP), stdin);
-    //         strtok(hostIP, "\n");  // Remove newline character
-
-    //         printf("Enter server port number: ");
-    //         scanf("%d", &port);
-    //         getchar(); // Clear the newline character from input buffer
-
-    //         if (SDLNet_ResolveHost(&ip, hostIP, port) != 0) {
-    //             fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-    //             SDLNet_Quit();
-    //             return -1;
-    //         }
-    //         initClient(ip, &gameState, &clientSocket);
-    //         break;
-
-    //     default:
-    //         printf("Invalid choice! Please enter a valid option.\n");
-    //         return -1; // Exit if no valid choice
-    // }
+        default:
+            printf("Invalid choice! Please enter a valid option.\n");
+            return -1; 
+    }
 
 
     // Initialize SDL_ttf for text rendering
@@ -179,25 +175,20 @@ int main(int argc, char **argv) {
         float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
 
+
+        if (isServer) {
+            // Server operations
+            // acceptNewOrReconnectingClients(serverSocket, clientSockets, socketSet, &gameState);// for re connecting disconnected playesr 
+            receiveDataFromClients(clientSockets, socketSet, &gameState); 
+            sendDataToClients(clientSockets, &gameState);  
+        } else {
+            // Client operations
+            sendDataToServer(clientSocket, &gameState); 
+            receiveDataFromServer(clientSocket, &gameState); 
+        }   
+
         // Handle events
         handleEvents(&closeWindow, flags, &gameState);
-
-        // if (isServer) {
-        //     // Server operations
-        //     receiveDataFromClients(serverSockets, socketSet, &gameState);
-        //     // printf("server recive.\n");
- 
-        //     sendDataToClients(serverSockets, &gameState);  
-        //     // printf("server send.\n");
-
-        // } else {
-        //     // Client operations
-        //     sendDataToServer(clientSocket, &gameState); 
-        //     // // printf("server send.\n");
-
-        //     receiveDataFromServer(clientSocket, &gameState); //dark screen when this one is on and crashed when server started the gameloop
-        // }   
-        // printf("Servers or client.\n");// här
 
         updatePlayerPosition(&gameState, flags, &field, deltaTime);
         updateBallPosition(&ball, &gameState, &field, &gameScore, deltaTime, &scoreTrue);
@@ -231,19 +222,25 @@ int main(int argc, char **argv) {
     SDL_DestroyWindow(window);
     TTF_Quit();
 
-    // if (isServer) {
-    // for (int i = 0; i < gameState.numPlayers; i++) {
-    //     if (serverSockets[i]) {
-    //         SDLNet_TCP_Close(serverSockets[i]);
-    //     }
-    // }
-    // } else {
-    //     SDLNet_TCP_Close(clientSocket);
-    // }
+    // Clean up client sockets array
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (clientSockets[i] != NULL) {
+            SDLNet_TCP_Close(clientSockets[i]);
+            clientSockets[i] = NULL;
+        }
+    }
+
+    // // Clean up server socket
+    SDLNet_TCP_Close(serverSocket);
+    // serverSocket = NULL;
+
+    // Clean up SDLNet socket set
+    SDLNet_FreeSocketSet(socketSet);
+    // socketSet = NULL;
 
     SDLNet_Quit();
-    SDL_Quit();
     TTF_CloseFont(font);
+    SDL_Quit();
 
     return 0;
 }
