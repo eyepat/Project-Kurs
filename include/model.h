@@ -84,7 +84,6 @@ typedef struct {
     char ip[16];
     int hostPort;
     char userInputIp[16];
-    int menuState; //for buttons 
     int userInputPort;
     int menuState; //menuIndex for buttons clicked 
     Button hostButton;
