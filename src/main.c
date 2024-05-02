@@ -252,20 +252,20 @@ int main(int argc, char **argv) {
 int main(int argc, char* argv[]) {
 
     SDL_Texture* loadImage(const char* filepath, SDL_Renderer* renderer) {
-    SDL_Surface* loadedSurface = IMG_Load(filepath);
-    if (loadedSurface == NULL) {
-        printf("Error: %s\n", IMG_GetError());
-        return NULL;
-    }
+        SDL_Surface* loadedSurface = IMG_Load(filepath);
+        if (loadedSurface == NULL) {
+            printf("Error: %s\n", IMG_GetError());
+            return NULL;
+        }
 
-    SDL_Texture* newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-    if (newTexture == NULL) {
-        printf("Error: %s\n", SDL_GetError());
-    }
+        SDL_Texture* newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        if (newTexture == NULL) {
+            printf("Error: %s\n", SDL_GetError());
+        }
 
-    SDL_FreeSurface(loadedSurface);
+        SDL_FreeSurface(loadedSurface);
 
-    return newTexture;
+        return newTexture;
     }
 
 
@@ -284,6 +284,9 @@ int main(int argc, char* argv[]) {
     menuState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
     menuState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
     menuState.joinHostButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
+    menuState.onlineButton.texture = IMG_LoadTexture(renderer, "resources/online.png");
+    menuState.localButton.texture = IMG_LoadTexture(renderer, "resources/local.png");
+    //menuState.backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
     menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
     menuState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
 
@@ -294,8 +297,24 @@ int main(int argc, char* argv[]) {
         drawMenu(renderer, font, &menuState);
         SDL_RenderPresent(renderer);
 
-        if (menuState.menuState == 33) //exit button clicked
-        {
+        //menuState->menuState = 1;//online menu
+        //menuState->menuState = 2;//start local two player game
+        //menuState->menuState = 3;//host menu
+        //menuState->menuState = 4;//join menu
+        //menuState->menuState = 5;//exit game
+        //menuState->menuState = 6;//start game
+        //menuState->menuState = 7;//join host
+
+        if (menuState.menuState == 6) {//host clicked start button
+            //start online game
+        }
+        if (menuState.menuState == 7) {//client clicked join host
+            //join host game
+        }
+        if (menuState.menuState == 2) {//local butto clicked
+            //start local game
+        }
+        if (menuState.menuState == 5) {//exit button clicked
             closeWindow=true;
         }
     }
@@ -306,6 +325,9 @@ int main(int argc, char* argv[]) {
     SDL_DestroyTexture(menuState.exitButton.texture);
     SDL_DestroyTexture(menuState.startButton.texture);
     SDL_DestroyTexture(menuState.joinHostButton.texture);
+    SDL_DestroyTexture(menuState.onlineButton.texture);
+    SDL_DestroyTexture(menuState.localButton.texture);
+    //SDL_DestroyTexture(menuState.backButton.texture);
     SDL_DestroyTexture(menuState.menuBackground);
     SDL_DestroyTexture(menuState.gameBackground);
     TTF_CloseFont(font);
