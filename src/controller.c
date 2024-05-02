@@ -117,3 +117,25 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
         }
     }
 }
+
+
+void cleanup(SDL_Window* window, SDL_Renderer* renderer, SDL_Texture* fieldTexture, TTF_Font* font, TCPsocket serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet socketSet) {
+    
+    SDL_DestroyTexture(fieldTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    TTF_CloseFont(font);
+    TTF_Quit();
+
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (clientSockets[i] != NULL) {
+            SDLNet_TCP_Close(clientSockets[i]);
+            clientSockets[i] = NULL;
+        }
+    }
+    SDLNet_TCP_Close(serverSocket);
+    SDLNet_FreeSocketSet(socketSet);
+    SDLNet_Quit();
+
+    SDL_Quit();
+}

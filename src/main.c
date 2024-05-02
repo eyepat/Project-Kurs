@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
     initializeScore(&gameScore);
 
 
-   // Game loop variables
+    // Game loop variables
     bool closeWindow = false;
     float ballVelocityX = 0, ballVelocityY = 0;
     int scoreTrue = 0;
@@ -215,33 +215,10 @@ int main(int argc, char **argv) {
         // Delay for consistent frame rate
         SDL_Delay(1);
     }
-
+    
     // Clean up
-    SDL_DestroyTexture(fieldTexture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    TTF_Quit();
-
-    // Clean up client sockets array
-    for (int i = 0; i < MAX_PLAYERS; i++) {
-        if (clientSockets[i] != NULL) {
-            SDLNet_TCP_Close(clientSockets[i]);
-            clientSockets[i] = NULL;
-        }
-    }
-
-    // // Clean up server socket
-    SDLNet_TCP_Close(serverSocket);
-    // serverSocket = NULL;
-
-    // Clean up SDLNet socket set
-    SDLNet_FreeSocketSet(socketSet);
-    // socketSet = NULL;
-
-    SDLNet_Quit();
-    TTF_CloseFont(font);
-    SDL_Quit();
-
+    cleanup(window, renderer, fieldTexture, font, serverSocket, clientSockets, socketSet);
+   
     return 0;
 }
 
