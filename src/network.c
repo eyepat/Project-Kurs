@@ -1,18 +1,19 @@
 #include <stdio.h>      
 #include <stdlib.h>    
 #include <string.h>     
-#include <SDL2/SDL_net.h> 
+#include <SDL_net.h> 
 #include "model.h"
 #include "network.h"
 
 void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet *socketSet) {
-    printf("Initializing server...\n");
+    
+    printf("Initializing server\n");
 
     // Open the server socket
     *serverSocket = SDLNet_TCP_Open(&ip);
     if (!*serverSocket) {
         fprintf(stderr, "Failed to open server socket: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);  
+        // exit(EXIT_FAILURE);  
     }
 
     // Allocate and initialize the socket set
@@ -20,31 +21,24 @@ void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCP
     if (!*socketSet) {
         fprintf(stderr, "Failed to allocate socket set: %s\n", SDLNet_GetError());
         SDLNet_TCP_Close(*serverSocket);
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
     }
 
     SDLNet_TCP_AddSocket(*socketSet, *serverSocket);
-    printf("Server initialized and listening...\n");
+    printf("Server initialized and listening\n");
 
-    // Accept incoming connections and update numPlayers
     int numConnectedPlayers = 1;
     while (numConnectedPlayers < MAX_PLAYERS) {
         TCPsocket newClientSocket = SDLNet_TCP_Accept(*serverSocket);
         if (newClientSocket) {
-            printf("New client connected.\n");
             clientSockets[numConnectedPlayers] = newClientSocket;
-            numConnectedPlayers++;
-            gameState->numPlayers = numConnectedPlayers; // Update numPlayers in GameState
+            SDLNet_TCP_AddSocket(*socketSet, newClientSocket);
+            printf("New client connected. Total clients: %d\n", ++numConnectedPlayers);
+            
         }
-        printf("waiting %d.\n", numConnectedPlayers);
-
     }
-        printf("All connected.\n");
-
-    // Increment numPlayers for the host
-    gameState->numPlayers++;
+    printf("All players connected.\n");
 }
-
 
 
 void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {
@@ -55,7 +49,7 @@ void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {
     if (!*clientSocket) {
         fprintf(stderr, "Failed to open client socket: %s\n", SDLNet_GetError());
         SDLNet_Quit();
-        exit(EXIT_FAILURE);  
+        // exit(EXIT_FAILURE);  
     }
 
     printf("Client connected to server.\n");
@@ -73,20 +67,16 @@ void updateGameState(GameState *gameState, Entity *incomingPlayers) {
 
 void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState) {
     for (int i = 0; i < gameState->numPlayers; i++) {
-        if (SDLNet_SocketReady(clientSockets[i])) {
-            Entity incomingPlayers[gameState->numPlayers];
-            int recvResult = SDLNet_TCP_Recv(clientSockets[i], incomingPlayers, sizeof(Entity) * gameState->numPlayers);
+        if (clientSockets[i] != NULL && SDLNet_SocketReady(clientSockets[i])) {
+            Entity incomingPlayers[MAX_PLAYERS]; // Handle based on maximum players
+            int recvResult = SDLNet_TCP_Recv(clientSockets[i], incomingPlayers, sizeof(Entity) * MAX_PLAYERS);
             if (recvResult > 0) {
                 updateGameState(gameState, incomingPlayers);
             } else if (recvResult == 0) {
-                printf("Client disconnected. Removing from game.\n");
-                SDLNet_TCP_DelSocket(socketSet, clientSockets[i]);
+                printf("Client %d disconnected. Slot kept open for reconnection.\n", i);
+                SDLNet_TCP_DelSocket(socketSet, clientSockets[i]); // Remove the socket from the set
                 SDLNet_TCP_Close(clientSockets[i]);
-                for (int j = i; j < gameState->numPlayers - 1; j++) {
-                    clientSockets[j] = clientSockets[j + 1];
-                }
-                gameState->numPlayers--;
-                i--;
+                clientSockets[i] = NULL; // make the socket  available for reconnection
             } else {
                 fprintf(stderr, "Error receiving data from client %d: %s\n", i, SDLNet_GetError());
             }
@@ -103,16 +93,45 @@ void sendDataToClients(TCPsocket* clientSockets, GameState *gameState) {
 }
 
 void sendDataToServer(TCPsocket clientSocket, GameState *gameState) {
-    SDLNet_TCP_Send(clientSocket, gameState, sizeof(GameState));
+    int len = SDLNet_TCP_Send(clientSocket, gameState, sizeof(GameState));
+    if (len < sizeof(GameState)) {
+        fprintf(stderr, "Failed to send complete GameState: %s\n", SDLNet_GetError());
+    }
 }
 
+
 void receiveDataFromServer(TCPsocket clientSocket, GameState *gameState) {
-    int len = SDLNet_TCP_Recv(clientSocket, gameState, sizeof(GameState));
-    if (len <= 0) {
+    int expectedLen = sizeof(GameState);
+    int receivedLen = SDLNet_TCP_Recv(clientSocket, gameState, expectedLen);
+    if (receivedLen < expectedLen) {
         fprintf(stderr, "Error receiving data or server disconnected: %s\n", SDLNet_GetError());
         SDLNet_TCP_Close(clientSocket);
         SDLNet_Quit();
         exit(EXIT_FAILURE);
+    }
+}
+
+void acceptNewOrReconnectingClients(TCPsocket serverSocket, TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState) //dont work i dont think
+{
+    // printf("Checking for new or reconnecting clients...\n");
+    TCPsocket newClientSocket = SDLNet_TCP_Accept(serverSocket);
+    if (newClientSocket) {
+        int slotFound = -1;
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            if (clientSockets[i] == NULL) {
+                slotFound = i;
+                break;
+            }
+        }
+        if (slotFound != -1) {
+            clientSockets[slotFound] = newClientSocket;
+            SDLNet_TCP_AddSocket(socketSet, newClientSocket);
+            gameState->numPlayers++;
+            printf("Client connected and assigned to slot %d.\n", slotFound);
+        } else {
+            printf("No open slots available for new connections.\n");
+            SDLNet_TCP_Close(newClientSocket);
+        }
     }
 }
 

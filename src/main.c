@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_net.h>
+#include "SDL_image.h"
+#include <SDL_ttf.h>
+#include <SDL_net.h>
 #include "view.h"
 #include "model.h"
 #include "controller.h"
@@ -19,74 +19,71 @@ int main(int argc, char **argv) {
     // Initialize SDL_net
     if (SDLNet_Init() != 0) {
         fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
+        // exit(EXIT_FAILURE);
     }
 
-
-    bool isServer;
+   
     GameState gameState;
-    gameState.numPlayers = 1;
+    gameState.numPlayers = MAX_PLAYERS;
+
+    TCPsocket serverSocket, clientSocket;
+    TCPsocket clientSockets[MAX_PLAYERS];
+    SDLNet_SocketSet socketSet;
+    IPaddress ip;
+
+    int choice, port;
+    char hostIP[20];  
+    bool isServer;
 
 
-    // TCPsocket clientSocket;  // Client's socket
-    // TCPsocket serverSockets[MAX_PLAYERS];  // Array of client sockets for the server
-    // SDLNet_SocketSet socketSet;
+    // Basic join menu for terminal
+    printf("\nChoose an option:\n");
+    printf("1. Host a server\n");
+    printf("2. Connect as a client\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+    getchar();  
 
-    // int choice, port;
-    // IPaddress ip;
-    // char hostIP[20];  // Buffer for storing IP address
+    switch (choice) {
+        case 1:  // Server
+            isServer = true;
+            printf("Enter port number: ");
+            scanf("%d", &port);
+            getchar(); 
 
-    // // Basic join menu for terminal
-    // printf("\nChoose an option:\n");
-    // printf("1. Host a server\n");
-    // printf("2. Connect as a client\n");
-    // printf("Enter your choice: ");
-    // scanf("%d", &choice);
-    // getchar();  
+            // Set up the server to listen on all interfaces
+            if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
+            }
 
-    // switch (choice) {
-    //     case 1:  // Server
-    //         isServer = true;
-    //         printf("Enter port number: ");
-    //         scanf("%d", &port);
-    //         getchar(); // Clear the newline character from input buffer
+            initServer(ip, &gameState, &serverSocket, clientSockets, &socketSet);
+        
+            break;
 
-    //         // Set up the server to listen on all interfaces
-    //         if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
-    //             fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-    //             SDLNet_Quit();
-    //             return -1;
-    //         }
+        case 2:  // clients
+            isServer = false;
+            printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
+            fgets(hostIP, sizeof(hostIP), stdin);
+            strtok(hostIP, "\n"); 
 
-    //         initServer(ip, &gameState, &serverSockets[0], serverSockets, &socketSet);
-    //         // printf("Waiting for clients continue? 1/yes \n ");
-    //         // int yes;
-    //         // scanf("%d", &yes);
+            printf("Enter server port number: ");
+            scanf("%d", &port);
+            getchar();
 
-    //         break;
+            if (SDLNet_ResolveHost(&ip, hostIP, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
+            }
+            initClient(ip, &gameState, &clientSocket);
+            break;
 
-    //     case 2:  // Client
-    //         isServer = false;
-    //         printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
-    //         fgets(hostIP, sizeof(hostIP), stdin);
-    //         strtok(hostIP, "\n");  // Remove newline character
-
-    //         printf("Enter server port number: ");
-    //         scanf("%d", &port);
-    //         getchar(); // Clear the newline character from input buffer
-
-    //         if (SDLNet_ResolveHost(&ip, hostIP, port) != 0) {
-    //             fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-    //             SDLNet_Quit();
-    //             return -1;
-    //         }
-    //         initClient(ip, &gameState, &clientSocket);
-    //         break;
-
-    //     default:
-    //         printf("Invalid choice! Please enter a valid option.\n");
-    //         return -1; // Exit if no valid choice
-    // }
+        default:
+            printf("Invalid choice! Please enter a valid option.\n");
+            return -1; 
+    }
 
 
     // Initialize SDL_ttf for text rendering
@@ -179,25 +176,20 @@ int main(int argc, char **argv) {
         float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
 
+
+        if (isServer) {
+            // Server operations
+            // acceptNewOrReconnectingClients(serverSocket, clientSockets, socketSet, &gameState);// for re connecting disconnected playesr 
+            receiveDataFromClients(clientSockets, socketSet, &gameState); 
+            sendDataToClients(clientSockets, &gameState);  
+        } else {
+            // Client operations
+            sendDataToServer(clientSocket, &gameState); 
+            receiveDataFromServer(clientSocket, &gameState); 
+        }   
+
         // Handle events
         handleEvents(&closeWindow, flags, &gameState);
-
-        // if (isServer) {
-        //     // Server operations
-        //     receiveDataFromClients(serverSockets, socketSet, &gameState);
-        //     // printf("server recive.\n");
- 
-        //     sendDataToClients(serverSockets, &gameState);  
-        //     // printf("server send.\n");
-
-        // } else {
-        //     // Client operations
-        //     sendDataToServer(clientSocket, &gameState); 
-        //     // // printf("server send.\n");
-
-        //     receiveDataFromServer(clientSocket, &gameState); //dark screen when this one is on and crashed when server started the gameloop
-        // }   
-        // printf("Servers or client.\n");// här
 
         updatePlayerPosition(&gameState, flags, &field, deltaTime);
         updateBallPosition(&ball, &gameState, &field, &gameScore, deltaTime, &scoreTrue);
@@ -231,19 +223,25 @@ int main(int argc, char **argv) {
     SDL_DestroyWindow(window);
     TTF_Quit();
 
-    // if (isServer) {
-    // for (int i = 0; i < gameState.numPlayers; i++) {
-    //     if (serverSockets[i]) {
-    //         SDLNet_TCP_Close(serverSockets[i]);
-    //     }
-    // }
-    // } else {
-    //     SDLNet_TCP_Close(clientSocket);
-    // }
+    // Clean up client sockets array
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (clientSockets[i] != NULL) {
+            SDLNet_TCP_Close(clientSockets[i]);
+            clientSockets[i] = NULL;
+        }
+    }
+
+    // // Clean up server socket
+    SDLNet_TCP_Close(serverSocket);
+    // serverSocket = NULL;
+
+    // Clean up SDLNet socket set
+    SDLNet_FreeSocketSet(socketSet);
+    // socketSet = NULL;
 
     SDLNet_Quit();
-    SDL_Quit();
     TTF_CloseFont(font);
+    SDL_Quit();
 
     return 0;
 }
@@ -280,65 +278,37 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     TTF_Font* font = TTF_OpenFont("path_to_your_font.ttf", 24); // replace with your font path and size
 
-    GameState gameState;
-    gameState.menuState = 1; //main menu
-    gameState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
-    gameState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
-    gameState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
-    gameState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
-    gameState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
-    gameState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
-    
-    gameState.hostButton.bounds.x = 100; // 100 pixels from the left edge of the window
-    gameState.hostButton.bounds.y = 100; // 100 pixels from the top edge of the window
-    gameState.hostButton.bounds.w = 200; // Button width is 200 pixels
-    gameState.hostButton.bounds.h = 50;  // Button height is 50 pixels
-    
-    gameState.joinButton.bounds.x = 100; // Same x as hostButton for alignment
-    gameState.joinButton.bounds.y = 200; // 200 pixels from the top, so it's below hostButton
-    gameState.joinButton.bounds.w = 200; // Same width as hostButton
-    gameState.joinButton.bounds.h = 50;  // Same height as hostButton
-    
-    gameState.exitButton.bounds.x = 100; // Same x as other buttons for alignment
-    gameState.exitButton.bounds.y = 300; // Below the other buttons
-    gameState.exitButton.bounds.w = 200; // Same width as other buttons
-    gameState.exitButton.bounds.h = 50;  // Same height as other buttons
-    
-    gameState.startButton.bounds.x = 100; // Same x as other buttons for alignment
-    gameState.startButton.bounds.y = 300; // Below the other buttons
-    gameState.startButton.bounds.w = 200; // Same width as other buttons
-    gameState.startButton.bounds.h = 50;  // Same height as other buttons
+    MenuState menuState;
+    menuState.menuState = 0; 
+    menuState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
+    menuState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
+    menuState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
+    menuState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
+    menuState.joinHostButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
+    menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
+    menuState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
 
     bool closeWindow = false;
     while (!closeWindow) {
-        handleMenuEvent(&closeWindow, &gameState);
+        handleMenuEvent(&closeWindow, &menuState);
         SDL_RenderClear(renderer);
-        drawMenu(renderer, font, &gameState);
+        drawMenu(renderer, font, &menuState);
         SDL_RenderPresent(renderer);
-        if (gameState.menuState == 33)
+
+        if (menuState.menuState == 33) //exit button clicked
         {
-            SDL_DestroyTexture(gameState.hostButton.texture);
-            SDL_DestroyTexture(gameState.joinButton.texture);
-            SDL_DestroyTexture(gameState.exitButton.texture);
-            SDL_DestroyTexture(gameState.startButton.texture);
-            SDL_DestroyTexture(gameState.menuBackground);
-            SDL_DestroyTexture(gameState.gameBackground);
-            TTF_CloseFont(font);
-            SDL_DestroyRenderer(renderer);
-            SDL_DestroyWindow(window);
-            IMG_Quit();
-            TTF_Quit();
-            SDL_Quit();
+            closeWindow=true;
         }
     }
 
     // Cleanup...
-    SDL_DestroyTexture(gameState.hostButton.texture);
-    SDL_DestroyTexture(gameState.joinButton.texture);
-    SDL_DestroyTexture(gameState.exitButton.texture);
-    SDL_DestroyTexture(gameState.startButton.texture);
-    SDL_DestroyTexture(gameState.menuBackground);
-    SDL_DestroyTexture(gameState.gameBackground);
+    SDL_DestroyTexture(menuState.hostButton.texture);
+    SDL_DestroyTexture(menuState.joinButton.texture);
+    SDL_DestroyTexture(menuState.exitButton.texture);
+    SDL_DestroyTexture(menuState.startButton.texture);
+    SDL_DestroyTexture(menuState.joinHostButton.texture);
+    SDL_DestroyTexture(menuState.menuBackground);
+    SDL_DestroyTexture(menuState.gameBackground);
     TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
