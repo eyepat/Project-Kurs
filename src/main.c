@@ -165,7 +165,7 @@ int main(int argc, char **argv) {
     initializeScore(&gameScore);
 
 
-   // Game loop variables
+    // Game loop variables
     bool closeWindow = false;
     float ballVelocityX = 0, ballVelocityY = 0;
     int scoreTrue = 0;
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
         // Delay for consistent frame rate
         SDL_Delay(1);
     }
-
+    
     // Clean up
     SDL_DestroyTexture(fieldTexture);
     SDL_DestroyRenderer(renderer);
@@ -253,20 +253,20 @@ int main(int argc, char **argv) {
 int main(int argc, char* argv[]) {
 
     SDL_Texture* loadImage(const char* filepath, SDL_Renderer* renderer) {
-    SDL_Surface* loadedSurface = IMG_Load(filepath);
-    if (loadedSurface == NULL) {
-        printf("Error: %s\n", IMG_GetError());
-        return NULL;
-    }
+        SDL_Surface* loadedSurface = IMG_Load(filepath);
+        if (loadedSurface == NULL) {
+            printf("Error: %s\n", IMG_GetError());
+            return NULL;
+        }
 
-    SDL_Texture* newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-    if (newTexture == NULL) {
-        printf("Error: %s\n", SDL_GetError());
-    }
+        SDL_Texture* newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        if (newTexture == NULL) {
+            printf("Error: %s\n", SDL_GetError());
+        }
 
-    SDL_FreeSurface(loadedSurface);
+        SDL_FreeSurface(loadedSurface);
 
-    return newTexture;
+        return newTexture;
     }
 
 
