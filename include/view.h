@@ -2,7 +2,7 @@
 #define VIEW_H
 
 #include <SDL2/SDL.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #include "model.h"
 
 // Function declarations for rendering game elements

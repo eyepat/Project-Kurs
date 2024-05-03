@@ -15,8 +15,6 @@ LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2_image -lSDL2_net -lSDL2_ttf -l
 Football: main.o controller.o model.o view.o network.o
 	$(CC) main.o controller.o model.o network.o view.o  -o Football $(LDFLAGS)
 
-network.o: $(SRCDIR)/network.c
-	$(CC) $(CFLAGS) $(SRCDIR)/network.c
 main.o: $(SRCDIR)/main.c
 	$(CC) $(CFLAGS) $(SRCDIR)/main.c
 
@@ -34,8 +32,3 @@ network.o: $(SRCDIR)/network.c
 
 clean:
 	del *.o Football.exe
-
-
-
-
-

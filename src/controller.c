@@ -1,7 +1,7 @@
 #include "controller.h"
 #include <stdio.h>
 #include <SDL2/SDL.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 
 void handleEvents(bool *closeWindow, MovementFlags flags[], GameState *gameState) {
     SDL_Event event;
