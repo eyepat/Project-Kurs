@@ -4,7 +4,7 @@ INCDIR=./include
 CC=gcc
 
 # Correct the paths to use MinGW-w64 installation
-INCLUDE = C:/mingw64/include/SDL2
+INCLUDE = C:/mingw64/include
 LIBDIR = C:/mingw64/lib
 
 # Update the compilation flags to use the correct include directories
