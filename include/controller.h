@@ -9,6 +9,5 @@
 // Function declarations for handling user input and events
 void handleEvents(bool *closeWindow, MovementFlags flags[], GameState *gameState);
 void handleMenuEvent(bool *closeWindow, MenuState* menuState);
-void cleanup(SDL_Window* window, SDL_Renderer* renderer, SDL_Texture* fieldTexture, TTF_Font* font, TCPsocket serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet socketSet);
 
 #endif /* CONTROLLER_H */

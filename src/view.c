@@ -1,5 +1,7 @@
 #include "view.h"
-
+#include <string.h>
+#include <stdio.h>
+#include <math.h>   
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
     int newWidth = windowWidth * 1; // 100% of the window width
@@ -190,71 +192,47 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState) {
     menuState->exitButton.bounds.w = 200; // Same width as other buttons
     menuState->exitButton.bounds.h = 50;  // Same height as other buttons
     
-    menuState->startButton.bounds.x = 100; 
-    menuState->startButton.bounds.y = 300; // startButton position as exit
-    menuState->startButton.bounds.w = 200; 
-    menuState->startButton.bounds.h = 50;  
+    menuState->startButton.bounds.x = 100; // Same x as other buttons 
+    menuState->startButton.bounds.y = 400; // Below the other buttons
+    menuState->startButton.bounds.w = 200; // Same width as other buttons
+    menuState->startButton.bounds.h = 50;  // Same height as other buttons
     
     menuState->joinHostButton.bounds.x= 100;
-    menuState->joinHostButton.bounds.y = 300; // joinHostButton position as exit
+    menuState->joinHostButton.bounds.y = 500; // Below the other buttons
     menuState->joinHostButton.bounds.w = 200; 
     menuState->joinHostButton.bounds.h = 50;  
 
-    menuState->onlineButton.bounds.x= 100;
-    menuState->onlineButton.bounds.y = 100; // onlineButton position as host
-    menuState->onlineButton.bounds.w = 200; 
-    menuState->onlineButton.bounds.h = 50;  
-
-    menuState->localButton.bounds.x= 100;
-    menuState->localButton.bounds.y = 200; // localButton same position as join
-    menuState->localButton.bounds.w = 200; 
-    menuState->localButton.bounds.h = 50;  
-    
     SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-
-    //menuState->menuState = 0;//start menu, choose to play online or local
-    //menuState->menuState = 1;//online menu
-    //menuState->menuState = 2;//start local two player game
-    //menuState->menuState = 3;//host menu
-    //menuState->menuState = 4;//join menu
-    //menuState->menuState = 5;//exit game
-    //menuState->menuState = 6;//start game
-    //menuState->menuState = 7;//join host
-    //startButton position as exit
-    //joinHostButton position as exit
-    //onlineButton position as host
-    //localButton same position as join
-
-    if (menuState->menuState == 0) { //start menu
-        SDL_RenderCopy(renderer, menuState->onlineButton.texture, NULL, &menuState->onlineButton.bounds);
-        SDL_RenderCopy(renderer, menuState->localButton.texture, NULL, &menuState->localButton.bounds);
-    }
-
-    if (menuState->menuState == 1) { //online menu
-        SDL_RenderCopy(renderer, menuState->hostButton.texture, NULL, &menuState->hostButton.bounds);
-        SDL_RenderCopy(renderer, menuState->joinButton.texture, NULL, &menuState->joinButton.bounds);
-        SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
-    }
+    // Draw the host button
+    SDL_RenderCopy(renderer, menuState->hostButton.texture, NULL, &menuState->hostButton.bounds);
+    // Draw the join button
+    SDL_RenderCopy(renderer, menuState->joinButton.texture, NULL, &menuState->joinButton.bounds);
+    // Draw the exit button
+    SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
+    // Draw the start button
     
-    if (menuState->menuState == 3) { //host button clicked
+    if (menuState->menuState == 1) {
         // Show the IP address
         SDL_RenderCopy(renderer, menuState->startButton.texture, NULL, &menuState->startButton.bounds);
-        strcpy(menuState->ip, "127.0.0.1"); //same position as host
+        strcpy(menuState->ip, "127.0.0.1"); 
 
-        //fix ip so that it shows above the start button (fix this)
+        //fix ip so that it shows above the start button
+        //fix "enter port"
 
         // Draw the IP address
-        
-        //SDL_Color color = {255, 255, 255}; // White color
-        //SDL_Surface* surface = TTF_RenderText_Solid(font, menuState->ip, color);
-        //SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        //SDL_Rect dstrect = {100, 100, 200, 50}; // Position where you want to show the IP address
-        //SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+        /*
+        SDL_Color color = {255, 255, 255}; // White color
+        SDL_Surface* surface = TTF_RenderText_Solid(font, menuState->ip, color);
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Rect dstrect = {100, 0, surface->w, surface->h}; // Position where you want to show the IP address
+        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+        */
     }
-    if (menuState->menuState == 4) { //join
+    if (menuState->menuState == 2) { //join
         SDL_RenderCopy(renderer, menuState->joinHostButton.texture, NULL, &menuState->joinHostButton.bounds);
-        //fix "enter ip" same position as host (fix this)
-        //join host if a host with that ip exist menuState == 7  if ip==userInputIp (fix this)
-
+        //fix "enter ip"
+        //fix "enter port"
+        //join host if a host with that ip exist menuState == 55  if ip==userInputIp
     }
 }
+    

@@ -1,7 +1,6 @@
-#include "model.h"
-#include "view.h"
 #include <math.h>
 #include <SDL2/SDL.h>
+#include "model.h"
 #define SPEED 900
 
 void initializeGame(GameState *gameState, Entity *ball, Field *field) {
@@ -44,6 +43,8 @@ void initializeGame(GameState *gameState, Entity *ball, Field *field) {
     field->goals[0].teamID = 1; // Team 1's goal
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
+    initializeScore(&gameState->score);
+    initializeTimer(&gameState->timer, 120, SDL_GetTicks());   // Set game duration to 120 seconds
 }
 
 // Function to update the player's position based on user input
@@ -72,8 +73,7 @@ void updatePlayerPosition(GameState *gameState, MovementFlags flags[], const Fie
 
 
 // Function to update ball position
-int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag) {
-    
+int updateBallPosition(Entity *ball, GameState *gameState, Field *field, float deltaTime, int *scoreFlag) {    
     // Loop through all players to check for interactions with the ball
     for (int i = 0; i < gameState->numPlayers; i++) {
         Entity *player = &gameState->players[i];
@@ -84,14 +84,14 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
             float dx = ball->x - player->x;
             float dy = ball->y - player->y;
             float magnitude = sqrt(dx * dx + dy * dy);
+            float kickForce = 900.0f; // Kick force magnitude
             dx /= magnitude; // Normalize the direction vector
             dy /= magnitude;
-            float kickForce = 900.0f; // Kick force magnitude
+           
             ball->xSpeed = dx * kickForce;
             ball->ySpeed = dy * kickForce;
         }
     }
-
     // Apply friction or deceleration to gradually stop the ball
     float deceleration = 400.0f; // Adjust this value as needed
     if (fabs(ball->xSpeed) > 0) {
@@ -136,7 +136,7 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
             ball->xSpeed = 0;
             ball->ySpeed = 0;
             int scoringTeam = (field->goals[i].teamID == 1) ? 2 : 1;
-            updateScore(score, scoringTeam);
+            updateScore(&gameState->score, scoringTeam); //score within gameState
             *scoreFlag = 1;
            
             break;
@@ -176,17 +176,23 @@ void updateScore(Score *score, int teamNumber) {
     }
 }
 
-void initializeTimer(Timer* timer, int maxTime) {
-    timer->startTime = SDL_GetTicks();
-    timer->currentTime = 0;
+void initializeTimer(Timer* timer, int maxTime, Uint32 startTime) {
+    if (startTime == 0) {
+        timer->startTime = SDL_GetTicks();  // Default to current tick if not provided
+    } else {
+        timer->startTime = startTime;      // Use provided startTime for synchronization
+    }
+    timer->currentTime = SDL_GetTicks() - timer->startTime;
     timer->maxTime = maxTime;
 }
 
-void updateTimer(Timer* timer) {
+
+void updateTimer(GameState *gameState) {
     unsigned int currentTicks = SDL_GetTicks();
-    timer->currentTime = (currentTicks - timer->startTime) / 1000; //change to seconds
-    if (timer->currentTime >= timer->maxTime) {
-        initializeTimer(timer, timer->maxTime);
+    gameState->timer.currentTime = (currentTicks - gameState->timer.startTime) / 1000;  // Convert milliseconds to seconds
+    if (gameState->timer.currentTime >= gameState->timer.maxTime) {
+       initializeTimer(&gameState->timer, gameState->timer.maxTime, SDL_GetTicks()); // Reset with current time
+
     }
 }
 

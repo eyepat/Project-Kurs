@@ -2,6 +2,8 @@
 #define MODEL_H
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <SDL2/SDL_ttf.h>
+
 #define MAX_PLAYERS 2
 
 // Define data structures for game entities and playing field
@@ -12,21 +14,6 @@ typedef struct {
     float xSpeed,ySpeed; 
     int colorData[4]; // En array som innehåller all färginformation om objektet (RGB och opacity från 0-255)
 } Entity;
-
-typedef struct {
-    int numPlayers;
-    Entity players[MAX_PLAYERS];
-} GameState;
-
-
-typedef struct {
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-} MovementFlags;
-
-
 
 typedef struct {
     SDL_Rect box;
@@ -50,6 +37,30 @@ typedef struct {
     int team2Score;
 } Score;
 
+typedef struct {
+    int numPlayers;
+    Entity players[MAX_PLAYERS];
+    Timer timer;     
+    Score score;  
+    Uint32 adjustedStartTime;    
+} GameState;
+
+
+typedef struct {
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+} MovementFlags;
+
+
+
+
+
+
+
+
+
 
 // Function declarations
 // void initializeGame(Entity players[], int numPlayers, Entity *ball, Field *field);
@@ -64,12 +75,13 @@ typedef struct {
 
 void initializeGame(GameState *gameState, Entity *ball, Field *field);
 void updatePlayerPosition(GameState *gameState, MovementFlags flags[], const Field *field, float deltaTime);
-int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag);
+int updateBallPosition(Entity *ball, GameState *gameState, Field *field, float deltaTime, int *scoreFlag);
 void initializeScore(Score* score);
 void updateScore(Score *score, int teamNumber);
-void initializeTimer(Timer* timer, int maxTime);
-void updateTimer(Timer* timer);
+void initializeTimer(Timer* timer, int maxTime, Uint32 startTime);
+void updateTimer(GameState *gameState);
 void resetGame(GameState *gameState, Entity *ball, Field *field);
+
 
 
 typedef struct {
@@ -91,9 +103,6 @@ typedef struct {
     Button exitButton;
     Button startButton;
     Button joinHostButton;
-    Button onlineButton;
-    Button localButton;
-    Button backButton;
     SDL_Texture* menuBackground;
     SDL_Texture* gameBackground;
 } MenuState;
