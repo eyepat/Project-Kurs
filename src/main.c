@@ -195,13 +195,19 @@ int main(int argc, char **argv) {
 
         if (isServer) {
             // Server operations
+            updateTimer(&gameState.gameTimer);
             updatePlayerPosition(&gameState, flags, &field, deltaTime); //Only the host updates gameState, this syncs all the clients with the host
             updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
+                    
+            if (scoreTrue) { //Check for goal
+                resetGame(&gameState, &gameState.ball, &field);
+                scoreTrue = 0;
+            }
 
             const char* controlMessage = "Data recieved from host!\n";
             SDLNet_ResolveHost(&ip, NULL, port);
             serverSocket = SDLNet_TCP_Open(&ip);
-            SDLNet_TCP_Send(clientSocket, &gameState, sizeof(gameState));
+            SDLNet_TCP_Send(clientSocket, &gameState, sizeof(gameState)); //Sends things to client
 
             if (SDLNet_TCP_Recv(clientSocket, textRecieve, 100))
             {
@@ -228,13 +234,10 @@ int main(int argc, char **argv) {
         /*updatePlayerPosition(&gameState, flags, &field, deltaTime);
         updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);*/
         
-        if (scoreTrue) {
-            resetGame(&gameState, &gameState.ball, &field);
-            scoreTrue = 0;
-        }
+
 
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        updateTimer(&gameState.gameTimer);
+        //updateTimer(&gameState.gameTimer);
 
         // Render game
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
