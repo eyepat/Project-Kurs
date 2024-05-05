@@ -192,8 +192,23 @@ int main(int argc, char **argv) {
         float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
 
+        if (!isServer) {
+
+            // Client operations
+            if (SDLNet_TCP_Recv(clientSocket, &gameState, sizeof(gameState))) //Client recieves gameState for use in rendering graphics
+            {                                                                //Client must put recieved data in the type it was sent in
+                printf("Recieved gameState struct\n");  //Control message that prints if the client recieves any data
+            }
+
+            const char* controlMessageToHost = "Data recieved from client!\n";
+            handleEvents(&closeWindow, flags, &gameState); //Handle client input
+            SDLNet_TCP_Send(clientSocket, flags, sizeof(flags)); //Send client input to host                       
+
+        } 
+
 
         if (isServer) {
+            
             // Server operations
             updateTimer(&gameState.gameTimer);
             updatePlayerPosition(&gameState, flags, &field, deltaTime); //Only the host updates gameState, this syncs all the clients with the host
@@ -209,27 +224,17 @@ int main(int argc, char **argv) {
             serverSocket = SDLNet_TCP_Open(&ip);
             SDLNet_TCP_Send(clientSocket, &gameState, sizeof(gameState)); //Sends things to client
 
-            if (SDLNet_TCP_Recv(clientSocket, textRecieve, 100))
+            if (SDLNet_TCP_Recv(clientSocket, flags, sizeof(flags))) //Recieve input from clients to determine how they move
             {
-                printf("%s ", textRecieve);
+                printf("Recieved data from client\n"); //Control message that prints of host recieves any data
             }
-                        
-
-
-        } else {
-            // Client operations
-            if (SDLNet_TCP_Recv(clientSocket, &gameState, sizeof(gameState))) //Client recieves gameState for use in rendering graphics
-            {
-                printf("Recieved gameState struct\n");
-            }
-
-            const char* controlMessageToHost = "Data recieved from client!\n";
-            SDLNet_TCP_Send(clientSocket, controlMessageToHost, strlen(controlMessageToHost));                        
-
-        }   
+                    
+        } 
+        
+  
 
         // Handle events
-        handleEvents(&closeWindow, flags, &gameState);
+        handleEvents(&closeWindow, flags, &gameState); 
 
         /*updatePlayerPosition(&gameState, flags, &field, deltaTime);
         updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);*/
