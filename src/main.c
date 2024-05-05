@@ -9,7 +9,7 @@
 #include "controller.h"
 #include "network.h"
 #include "string.h"
-/*
+
 int main(int argc, char **argv) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -272,10 +272,10 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-*/
 
 
 
+/*
 int main(int argc, char* argv[]) {
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -352,4 +352,4 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
 
     return 0;
-}
+}*/
