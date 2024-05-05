@@ -8,10 +8,11 @@
 #include "model.h"
 #include "controller.h"
 #include "network.h"
+#include "string.h"
 
 int main(int argc, char **argv) {
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -27,13 +28,16 @@ int main(int argc, char **argv) {
     gameState.numPlayers = MAX_PLAYERS;
 
     TCPsocket serverSocket, clientSocket;
-    TCPsocket clientSockets[MAX_PLAYERS];
     SDLNet_SocketSet socketSet;
-    IPaddress ip;
+    IPaddress ip, ipClient;
 
     int choice, port;
     char hostIP[20];  
     bool isServer;
+    const char* text = "Connected to host\n";
+    char textRecieve[100]; //This is a container for recieving text! Place all sent text in this for ease of use
+    int waitingForClients = 1;
+
 
 
     // Basic join menu for terminal
@@ -42,7 +46,7 @@ int main(int argc, char **argv) {
     printf("2. Connect as a client\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
-    getchar();  
+    getchar(); 
 
     switch (choice) {
         case 1:  // Server
@@ -50,16 +54,20 @@ int main(int argc, char **argv) {
             printf("Enter port number: ");
             scanf("%d", &port);
             getchar(); 
+            SDLNet_ResolveHost(&ip, NULL, port);
+            serverSocket = SDLNet_TCP_Open(&ip);
+            printf("Waiting for clients...\n");
 
-            // Set up the server to listen on all interfaces
-            if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
-                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-                SDLNet_Quit();
-                return -1;
+            while (waitingForClients) {
+                clientSocket = SDLNet_TCP_Accept(serverSocket);
+
+                if (clientSocket)
+                {
+                    printf("Connection with client established\n");
+                    SDLNet_TCP_Send(clientSocket, text, strlen(text)+1);
+                    waitingForClients--;
+                }
             }
-
-            initServer(ip, &gameState, &serverSocket, clientSockets, &socketSet);
-        
             break;
 
         case 2:  // clients
@@ -72,18 +80,25 @@ int main(int argc, char **argv) {
             scanf("%d", &port);
             getchar();
 
-            if (SDLNet_ResolveHost(&ip, hostIP, port) != 0) {
-                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
-                SDLNet_Quit();
-                return -1;
+            SDLNet_ResolveHost(&ip, hostIP, port);
+            clientSocket = SDLNet_TCP_Open(&ip);
+            
+            if (SDLNet_TCP_Recv(clientSocket, textRecieve, 100))
+            {
+                printf("%s \n", textRecieve);
             }
-            initClient(ip, &gameState, &clientSocket);
+            
+            
             break;
+
 
         default:
             printf("Invalid choice! Please enter a valid option.\n");
             return -1; 
     }
+
+
+    
 
 
     // Initialize SDL_ttf for text rendering
@@ -178,16 +193,31 @@ int main(int argc, char **argv) {
         previousTime = currentTime;
 
 
-        /*if (isServer) {
+        if (isServer) {
             // Server operations
-            // acceptNewOrReconnectingClients(serverSocket, clientSockets, socketSet, &gameState);// for re connecting disconnected playesr 
-            receiveDataFromClients(clientSockets, socketSet, &gameState); 
-            sendDataToClients(clientSockets, &gameState);  
+            const char* controlMessage = "Data recieved from host!\n";
+            SDLNet_ResolveHost(&ip, NULL, port);
+            serverSocket = SDLNet_TCP_Open(&ip);
+            SDLNet_TCP_Send(clientSocket, controlMessage, strlen(controlMessage));
+
+            if (SDLNet_TCP_Recv(clientSocket, textRecieve, 100))
+            {
+                printf("%s ", textRecieve);
+            }
+                        
+
+
         } else {
             // Client operations
-            sendDataToServer(clientSocket, &gameState); 
-            receiveDataFromServer(clientSocket, &gameState); 
-        }   */
+            if (SDLNet_TCP_Recv(clientSocket, textRecieve, 100))
+            {
+                printf("%s", textRecieve);
+            }
+
+            const char* controlMessageToHost = "Data recieved from client!\n";
+            SDLNet_TCP_Send(clientSocket, controlMessageToHost, strlen(controlMessageToHost));                        
+
+        }   
 
         // Handle events
         handleEvents(&closeWindow, flags, &gameState);
@@ -225,12 +255,8 @@ int main(int argc, char **argv) {
     TTF_Quit();
 
     // Clean up client sockets array
-    for (int i = 0; i < MAX_PLAYERS; i++) {
-        if (clientSockets[i] != NULL) {
-            SDLNet_TCP_Close(clientSockets[i]);
-            clientSockets[i] = NULL;
-        }
-    }
+    SDLNet_TCP_Close(clientSocket);
+
 
     // // Clean up server socket
     SDLNet_TCP_Close(serverSocket);
