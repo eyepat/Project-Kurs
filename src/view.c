@@ -1,7 +1,5 @@
 #include "view.h"
-#include <string.h>
-#include <stdio.h>
-#include <math.h>   
+
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
     int newWidth = windowWidth * 1; // 100% of the window width
@@ -27,11 +25,17 @@ void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWid
 // }
 void renderPlayers(SDL_Renderer *renderer, const GameState *gameState) {
     // Iterate over each player in the game state
-    for (int i = 0; i < gameState->numPlayers; i++) {
+    
         // Render the player entity
         SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-        drawDetailedCircle(renderer, gameState->players[i].x, gameState->players[i].y, gameState->players[i].radius * 1.2, 3, gameState->players[i].colorData);
-    }
+        
+        for (int i = 0; i < gameState->numPlayers; i++)
+        {
+            drawDetailedCircle(renderer, gameState->players[i].x, gameState->players[i].y, 14, 3, gameState->players[i].colorData);
+
+        }
+            
+
 }
 
 
@@ -130,9 +134,9 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windo
 }
 
 // Render the score text
-void renderScore(SDL_Renderer *renderer, TTF_Font *font, Score score, int windowWidth, int windowHeight) {
+void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windowWidth, int windowHeight) {
     char text[20];
-    sprintf(text, "%d : %d", score.team1Score, score.team2Score);  // Format: "Team1Score : Team2Score"
+    sprintf(text, "%d : %d", score->team1Score, score->team2Score);  // Format: "Team1Score : Team2Score"
 
     SDL_Color color = {255, 255, 255};  // vit färg för poängtexten
     renderText(renderer, font, text, color, windowWidth / 2 - 50, 50);  // Justera positionen vid behov

@@ -2,8 +2,6 @@
 #define MODEL_H
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-#include <SDL2/SDL_ttf.h>
-
 #define MAX_PLAYERS 2
 
 // Define data structures for game entities and playing field
@@ -14,6 +12,18 @@ typedef struct {
     float xSpeed,ySpeed; 
     int colorData[4]; // En array som innehåller all färginformation om objektet (RGB och opacity från 0-255)
 } Entity;
+
+
+
+
+typedef struct {
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+} MovementFlags;
+
+
 
 typedef struct {
     SDL_Rect box;
@@ -37,29 +47,13 @@ typedef struct {
     int team2Score;
 } Score;
 
-typedef struct {
-    int numPlayers;
+typedef struct {      //Always add new parameters needed for game mechanics in this struct
+    int numPlayers;  //Data is sent using ONLY this struct, so everything needed to calculate next state needs to be here
+    Entity ball;
     Entity players[MAX_PLAYERS];
-    Timer timer;     
-    Score score;  
-    Uint32 adjustedStartTime;    
+    Score scoreTracker;
+    Timer gameTimer;
 } GameState;
-
-
-typedef struct {
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-} MovementFlags;
-
-
-
-
-
-
-
-
 
 
 // Function declarations
@@ -73,15 +67,14 @@ typedef struct {
 // void updateTimer(Timer *timer);
 
 
-void initializeGame(GameState *gameState, Entity *ball, Field *field);
+void initializeGame(GameState *gameState, Field *field);
 void updatePlayerPosition(GameState *gameState, MovementFlags flags[], const Field *field, float deltaTime);
-int updateBallPosition(Entity *ball, GameState *gameState, Field *field, float deltaTime, int *scoreFlag);
+int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag);
 void initializeScore(Score* score);
 void updateScore(Score *score, int teamNumber);
-void initializeTimer(Timer* timer, int maxTime, Uint32 startTime);
-void updateTimer(GameState *gameState);
+void initializeTimer(Timer* timer, int maxTime);
+void updateTimer(Timer* timer);
 void resetGame(GameState *gameState, Entity *ball, Field *field);
-
 
 
 typedef struct {

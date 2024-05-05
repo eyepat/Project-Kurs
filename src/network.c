@@ -5,8 +5,10 @@
 #include "model.h"
 #include "network.h"
 
-void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet *socketSet) { //Initializes the server setup including socket creation.
+void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCPsocket clientSockets[], SDLNet_SocketSet *socketSet) {
+    
     printf("Initializing server\n");
+
     // Open the server socket
     *serverSocket = SDLNet_TCP_Open(&ip);
     if (!*serverSocket) {
@@ -39,7 +41,7 @@ void initServer(IPaddress ip, GameState *gameState, TCPsocket *serverSocket, TCP
 }
 
 
-void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {// Initializes client setup
+void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {
     printf("Initializing client...\n");
 
     // Open the client socket
@@ -52,8 +54,8 @@ void initClient(IPaddress ip, GameState *gameState, TCPsocket *clientSocket) {//
 
     printf("Client connected to server.\n");
 }
-void updateGameState(GameState *gameState, Entity *incomingPlayers, Timer *timer, Score *score) {// Updates game state with data from players, timers, and scores.
-    // Update player information
+
+void updateGameState(GameState *gameState, Entity *incomingPlayers) {
     for (int i = 0; i < gameState->numPlayers; i++) {
         gameState->players[i].x = incomingPlayers[i].x;
         gameState->players[i].y = incomingPlayers[i].y;
@@ -61,29 +63,15 @@ void updateGameState(GameState *gameState, Entity *incomingPlayers, Timer *timer
         gameState->players[i].ySpeed = incomingPlayers[i].ySpeed;
         memcpy(gameState->players[i].colorData, incomingPlayers[i].colorData, sizeof(gameState->players[i].colorData));
     }
-
-    // Only update the timer and score if they are different or time has progressed
-    if (gameState->timer.currentTime != timer->currentTime) {
-        gameState->timer = *timer;
-    }
-    if (gameState->score.team1Score != score->team1Score || gameState->score.team2Score != score->team2Score) {
-        gameState->score = *score;
-    }
 }
 
-
-
-
-void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState) {//  Handles receiving data from clients.
+void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState) {
     for (int i = 0; i < gameState->numPlayers; i++) {
         if (clientSockets[i] != NULL && SDLNet_SocketReady(clientSockets[i])) {
             Entity incomingPlayers[MAX_PLAYERS]; // Handle based on maximum players
-            Timer timer;
-            Score score;
             int recvResult = SDLNet_TCP_Recv(clientSockets[i], incomingPlayers, sizeof(Entity) * MAX_PLAYERS);
             if (recvResult > 0) {
-                updateGameState(gameState, incomingPlayers, &timer, &score);
-            // Pass the address of timer and score
+                updateGameState(gameState, incomingPlayers);
             } else if (recvResult == 0) {
                 printf("Client %d disconnected. Slot kept open for reconnection.\n", i);
                 SDLNet_TCP_DelSocket(socketSet, clientSockets[i]); // Remove the socket from the set
@@ -96,21 +84,15 @@ void receiveDataFromClients(TCPsocket* clientSockets, SDLNet_SocketSet socketSet
     }
 }
 
-
-void sendDataToClients(TCPsocket* clientSockets, GameState *gameState) {//Sends updated game state to all clients.
+void sendDataToClients(TCPsocket* clientSockets, GameState *gameState) {
     for (int i = 0; i < gameState->numPlayers; i++) {
         if (clientSockets[i] != NULL) {
-            // Here you might want to optimize what and how often data is sent
-            int len = SDLNet_TCP_Send(clientSockets[i], gameState, sizeof(GameState));
-            if (len < sizeof(GameState)) {
-                fprintf(stderr, "Failed to send complete GameState to client %d: %s\n", i, SDLNet_GetError());
-            }
+            SDLNet_TCP_Send(clientSockets[i], gameState, sizeof(GameState));
         }
     }
 }
 
-
-void sendDataToServer(TCPsocket clientSocket, GameState *gameState) {//Sends client's game state to the server.
+void sendDataToServer(TCPsocket clientSocket, GameState *gameState) {
     int len = SDLNet_TCP_Send(clientSocket, gameState, sizeof(GameState));
     if (len < sizeof(GameState)) {
         fprintf(stderr, "Failed to send complete GameState: %s\n", SDLNet_GetError());
@@ -120,27 +102,14 @@ void sendDataToServer(TCPsocket clientSocket, GameState *gameState) {//Sends cli
 
 void receiveDataFromServer(TCPsocket clientSocket, GameState *gameState) {
     int expectedLen = sizeof(GameState);
-    char buffer[expectedLen];
-    int receivedLen = SDLNet_TCP_Recv(clientSocket, buffer, expectedLen);
-
+    int receivedLen = SDLNet_TCP_Recv(clientSocket, gameState, expectedLen);
     if (receivedLen < expectedLen) {
         fprintf(stderr, "Error receiving data or server disconnected: %s\n", SDLNet_GetError());
         SDLNet_TCP_Close(clientSocket);
         SDLNet_Quit();
         exit(EXIT_FAILURE);
     }
-
-    // Copy the data from the buffer to the gameState struct
-    memcpy(gameState, buffer, sizeof(GameState));
-
-    // Set the timer based on the received startTime from the server
-    initializeTimer(&gameState->timer, gameState->timer.maxTime, gameState->timer.startTime);
 }
-
-
-
-
-
 
 void acceptNewOrReconnectingClients(TCPsocket serverSocket, TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState) //dont work i dont think
 {

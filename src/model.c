@@ -1,9 +1,10 @@
+#include "model.h"
+#include "view.h"
 #include <math.h>
 #include <SDL2/SDL.h>
-#include "model.h"
 #define SPEED 900
 
-void initializeGame(GameState *gameState, Entity *ball, Field *field) {
+void initializeGame(GameState *gameState, Field *field) {
     // Get the current display mode
     SDL_DisplayMode displayMode;
     if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
@@ -24,27 +25,24 @@ void initializeGame(GameState *gameState, Entity *ball, Field *field) {
         gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
         gameState->players[i].y = field->height / 2;
         gameState->players[i].radius = field->width / 128;
-        if (i == 0) {
-            modifyPlayerColors(255, 255, 0, 255, gameState->players[i].colorData);
-        } else {
-            modifyPlayerColors(0, 0, 255, 255, gameState->players[i].colorData);
-        }
     }
 
     // Initialize ball properties
-    ball->x = field->width / 2;
-    ball->y = field->height / 2; 
-    ball->radius = 20;
-    ball->xSpeed = 0; // Initialize ball's speed in the x-direction to zero
-    ball->ySpeed = 0; // Initialize ball's speed in the y-direction to zero
+    gameState->ball.x = field->width / 2;
+    gameState->ball.y = field->height / 2; 
+    gameState->ball.radius = 20;
+    gameState->ball.xSpeed = 0; // Initialize ball's speed in the x-direction to zero
+    gameState->ball.ySpeed = 0; // Initialize ball's speed in the y-direction to zero
+    modifyPlayerColors(255, 255, 255, 200, gameState->ball.colorData); //Set ball color
+    modifyPlayerColors(255, 0, 255, 200, gameState->players[0].colorData);
+    modifyPlayerColors(255, 255, 0, 200, gameState->players[1].colorData); //Hard set for default player color, it only matters for player that will get rendered later
+    // Reminder to set up color initiation for all players up to MAX later
 
     // Initialize goal properties
     field->goals[0].box = (SDL_Rect){field->width * 0.063, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[0].teamID = 1; // Team 1's goal
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
-    initializeScore(&gameState->score);
-    initializeTimer(&gameState->timer, 120, SDL_GetTicks());   // Set game duration to 120 seconds
 }
 
 // Function to update the player's position based on user input
@@ -73,7 +71,8 @@ void updatePlayerPosition(GameState *gameState, MovementFlags flags[], const Fie
 
 
 // Function to update ball position
-int updateBallPosition(Entity *ball, GameState *gameState, Field *field, float deltaTime, int *scoreFlag) {    
+int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag) {
+    
     // Loop through all players to check for interactions with the ball
     for (int i = 0; i < gameState->numPlayers; i++) {
         Entity *player = &gameState->players[i];
@@ -84,14 +83,14 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, float d
             float dx = ball->x - player->x;
             float dy = ball->y - player->y;
             float magnitude = sqrt(dx * dx + dy * dy);
-            float kickForce = 900.0f; // Kick force magnitude
             dx /= magnitude; // Normalize the direction vector
             dy /= magnitude;
-           
+            float kickForce = 900.0f; // Kick force magnitude
             ball->xSpeed = dx * kickForce;
             ball->ySpeed = dy * kickForce;
         }
     }
+
     // Apply friction or deceleration to gradually stop the ball
     float deceleration = 400.0f; // Adjust this value as needed
     if (fabs(ball->xSpeed) > 0) {
@@ -136,7 +135,7 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, float d
             ball->xSpeed = 0;
             ball->ySpeed = 0;
             int scoringTeam = (field->goals[i].teamID == 1) ? 2 : 1;
-            updateScore(&gameState->score, scoringTeam); //score within gameState
+            updateScore(score, scoringTeam);
             *scoreFlag = 1;
            
             break;
@@ -176,23 +175,17 @@ void updateScore(Score *score, int teamNumber) {
     }
 }
 
-void initializeTimer(Timer* timer, int maxTime, Uint32 startTime) {
-    if (startTime == 0) {
-        timer->startTime = SDL_GetTicks();  // Default to current tick if not provided
-    } else {
-        timer->startTime = startTime;      // Use provided startTime for synchronization
-    }
-    timer->currentTime = SDL_GetTicks() - timer->startTime;
+void initializeTimer(Timer* timer, int maxTime) {
+    timer->currentTime = 0;
+    timer->startTime = SDL_GetTicks64();
     timer->maxTime = maxTime;
 }
 
-
-void updateTimer(GameState *gameState) {
+void updateTimer(Timer* timer) {
     unsigned int currentTicks = SDL_GetTicks();
-    gameState->timer.currentTime = (currentTicks - gameState->timer.startTime) / 1000;  // Convert milliseconds to seconds
-    if (gameState->timer.currentTime >= gameState->timer.maxTime) {
-       initializeTimer(&gameState->timer, gameState->timer.maxTime, SDL_GetTicks()); // Reset with current time
-
+    timer->currentTime = (currentTicks - timer->startTime) / 1000; //change to seconds
+    if (timer->currentTime >= timer->maxTime) {
+        initializeTimer(timer, timer->maxTime);
     }
 }
 

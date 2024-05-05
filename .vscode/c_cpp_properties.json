@@ -10,10 +10,10 @@
             "macFrameworkPath": [
                 "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
             ],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "macos-clang-x64",
+            "intelliSenseMode": "windows-gcc-x86",
             "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
