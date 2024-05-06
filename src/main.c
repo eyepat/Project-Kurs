@@ -257,25 +257,6 @@ int main(int argc, char **argv) {
         // Delay for consistent frame rate
         SDL_Delay(1);
     }
-
-    //clean up menu 
-    SDL_DestroyTexture(menuState.hostButton.texture);
-    SDL_DestroyTexture(menuState.joinButton.texture);
-    SDL_DestroyTexture(menuState.exitButton.texture);
-    SDL_DestroyTexture(menuState.startButton.texture);
-    SDL_DestroyTexture(menuState.joinHostButton.texture);
-    SDL_DestroyTexture(menuState.onlineButton.texture);
-    SDL_DestroyTexture(menuState.localButton.texture);
-    SDL_DestroyTexture(menuState.ipInputButton.texture);
-    //SDL_DestroyTexture(menuState.backButton.texture);
-    SDL_DestroyTexture(menuState.menuBackground);
-    SDL_DestroyTexture(menuState.gameBackground);
-    TTF_CloseFont(menufont);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    IMG_Quit();
-    TTF_Quit();
-    SDL_Quit();
     
     // Clean up
     SDL_DestroyTexture(fieldTexture);
