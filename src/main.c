@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
         // exit(EXIT_FAILURE);
     }
 
-   
+
     GameState gameState;
     gameState.numPlayers = MAX_PLAYERS;
 
@@ -37,7 +37,6 @@ int main(int argc, char **argv) {
     const char* text = "Connected to host\n";
     char textRecieve[100]; //This is a container for recieving text! Place all sent text in this for ease of use
     int waitingForClients = 1;
-
 
 
     // Basic join menu for terminal
@@ -236,8 +235,8 @@ int main(int argc, char **argv) {
         // Handle events
         handleEvents(&closeWindow, flags, &gameState); 
 
-        /*updatePlayerPosition(&gameState, flags, &field, deltaTime);
-        updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);*/
+        //updatePlayerPosition(&gameState, flags, &field, deltaTime);
+        //updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
         
 
 
@@ -258,6 +257,25 @@ int main(int argc, char **argv) {
         // Delay for consistent frame rate
         SDL_Delay(1);
     }
+
+    //clean up menu 
+    SDL_DestroyTexture(menuState.hostButton.texture);
+    SDL_DestroyTexture(menuState.joinButton.texture);
+    SDL_DestroyTexture(menuState.exitButton.texture);
+    SDL_DestroyTexture(menuState.startButton.texture);
+    SDL_DestroyTexture(menuState.joinHostButton.texture);
+    SDL_DestroyTexture(menuState.onlineButton.texture);
+    SDL_DestroyTexture(menuState.localButton.texture);
+    SDL_DestroyTexture(menuState.ipInputButton.texture);
+    //SDL_DestroyTexture(menuState.backButton.texture);
+    SDL_DestroyTexture(menuState.menuBackground);
+    SDL_DestroyTexture(menuState.gameBackground);
+    TTF_CloseFont(menufont);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    IMG_Quit();
+    TTF_Quit();
+    SDL_Quit();
     
     // Clean up
     SDL_DestroyTexture(fieldTexture);
@@ -287,34 +305,23 @@ int main(int argc, char **argv) {
 
 
 
-/*
+
+
+
+
 int main(int argc, char* argv[]) {
-
-    SDL_Texture* loadImage(const char* filepath, SDL_Renderer* renderer) {
-        SDL_Surface* loadedSurface = IMG_Load(filepath);
-        if (loadedSurface == NULL) {
-            printf("Error: %s\n", IMG_GetError());
-            return NULL;
-        }
-
-        SDL_Texture* newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        if (newTexture == NULL) {
-            printf("Error: %s\n", SDL_GetError());
-        }
-
-        SDL_FreeSurface(loadedSurface);
-
-        return newTexture;
-    }
-
 
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
     IMG_Init(IMG_INIT_PNG);
     SDL_Window* window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
+
+    // Hämta dimensionerna av fönstret
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    TTF_Font* font = TTF_OpenFont("path_to_your_font.ttf", 24); // replace with your font path and size
+    TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24); // replace with your font path and size
 
     MenuState menuState;
     menuState.menuState = 0; 
@@ -323,6 +330,10 @@ int main(int argc, char* argv[]) {
     menuState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
     menuState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
     menuState.joinHostButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
+    menuState.onlineButton.texture = IMG_LoadTexture(renderer, "resources/online.png");
+    menuState.localButton.texture = IMG_LoadTexture(renderer, "resources/local.png");
+    menuState.ipInputButton.texture = IMG_LoadTexture(renderer, "resources/ipInput.png");
+    //menuState.backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
     menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
     menuState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
 
@@ -330,24 +341,43 @@ int main(int argc, char* argv[]) {
     while (!closeWindow) {
         handleMenuEvent(&closeWindow, &menuState);
         SDL_RenderClear(renderer);
-        drawMenu(renderer, font, &menuState);
+        drawMenu(renderer, menufont, &menuState, windowWidth, windowHeight);
         SDL_RenderPresent(renderer);
+        //menuState->menuState = 0;//start menu, choose to play online or local
+        //menuState->menuState = 1;//online menu
+        //menuState->menuState = 2;//start local two player game
+        //menuState->menuState = 3;//host menu
+        //menuState->menuState = 4;//join menu
+        //menuState->menuState = 5;//exit game
+        //menuState->menuState = 6;//start game
+        //menuState->menuState = 7;// enter host ip and join host
 
-        if (menuState.menuState == 33) //exit button clicked
-        {
+        if (menuState.menuState == 6) {//host clicked start button
+            //start online game
+        }
+        if (menuState.menuState == 7) {//client clicked join host
+            //join host game
+        }
+        if (menuState.menuState == 2) {//local butto clicked
+            //start local game
+        }
+        if (menuState.menuState == 5) {//exit button clicked
             closeWindow=true;
         }
     }
-
     // Cleanup...
     SDL_DestroyTexture(menuState.hostButton.texture);
     SDL_DestroyTexture(menuState.joinButton.texture);
     SDL_DestroyTexture(menuState.exitButton.texture);
     SDL_DestroyTexture(menuState.startButton.texture);
     SDL_DestroyTexture(menuState.joinHostButton.texture);
+    SDL_DestroyTexture(menuState.onlineButton.texture);
+    SDL_DestroyTexture(menuState.localButton.texture);
+    SDL_DestroyTexture(menuState.ipInputButton.texture);
+    //SDL_DestroyTexture(menuState.backButton.texture);
     SDL_DestroyTexture(menuState.menuBackground);
     SDL_DestroyTexture(menuState.gameBackground);
-    TTF_CloseFont(font);
+    TTF_CloseFont(menufont);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
@@ -355,4 +385,5 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
 
     return 0;
-}*/
+}
+

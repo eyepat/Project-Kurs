@@ -96,6 +96,10 @@ typedef struct {
     Button exitButton;
     Button startButton;
     Button joinHostButton;
+    Button onlineButton;
+    Button localButton;
+    Button ipInputButton;
+    Button backButton;
     SDL_Texture* menuBackground;
     SDL_Texture* gameBackground;
 } MenuState;
