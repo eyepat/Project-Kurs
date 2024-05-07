@@ -8,11 +8,11 @@
 #include "model.h"
 #include "controller.h"
 #include "network.h"
-#include "string.h"
+
 
 int main(int argc, char **argv) {
     // Initialize SDL
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -23,82 +23,86 @@ int main(int argc, char **argv) {
         // exit(EXIT_FAILURE);
     }
 
+   
+
+    Client clients[MAX_PLAYERS];  // Array to manage client connections
+    Client myClientInfo;
+
+    // clients[0].isActive = 1; 
+    // clients[0].clientID = 0;  
+
+
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        // Initialize the MovementFlags struct for each client
+        clients[i].flags.up = false;
+        clients[i].flags.down = false;
+        clients[i].flags.left = false;
+        clients[i].flags.right = false;
+
+    }
+
 
     GameState gameState;
-    gameState.numPlayers = MAX_PLAYERS;
-
-    TCPsocket serverSocket, clientSocket;
     SDLNet_SocketSet socketSet;
-    IPaddress ip, ipClient;
+    
+    TCPsocket serverSocket;
+    IPaddress ip;
 
     int choice, port;
-    char hostIP[20];  
+    char hostIP[20];
     bool isServer;
-    const char* text = "Connected to host\n";
-    char textRecieve[100]; //This is a container for recieving text! Place all sent text in this for ease of use
-    int waitingForClients = 1;
 
-
-    // Basic join menu for terminal
     printf("\nChoose an option:\n");
     printf("1. Host a server\n");
     printf("2. Connect as a client\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
-    getchar(); 
+    getchar();
 
     switch (choice) {
         case 1:  // Server
             isServer = true;
             printf("Enter port number: ");
             scanf("%d", &port);
-            getchar(); 
-            SDLNet_ResolveHost(&ip, NULL, port);
-            serverSocket = SDLNet_TCP_Open(&ip);
-            printf("Waiting for clients...\n");
+            getchar();
 
-            while (waitingForClients) {
-                clientSocket = SDLNet_TCP_Accept(serverSocket);
-
-                if (clientSocket)
-                {
-                    printf("Connection with client established\n");
-                    SDLNet_TCP_Send(clientSocket, text, strlen(text)+1);
-                    waitingForClients--;
-                }
+            // Set up the server to listen on all interfaces
+            if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
             }
+
+            initServer(ip, &gameState, clients, &socketSet);
+            // clients[0].clientID = 0;  
+            // clients[0].isActive = 1; 
             break;
 
-        case 2:  // clients
+        case 2:  // Client
             isServer = false;
             printf("Enter server IP address to connect (e.g., 127.0.0.1): ");
             fgets(hostIP, sizeof(hostIP), stdin);
-            strtok(hostIP, "\n"); 
+            strtok(hostIP, "\n");
 
             printf("Enter server port number: ");
             scanf("%d", &port);
             getchar();
 
-            SDLNet_ResolveHost(&ip, hostIP, port);
-            clientSocket = SDLNet_TCP_Open(&ip);
-            
-            if (SDLNet_TCP_Recv(clientSocket, textRecieve, 100))
-            {
-                printf("%s \n", textRecieve);
+            if (SDLNet_ResolveHost(&ip, hostIP, port) != 0) {
+                fprintf(stderr, "SDLNet_ResolveHost: %s\n", SDLNet_GetError());
+                SDLNet_Quit();
+                return -1;
             }
-            
-            
-            break;
 
+            initClient(ip, &myClientInfo, &gameState);
+            break;
 
         default:
             printf("Invalid choice! Please enter a valid option.\n");
-            return -1; 
+            return -1;
     }
 
-
-    
-
+    printf("after netwokr inits.\n");
 
     // Initialize SDL_ttf for text rendering
     if (TTF_Init() == -1) {
@@ -164,8 +168,10 @@ int main(int argc, char **argv) {
     gameState.ball.x = 0;
     gameState.ball.y = 0;
     Field field;
-    MovementFlags flags[4] = {0};   
+    
+ 
     initializeGame(&gameState, &field);
+
 
     //to track player movement
     Uint32 previousTime = SDL_GetTicks();
@@ -176,7 +182,6 @@ int main(int argc, char **argv) {
     Timer timer;
     initializeTimer(&gameState.gameTimer, 120); // Sätter maxTime till 120 sekunder
     //Score
-    
     initializeScore(&gameState.scoreTracker);
 
 
@@ -191,59 +196,31 @@ int main(int argc, char **argv) {
         float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
 
-        if (!isServer) {
-
-            // Client operations
-            if (SDLNet_TCP_Recv(clientSocket, &gameState, sizeof(gameState))) //Client recieves gameState for use in rendering graphics
-            {                                                                //Client must put recieved data in the type it was sent in
-                printf("Recieved gameState struct\n");  //Control message that prints if the client recieves any data
-            }
-
-            const char* controlMessageToHost = "Data recieved from client!\n";
-            handleEvents(&closeWindow, flags, &gameState); //Handle client input
-            SDLNet_TCP_Send(clientSocket, flags, sizeof(flags)); //Send client input to host                       
-
-        } 
-
-
         if (isServer) {
-            
-            // Server operations
-            updateTimer(&gameState.gameTimer);
-            updatePlayerPosition(&gameState, flags, &field, deltaTime); //Only the host updates gameState, this syncs all the clients with the host
+            // Server operations        
+            handleHostEvents(&closeWindow, clients, &gameState);
+            receiveDataFromClients(clients, socketSet, &gameState); 
+            updatePlayerPosition(&gameState, clients, &field, deltaTime);
             updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-                    
-            if (scoreTrue) { //Check for goal
+            updateTimer(&gameState.gameTimer);
+            
+            if (scoreTrue) {
                 resetGame(&gameState, &gameState.ball, &field);
                 scoreTrue = 0;
             }
 
-            const char* controlMessage = "Data recieved from host!\n";
-            SDLNet_ResolveHost(&ip, NULL, port);
-            serverSocket = SDLNet_TCP_Open(&ip);
-            SDLNet_TCP_Send(clientSocket, &gameState, sizeof(gameState)); //Sends things to client
+            sendDataToClients(clients, &gameState);  //funkar helt
 
-            if (SDLNet_TCP_Recv(clientSocket, flags, sizeof(flags))) //Recieve input from clients to determine how they move
-            {
-                printf("Recieved data from client\n"); //Control message that prints of host recieves any data
-            }
-                    
-        } 
-        
-  
+        } else if (!isServer) {            
+            // Client operations
+            handleClientEvents(&closeWindow, &myClientInfo);// när borta kan it controll 
+            sendDataToServer(&myClientInfo, &gameState); 
+            receiveDataFromServer(&myClientInfo, &gameState); //funkar
 
-        // Handle events
-        handleEvents(&closeWindow, flags, &gameState); 
-
-        //updatePlayerPosition(&gameState, flags, &field, deltaTime);
-        //updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-        
-
-
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        //updateTimer(&gameState.gameTimer);
+        }   
 
         // Render game
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         renderField(renderer, fieldTexture, windowWidth, windowHeight);
@@ -264,17 +241,26 @@ int main(int argc, char **argv) {
     SDL_DestroyWindow(window);
     TTF_Quit();
 
-    // Clean up client sockets array
-    SDLNet_TCP_Close(clientSocket);
-
-
-    // // Clean up server socket
-    SDLNet_TCP_Close(serverSocket);
-    // serverSocket = NULL;
+    // Clean up client sockets array and myClientInfo socket
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (clients[i].socket != NULL) {
+            SDLNet_TCP_Close(clients[i].socket);
+            clients[i].socket = NULL;
+        }
+    }
+    if (myClientInfo.socket != NULL) {
+        SDLNet_TCP_Close(myClientInfo.socket);
+        myClientInfo.socket = NULL;
+    }
 
     // Clean up SDLNet socket set
     SDLNet_FreeSocketSet(socketSet);
-    // socketSet = NULL;
+    socketSet = NULL;
+
+    // Clean up server socket
+    SDLNet_TCP_Close(serverSocket);
+    serverSocket = NULL;
+
 
     SDLNet_Quit();
     TTF_CloseFont(font);
@@ -286,23 +272,34 @@ int main(int argc, char **argv) {
 
 
 
-
-
-
-
+/*
 int main(int argc, char* argv[]) {
+
+    SDL_Texture* loadImage(const char* filepath, SDL_Renderer* renderer) {
+        SDL_Surface* loadedSurface = IMG_Load(filepath);
+        if (loadedSurface == NULL) {
+            printf("Error: %s\n", IMG_GetError());
+            return NULL;
+        }
+
+        SDL_Texture* newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+        if (newTexture == NULL) {
+            printf("Error: %s\n", SDL_GetError());
+        }
+
+        SDL_FreeSurface(loadedSurface);
+
+        return newTexture;
+    }
+
 
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
     IMG_Init(IMG_INIT_PNG);
     SDL_Window* window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
-
-    // Hämta dimensionerna av fönstret
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24); // replace with your font path and size
+    TTF_Font* font = TTF_OpenFont("path_to_your_font.ttf", 24); // replace with your font path and size
 
     MenuState menuState;
     menuState.menuState = 0; 
@@ -311,10 +308,6 @@ int main(int argc, char* argv[]) {
     menuState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
     menuState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
     menuState.joinHostButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
-    menuState.onlineButton.texture = IMG_LoadTexture(renderer, "resources/online.png");
-    menuState.localButton.texture = IMG_LoadTexture(renderer, "resources/local.png");
-    menuState.ipInputButton.texture = IMG_LoadTexture(renderer, "resources/ipInput.png");
-    //menuState.backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
     menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
     menuState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
 
@@ -322,43 +315,24 @@ int main(int argc, char* argv[]) {
     while (!closeWindow) {
         handleMenuEvent(&closeWindow, &menuState);
         SDL_RenderClear(renderer);
-        drawMenu(renderer, menufont, &menuState, windowWidth, windowHeight);
+        drawMenu(renderer, font, &menuState);
         SDL_RenderPresent(renderer);
-        //menuState->menuState = 0;//start menu, choose to play online or local
-        //menuState->menuState = 1;//online menu
-        //menuState->menuState = 2;//start local two player game
-        //menuState->menuState = 3;//host menu
-        //menuState->menuState = 4;//join menu
-        //menuState->menuState = 5;//exit game
-        //menuState->menuState = 6;//start game
-        //menuState->menuState = 7;// enter host ip and join host
 
-        if (menuState.menuState == 6) {//host clicked start button
-            //start online game
-        }
-        if (menuState.menuState == 7) {//client clicked join host
-            //join host game
-        }
-        if (menuState.menuState == 2) {//local butto clicked
-            //start local game
-        }
-        if (menuState.menuState == 5) {//exit button clicked
+        if (menuState.menuState == 33) //exit button clicked
+        {
             closeWindow=true;
         }
     }
+
     // Cleanup...
     SDL_DestroyTexture(menuState.hostButton.texture);
     SDL_DestroyTexture(menuState.joinButton.texture);
     SDL_DestroyTexture(menuState.exitButton.texture);
     SDL_DestroyTexture(menuState.startButton.texture);
     SDL_DestroyTexture(menuState.joinHostButton.texture);
-    SDL_DestroyTexture(menuState.onlineButton.texture);
-    SDL_DestroyTexture(menuState.localButton.texture);
-    SDL_DestroyTexture(menuState.ipInputButton.texture);
-    //SDL_DestroyTexture(menuState.backButton.texture);
     SDL_DestroyTexture(menuState.menuBackground);
     SDL_DestroyTexture(menuState.gameBackground);
-    TTF_CloseFont(menufont);
+    TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
@@ -366,5 +340,4 @@ int main(int argc, char* argv[]) {
     SDL_Quit();
 
     return 0;
-}
-
+}*/

@@ -23,7 +23,7 @@ void initializeGame(GameState *gameState, Field *field) {
    
     for (int i = 0; i < gameState->numPlayers; i++) {
         gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
-        gameState->players[i].y = field->height / 2;
+        gameState->players[i].y = field->height / 4;
         gameState->players[i].radius = field->width / 128;
     }
 
@@ -45,29 +45,41 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[1].teamID = 2; // Team 2's goal
 }
 
-// Function to update the player's position based on user input
-void updatePlayerPosition(GameState *gameState, MovementFlags flags[], const Field *field, float deltaTime) {
+void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime) {
     for (int i = 0; i < gameState->numPlayers; i++) {
+        // Ensure that the client index used is within the bounds of the gameState players array
+        if (clients[i].clientID < 0 || clients[i].clientID >= gameState->numPlayers) {
+            continue;  // Skip this client if their clientID is out of range
+        }
+
+        // if (!clients[i].isActive) {
+        //     continue; // Skip inactive clients
+        // }
+
+        // Use clientID to refer to the specific player in gameState
+        int clientID = clients[i].clientID;
+        MovementFlags clientFlags = clients[i].flags;
         float speed = SPEED * deltaTime;
 
         float verticalMargin = field->height * 0.12;
         float bottomMargin = field->height * 0.10;
         float horizontalMargin = field->width * 0.07;
 
-        if (flags[i].up && gameState->players[i].y - gameState->players[i].radius > verticalMargin) {
-            gameState->players[i].y -= speed;
+        if (clientFlags.up && gameState->players[clientID].y - gameState->players[clientID].radius > verticalMargin) {
+            gameState->players[clientID].y -= speed;
         }
-        if (flags[i].down && gameState->players[i].y + gameState->players[i].radius < field->height - bottomMargin) {
-            gameState->players[i].y += speed;
+        if (clientFlags.down && gameState->players[clientID].y + gameState->players[clientID].radius < field->height - bottomMargin) {
+            gameState->players[clientID].y += speed;
         }
-        if (flags[i].left && gameState->players[i].x - gameState->players[i].radius > horizontalMargin) {
-            gameState->players[i].x -= speed;
+        if (clientFlags.left && gameState->players[clientID].x - gameState->players[clientID].radius > horizontalMargin) {
+            gameState->players[clientID].x -= speed;
         }
-        if (flags[i].right && gameState->players[i].x + gameState->players[i].radius < field->width - horizontalMargin) {
-            gameState->players[i].x += speed;
+        if (clientFlags.right && gameState->players[clientID].x + gameState->players[clientID].radius < field->width - horizontalMargin) {
+            gameState->players[clientID].x += speed;
         }
     }
 }
+
 
 
 // Function to update ball position

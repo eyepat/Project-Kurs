@@ -7,7 +7,11 @@
 #include "model.h"
 
 // Function declarations for handling user input and events
-void handleEvents(bool *closeWindow, MovementFlags flags[], GameState *gameState);
+
+void handleHostEvents(bool *closeWindow, Client clients[], GameState *gameState);
+void handleClientEvents(bool *closeWindow, Client *myClientInfo);
+
+
 void handleMenuEvent(bool *closeWindow, MenuState* menuState);
 
 #endif /* CONTROLLER_H */
