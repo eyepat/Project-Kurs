@@ -17,7 +17,7 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windo
 void renderGoals(SDL_Renderer *renderer, const Field *field);
 void modifyPlayerColors(int red, int blue, int green, int opacity, int playerColorData[4]);
 void renderButton(SDL_Renderer* renderer, Button* button);
-void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState);//
+void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int windowWidth, int windowHeight);
 
 
 

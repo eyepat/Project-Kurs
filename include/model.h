@@ -72,15 +72,20 @@ typedef struct {
     int hostPort;
     char userInputIp[16];
     int userInputPort;
-    int menuState;
+    int menuState; //menuIndex for buttons clicked 
     Button hostButton;
     Button joinButton;
     Button exitButton;
     Button startButton;
     Button joinHostButton;
+    Button onlineButton;
+    Button localButton;
+    Button ipInputButton;
+    Button backButton;
     SDL_Texture* menuBackground;
     SDL_Texture* gameBackground;
 } MenuState;
+
 
 //  Function Declarations 
 void initializeGame(GameState *gameState, Field *field);
