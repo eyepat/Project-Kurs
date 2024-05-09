@@ -23,7 +23,7 @@ void renderPlayers(SDL_Renderer *renderer, const GameState *gameState) {
     
     for (int i = 0; i < gameState->numPlayers; i++)
     {
-        drawDetailedCircle(renderer, gameState->players[i].x, gameState->players[i].y , 14, 3, gameState->players[i].colorData);
+        drawDetailedCircle(renderer, gameState->players[i].x, gameState->players[i].y , 14, 3, (int *) gameState->players[i].colorData);
 
     }
 

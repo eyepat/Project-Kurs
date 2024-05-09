@@ -27,6 +27,8 @@ void handleHostEvents(bool *closeWindow, Client clients[], GameState *gameState)
                 case SDL_SCANCODE_D:
                     clients[0].flags.right = value;
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -55,6 +57,8 @@ void handleClientEvents(bool *closeWindow, Client *myClientInfo) {
                     break;
                 case SDL_SCANCODE_D:
                     myClientInfo->flags.right = value;
+                    break;
+                default:
                     break;
             }
         }
