@@ -5,16 +5,9 @@
 #define SPEED 900
 
 void initializeGame(GameState *gameState, Field *field) {
-    // Get the current display mode
-    SDL_DisplayMode displayMode;
-    if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
-        SDL_Log("SDL_GetCurrentDisplayMode failed: %s", SDL_GetError());
-        return; // Return or handle the error appropriately
-    }
-
     // Set field dimensions based on the current display resolution
-    field->width = displayMode.w;
-    field->height = displayMode.h;
+    field->width = SCREEN_WIDTH;
+    field->height = SCREEN_HEIGHT;
 
     const int GOAL_WIDTH = 80; // Replace with the actual value
     const int GOAL_HEIGHT = 250;

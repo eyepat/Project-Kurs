@@ -117,16 +117,14 @@ int main(int argc, char **argv) {
     printf("Error loading font: %s\n", TTF_GetError());
     }
 
+    SDL_Window *window = SDL_CreateWindow(
+        "Football Game",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
+        0);
 
-    // Create the main window
-    SDL_DisplayMode displayMode;
-    if (SDL_GetCurrentDisplayMode(0, &displayMode) != 0) {
-        printf("Error getting display mode: %s\n", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_Window *window = SDL_CreateWindow("Football Game",SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,displayMode.w,displayMode.h,SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (!window) {
         printf("Error creating window: %s\n", SDL_GetError());
         SDL_Quit();
