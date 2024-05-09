@@ -4,9 +4,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
 #include <stdbool.h>
+
+#define PALYER_SPEED 500
 #define MAX_PLAYERS 3
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800
+
 // Entities Definitions 
 typedef struct {
     float x, y;
@@ -97,5 +100,6 @@ void updateScore(Score *score, int teamNumber);
 void initializeTimer(Timer* timer, int maxTime);
 void updateTimer(Timer* timer);
 void resetGame(GameState *gameState, Entity *ball, Field *field);
+void initializePlayersPosition(GameState *gameState, Field *field);
 
 #endif // MODEL_H

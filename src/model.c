@@ -2,7 +2,6 @@
 #include "view.h"
 #include <math.h>
 #include <SDL2/SDL.h>
-#define SPEED 900
 
 void initializeGame(GameState *gameState, Field *field) {
     // Set field dimensions based on the current display resolution
@@ -14,11 +13,7 @@ void initializeGame(GameState *gameState, Field *field) {
 
     // Initialize players' properties
    
-    for (int i = 0; i < gameState->numPlayers; i++) {
-        gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
-        gameState->players[i].y = field->height / 4;
-        gameState->players[i].radius = field->width / 128;
-    }
+    initializePlayersPosition(gameState, field);
 
     // Initialize ball properties
     gameState->ball.x = field->width / 2;
@@ -52,7 +47,7 @@ void updatePlayerPosition(GameState *gameState, Client clients[], const Field *f
         // Use clientID to refer to the specific player in gameState
         int clientID = clients[i].clientID;
         MovementFlags clientFlags = clients[i].flags;
-        float speed = SPEED * deltaTime;
+        float speed = PALYER_SPEED * deltaTime;
 
         float verticalMargin = field->height * 0.12;
         float bottomMargin = field->height * 0.10;
@@ -195,11 +190,7 @@ void updateTimer(Timer* timer) {
 }
 
 void resetGame(GameState *gameState, Entity *ball, Field *field) {
-    for (int i = 0; i < gameState->numPlayers; i++) {
-        gameState->players[i].x = (i % 2 == 0) ? field->width / 4 : field->width * 3 / 4;
-        gameState->players[i].y = field->height / 2;
-    }
-
+   initializePlayersPosition(gameState, field);
     // Reset ball position
     ball->x = field->width / 2;
     ball->y = field->height / 2;
@@ -209,8 +200,25 @@ void resetGame(GameState *gameState, Entity *ball, Field *field) {
     // Goals remain unchanged 
 }
 
+void initializePlayersPosition(GameState *gameState, Field *field) {
+    int xPosition, yPosition, teamLeftSize, teamRightSize, indexInTeam;
 
+    teamLeftSize = ceil(gameState->numPlayers / 2.0); 
+    teamRightSize = gameState->numPlayers - teamLeftSize;
 
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        indexInTeam = i / 2; 
 
+        if (i % 2 == 0) {  
+            xPosition = field->width / 4;
+            yPosition = (field->height / (teamLeftSize + 1)) * (indexInTeam + 1);
+        } else {  
+            xPosition = 3 * field->width / 4;
+            yPosition = (field->height / (teamRightSize + 1)) * (indexInTeam + 1);
+        }
 
-
+        gameState->players[i].x = xPosition;
+        gameState->players[i].y = yPosition;
+        gameState->players[i].radius = field->width / 128; 
+    }
+}
