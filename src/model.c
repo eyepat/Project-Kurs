@@ -2,7 +2,7 @@
 #include "view.h"
 #include <math.h>
 #include <SDL2/SDL.h>
-#define SPEED 900
+
 
 void initializeGame(GameState *gameState, Field *field) {
     // Set field dimensions based on the current display resolution
@@ -52,7 +52,7 @@ void updatePlayerPosition(GameState *gameState, Client clients[], const Field *f
         // Use clientID to refer to the specific player in gameState
         int clientID = clients[i].clientID;
         MovementFlags clientFlags = clients[i].flags;
-        float speed = SPEED * deltaTime;
+        float speed = PALYER_SPEED * deltaTime;
 
         float verticalMargin = field->height * 0.12;
         float bottomMargin = field->height * 0.10;
