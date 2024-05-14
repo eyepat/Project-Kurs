@@ -1,5 +1,7 @@
 #include "model.h"
 #include "view.h"
+#include <stdlib.h>
+#include <time.h>
 #include <math.h>
 #include <SDL2/SDL.h>
 
@@ -26,10 +28,8 @@ void initializeGame(GameState *gameState, Field *field) {
     gameState->ball.radius = 20;
     gameState->ball.xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     gameState->ball.ySpeed = 0; // Initialize ball's speed in the y-direction to zero
-    modifyPlayerColors(255, 255, 255, 200, gameState->ball.colorData); //Set ball color
-    modifyPlayerColors(255, 0, 255, 200, gameState->players[0].colorData);
-    modifyPlayerColors(255, 255, 0, 200, gameState->players[1].colorData); //Hard set for default player color, it only matters for player that will get rendered later
-    // Reminder to set up color initiation for all players up to MAX later
+
+     assignRandomColors(gameState); 
 
     // Initialize goal properties
     field->goals[0].box = (SDL_Rect){field->width * 0.063, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
@@ -165,6 +165,29 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
     }
 
     return 1;
+}
+void assignRandomColors(GameState *gameState) {
+    srand(time(NULL));  // Endast en gång i början av spelet
+
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        // Generera och tilldela färger i par
+        int r = 100 + rand() % 156;
+        int g = 100 + rand() % 156;
+        int b = 100 + rand() % 156;
+        int opacity = 200;
+
+        gameState->players[i].colorData[0] = r;
+        gameState->players[i].colorData[1] = g;
+        gameState->players[i].colorData[2] = b;
+        gameState->players[i].colorData[3] = opacity;
+
+        if (i % 2 == 1) {  // Kopiera färg från föregående spelare till nuvarande spelare för parbildning
+            gameState->players[i].colorData[0] = gameState->players[i-1].colorData[0];
+            gameState->players[i].colorData[1] = gameState->players[i-1].colorData[1];
+            gameState->players[i].colorData[2] = gameState->players[i-1].colorData[2];
+            gameState->players[i].colorData[3] = gameState->players[i-1].colorData[3];
+        }
+    }
 }
 
 void initializeScore(Score* score) {

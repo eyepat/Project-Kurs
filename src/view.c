@@ -1,5 +1,7 @@
 #include "view.h"
-
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
     int newWidth = windowWidth * 1; // 100% of the window width
@@ -165,6 +167,7 @@ void modifyPlayerColors(int red, int blue, int green, int opacity, int playerCol
     playerColorData[3] = opacity; //Genomskinlighet
 
 }
+
 
 void renderButton(SDL_Renderer* renderer, Button* button) {
     SDL_RenderCopy(renderer, button->texture, NULL, &button->bounds);
