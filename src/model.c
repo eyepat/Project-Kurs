@@ -18,9 +18,17 @@ void initializeGame(GameState *gameState, Field *field) {
     // Initialize players' properties
    
     for (int i = 0; i < gameState->numPlayers; i++) {
-        gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
-        gameState->players[i].y = field->height / 4;
-        gameState->players[i].radius = field->width / 128;
+       gameState->players[0].x=field->width / 4;
+        gameState->players[0].y=field->height / 3;
+
+        gameState->players[1].x=field->width / 4;
+        gameState->players[1].y=field->height / 3 * 2;
+
+        gameState->players[2].x=field->width / 4 * 3;
+        gameState->players[2].y=field->height / 3;
+
+        gameState->players[3].x=field->width / 4 * 3;
+        gameState->players[3].y=field->height / 3 * 2;
     }
 
     // Initialize ball properties
@@ -241,8 +249,17 @@ void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
 
 void resetGame(GameState *gameState, Entity *ball, Field *field) {
     for (int i = 0; i < gameState->numPlayers; i++) {
-        gameState->players[i].x = (i % 2 == 0) ? field->width / 4 : field->width * 3 / 4;
-        gameState->players[i].y = field->height / 2;
+       gameState->players[0].x=field->width / 4;
+        gameState->players[0].y=field->height / 3;
+
+        gameState->players[1].x=field->width / 4;
+        gameState->players[1].y=field->height / 3 * 2;
+
+        gameState->players[2].x=field->width / 4 * 3;
+        gameState->players[2].y=field->height / 3;
+
+        gameState->players[3].x=field->width / 4 * 3;
+        gameState->players[3].y=field->height / 3 * 2;
     }
 
     // Reset ball position

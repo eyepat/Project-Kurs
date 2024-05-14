@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
 
 
     GameState gameState;
+    gameState.isGameOver = false;
     SDLNet_SocketSet socketSet;
     
     TCPsocket serverSocket;
