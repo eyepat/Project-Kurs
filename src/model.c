@@ -18,17 +18,18 @@ void initializeGame(GameState *gameState, Field *field) {
     // Initialize players' properties
    
     for (int i = 0; i < gameState->numPlayers; i++) {
-       gameState->players[0].x=field->width / 4;
-        gameState->players[0].y=field->height / 3;
+            gameState->players[0].x = field->width / 4; 
+        gameState->players[0].y = field->height / 3; 
 
-        gameState->players[1].x=field->width / 4;
-        gameState->players[1].y=field->height / 3 * 2;
+        gameState->players[1].x = field->width / 4; 
+        gameState->players[1].y = field->height / 3 * 2; 
 
-        gameState->players[2].x=field->width / 4 * 3;
-        gameState->players[2].y=field->height / 3;
+        // Players 3 and 4 on the right side of the field
+        gameState->players[2].x = field->width / 4 * 3; 
+        gameState->players[2].y = field->height / 3; 
 
-        gameState->players[3].x=field->width / 4 * 3;
-        gameState->players[3].y=field->height / 3 * 2;
+        gameState->players[3].x = field->width / 4 * 3; 
+        gameState->players[3].y = field->height / 3 * 2; 
     }
 
     // Initialize ball properties
@@ -248,27 +249,31 @@ void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
 
 
 void resetGame(GameState *gameState, Entity *ball, Field *field) {
-    for (int i = 0; i < gameState->numPlayers; i++) {
-       gameState->players[0].x=field->width / 4;
-        gameState->players[0].y=field->height / 3;
+    // Players 1 and 2 on the left side of the field
+    gameState->players[0].x = field->width / 4; // One quarter width for Player 1
+    gameState->players[0].y = field->height / 3; // One third height for Player 1
 
-        gameState->players[1].x=field->width / 4;
-        gameState->players[1].y=field->height / 3 * 2;
+    gameState->players[1].x = field->width / 4; // Same quarter width for Player 2
+    gameState->players[1].y = field->height / 3 * 2; // Two thirds height for Player 2
 
-        gameState->players[2].x=field->width / 4 * 3;
-        gameState->players[2].y=field->height / 3;
+    // Players 3 and 4 on the right side of the field
+    gameState->players[2].x = field->width / 4 * 3; // Three quarters width for Player 3
+    gameState->players[2].y = field->height / 3; // One third height for Player 3
 
-        gameState->players[3].x=field->width / 4 * 3;
-        gameState->players[3].y=field->height / 3 * 2;
-    }
+    gameState->players[3].x = field->width / 4 * 3; // Same three quarters width for Player 4
+    gameState->players[3].y = field->height / 3 * 2; // Two thirds height for Player 4
 
-    // Reset ball position
+    // Reset the ball position to the center of the field
     ball->x = field->width / 2;
     ball->y = field->height / 2;
-    ball->xSpeed = 0;
+    ball->xSpeed = 0; // Reset ball speed to zero
     ball->ySpeed = 0;
 
-    // Goals remain unchanged 
+    // Optionally reset the radius of each player if the field dimensions might change
+    int playerRadius = field->width / 128; // Set the player radius relative to the field width
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        gameState->players[i].radius = playerRadius;
+    }
 }
 
 

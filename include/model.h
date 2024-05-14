@@ -55,7 +55,7 @@ typedef struct {
     Entity players[MAX_PLAYERS];
     Score scoreTracker;
     Timer gameTimer;
-    bool isGameOver;  // Add this line
+    bool isGameOver; 
 } GameState;
 
 typedef struct {
