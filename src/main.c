@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
 
     //timer
     Timer timer;
-    initializeTimer(&gameState.gameTimer, 120); // Sätter maxTime till 120 sekunder
+    initializeTimer(&gameState.gameTimer, 45); // Sätter maxTime till 120 sekunder
     //Score
     initializeScore(&gameState.scoreTracker);
 
@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
     int scoreTrue = 0;
     
     // Main game loop
-    while (!closeWindow) {
+    while (!closeWindow && !gameState.isGameOver) {
         currentTime = SDL_GetTicks();
         float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
@@ -200,7 +200,7 @@ int main(int argc, char **argv) {
             receiveDataFromClients(clients, socketSet, &gameState); 
             updatePlayerPosition(&gameState, clients, &field, deltaTime);
             updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-            updateTimer(&gameState.gameTimer);
+             updateTimer(&gameState.gameTimer, &gameState);
             
             if (scoreTrue) {
                 resetGame(&gameState, &gameState.ball, &field);
@@ -228,11 +228,17 @@ int main(int argc, char **argv) {
         renderScore(renderer, font, &gameState.scoreTracker, windowWidth, windowHeight);
         renderTimer(renderer, font, &gameState.gameTimer, windowWidth);
         SDL_RenderPresent(renderer);
-
+        
         // Delay for consistent frame rate
         SDL_Delay(1);
     }
-    
+    // Display winner if game is over
+    if (gameState.isGameOver) {
+        renderWinner(renderer, font, &gameState.scoreTracker);  // Display winning team
+        SDL_RenderPresent(renderer);
+        SDL_Delay(10000);  // Keep the window with the result for 5 seconds
+    }
+
     // Clean up
     SDL_DestroyTexture(fieldTexture);
     SDL_DestroyRenderer(renderer);

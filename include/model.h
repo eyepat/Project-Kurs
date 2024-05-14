@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 
 #define MAX_PLAYERS 4
@@ -54,7 +55,7 @@ typedef struct {
     Entity players[MAX_PLAYERS];
     Score scoreTracker;
     Timer gameTimer;
-     
+    bool isGameOver;  // Add this line
 } GameState;
 
 typedef struct {
@@ -105,8 +106,8 @@ void assignRandomColors(GameState *gameState);
 void initializeScore(Score* score);
 void updateScore(Score *score, int teamID);
 void initializeTimer(Timer* timer, int maxTime);
-void updateTimer(Timer* timer);
-void checkWinner(const Score *score);
+void updateTimer(Timer* timer, GameState *gameState);
+void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);
 void resetGame(GameState *gameState, Entity *ball, Field *field);
 
 #endif // MODEL_H

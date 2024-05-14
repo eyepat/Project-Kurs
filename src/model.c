@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <stdio.h>
 #include <SDL2/SDL.h>
 
 
@@ -167,28 +168,26 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
     return 1;
 }
 void assignRandomColors(GameState *gameState) {
-    srand(time(NULL));  // Endast en gång i början av spelet
+     // Define colors for the teams
+    int red[4] = {255, 0, 0, 200};  // RGBA for red with 200 opacity
+    int blue[4] = {0, 0, 255, 200}; // RGBA for blue with 200 opacity
 
     for (int i = 0; i < gameState->numPlayers; i++) {
-        // Generera och tilldela färger i par
-        int r = 100 + rand() % 156;
-        int g = 100 + rand() % 156;
-        int b = 100 + rand() % 156;
-        int opacity = 200;
-
-        gameState->players[i].colorData[0] = r;
-        gameState->players[i].colorData[1] = g;
-        gameState->players[i].colorData[2] = b;
-        gameState->players[i].colorData[3] = opacity;
-
-        if (i % 2 == 1) {  // Kopiera färg från föregående spelare till nuvarande spelare för parbildning
-            gameState->players[i].colorData[0] = gameState->players[i-1].colorData[0];
-            gameState->players[i].colorData[1] = gameState->players[i-1].colorData[1];
-            gameState->players[i].colorData[2] = gameState->players[i-1].colorData[2];
-            gameState->players[i].colorData[3] = gameState->players[i-1].colorData[3];
+        if (i < 2) {  // First two players get red
+            gameState->players[i].colorData[0] = red[0];
+            gameState->players[i].colorData[1] = red[1];
+            gameState->players[i].colorData[2] = red[2];
+            gameState->players[i].colorData[3] = red[3];
+        } else {  // Next two players get blue
+            gameState->players[i].colorData[0] = blue[0];
+            gameState->players[i].colorData[1] = blue[1];
+            gameState->players[i].colorData[2] = blue[2];
+            gameState->players[i].colorData[3] = blue[3];
         }
     }
 }
+
+
 
 void initializeScore(Score* score) {
     score->team1Score = 0;
@@ -209,13 +208,36 @@ void initializeTimer(Timer* timer, int maxTime) {
     timer->maxTime = maxTime;
 }
 
-void updateTimer(Timer* timer) {
+void updateTimer(Timer* timer, GameState *gameState) {
     unsigned int currentTicks = SDL_GetTicks();
-    timer->currentTime = (currentTicks - timer->startTime) / 1000; //change to seconds
+    timer->currentTime = (currentTicks - timer->startTime) / 1000;  // Convert milliseconds to seconds
+
     if (timer->currentTime >= timer->maxTime) {
-        initializeTimer(timer, timer->maxTime);
+        timer->currentTime = timer->maxTime;  // Clamp the currentTime to maxTime to avoid overflow
+        gameState->isGameOver = true;  // Set the game over flag when time is up
+        printf("Time's up! Game over.\n");
     }
 }
+
+void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
+    char message[100];
+    SDL_Color color = {255, 255, 255};  // White color
+    if (score->team1Score > score->team2Score) {
+        sprintf(message, "Team 1 wins with a score of %d to %d!", score->team1Score, score->team2Score);
+    } else if (score->team2Score > score->team1Score) {
+        sprintf(message, "Team 2 wins with a score of %d to %d!", score->team2Score, score->team1Score);
+    } else {
+        sprintf(message, "The game is a draw, each team scoring %d.", score->team1Score);
+    }
+
+    SDL_Surface *surface = TTF_RenderText_Solid(font, message, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect textRect = {100, SCREEN_HEIGHT / 2 - surface->h / 2, surface->w, surface->h};  // Centered
+    SDL_RenderCopy(renderer, texture, NULL, &textRect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}
+
 
 void resetGame(GameState *gameState, Entity *ball, Field *field) {
     for (int i = 0; i < gameState->numPlayers; i++) {
