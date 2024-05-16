@@ -1,3 +1,5 @@
+
+
 #include "model.h"
 #include "view.h"
 #include <stdlib.h>
@@ -16,30 +18,20 @@ void initializeGame(GameState *gameState, Field *field) {
     const int GOAL_HEIGHT = 250;
 
     // Initialize players' properties
-   
     for (int i = 0; i < gameState->numPlayers; i++) {
-            gameState->players[0].x = field->width / 4; 
-        gameState->players[0].y = field->height / 3; 
-
-        gameState->players[1].x = field->width / 4; 
-        gameState->players[1].y = field->height / 3 * 2; 
-
-        // Players 3 and 4 on the right side of the field
-        gameState->players[2].x = field->width / 4 * 3; 
-        gameState->players[2].y = field->height / 3; 
-
-        gameState->players[3].x = field->width / 4 * 3; 
-        gameState->players[3].y = field->height / 3 * 2; 
+        gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
+        gameState->players[i].y = field->height / 4;
+        gameState->players[i].radius = field->width / 128;
     }
 
     // Initialize ball properties
     gameState->ball.x = field->width / 2;
-    gameState->ball.y = field->height / 2; 
+    gameState->ball.y = field->height / 2;
     gameState->ball.radius = 20;
     gameState->ball.xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     gameState->ball.ySpeed = 0; // Initialize ball's speed in the y-direction to zero
 
-     assignRandomColors(gameState); 
+    assignRandomColors(gameState); 
 
     // Initialize goal properties
     field->goals[0].box = (SDL_Rect){field->width * 0.063, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
@@ -47,6 +39,12 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
 }
+
+
+
+
+
+
 
 void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime) {
     for (int i = 0; i < gameState->numPlayers; i++) {
@@ -87,7 +85,6 @@ void updatePlayerPosition(GameState *gameState, Client clients[], const Field *f
 
 // Function to update ball position
 int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag) {
-    
     // Loop through all players to check for interactions with the ball
     for (int i = 0; i < gameState->numPlayers; i++) {
         Entity *player = &gameState->players[i];
@@ -98,38 +95,35 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
             float dx = ball->x - player->x;
             float dy = ball->y - player->y;
             float magnitude = sqrt(dx * dx + dy * dy);
-            dx /= magnitude; // Normalize the direction vector
-            dy /= magnitude;
-            float kickForce = 900.0f; // Kick force magnitude
-            ball->xSpeed = dx * kickForce;
-            ball->ySpeed = dy * kickForce;
+
+            // Prevent division by zero
+            if (magnitude != 0) {
+                dx /= magnitude; // Normalize the direction vector
+                dy /= magnitude;
+                float kickForce = 900.0f; // Kick force magnitude
+                ball->xSpeed = dx * kickForce;
+                ball->ySpeed = dy * kickForce;
+            }
         }
     }
 
     // Apply friction or deceleration to gradually stop the ball
     float deceleration = 400.0f; // Adjust this value as needed
+    float friction = deceleration * deltaTime;
+
+    // Apply friction to the ball's xSpeed
     if (fabs(ball->xSpeed) > 0) {
-        float direction;
-        if (ball->xSpeed > 0) {
-            direction = -1; // Ball is moving to the right
-        } else {
-            direction = 1; // Ball is moving to the left or stationary
-        }
-        float friction = deceleration * deltaTime;
+        float direction = (ball->xSpeed > 0) ? -1 : 1;
         if (fabs(ball->xSpeed) < friction) {
             ball->xSpeed = 0; // If friction would stop the ball, set speed to 0
         } else {
             ball->xSpeed += friction * direction;
         }
     }
+
+    // Apply friction to the ball's ySpeed
     if (fabs(ball->ySpeed) > 0) {
-        float direction;
-        if (ball->ySpeed > 0) {
-            direction = -1; // Ball is moving downward
-        } else {
-            direction = 1; // Ball is moving upward or stationary
-        }
-        float friction = deceleration * deltaTime;
+        float direction = (ball->ySpeed > 0) ? -1 : 1;
         if (fabs(ball->ySpeed) < friction) {
             ball->ySpeed = 0; // If friction would stop the ball, set speed to 0
         } else {
@@ -140,27 +134,27 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
     // Update the ball's position based on its speed
     ball->x += ball->xSpeed * deltaTime;
     ball->y += ball->ySpeed * deltaTime;
-  // Kontrollera om bollen har nått målområdet
+
+    // Check if the ball has reached the goal area
     for (int i = 0; i < 2; i++) {
         if (ball->x - ball->radius > field->goals[i].box.x &&
             ball->x + ball->radius < field->goals[i].box.x + field->goals[i].box.w &&
             ball->y - ball->radius > field->goals[i].box.y &&
-            ball->y + ball->radius < field->goals[i].box.y + field->goals[i].box.h && *scoreFlag !=1 ) {
-            // Bollen är i målet
+            ball->y + ball->radius < field->goals[i].box.y + field->goals[i].box.h && *scoreFlag != 1) {
+            // Ball is in the goal
             ball->xSpeed = 0;
             ball->ySpeed = 0;
             int scoringTeam = (field->goals[i].teamID == 1) ? 2 : 1;
             updateScore(score, scoringTeam);
             *scoreFlag = 1;
-           
             break;
         }
-  
     }
-      // Check boundaries and apply the margins set for the player
+
+    // Check boundaries and apply the margins set for the player
     float verticalMargin = field->height * 0.12; // Top margin
     float bottomMargin = field->height * 0.10; // Bottom margin
-    float horizontalMargin = field->width * 0.07; // Side margins dvs left right
+    float horizontalMargin = field->width * 0.07; // Side margins
 
     // Check if the ball hits the left or right wall
     if (ball->x - ball->radius <= horizontalMargin || ball->x + ball->radius >= field->width - horizontalMargin) {
@@ -176,6 +170,7 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
 
     return 1;
 }
+
 void assignRandomColors(GameState *gameState) {
      // Define colors for the teams
     int red[4] = {255, 0, 0, 200};  // RGBA for red with 200 opacity
@@ -249,19 +244,12 @@ void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
 
 
 void resetGame(GameState *gameState, Entity *ball, Field *field) {
-    // Players 1 and 2 on the left side of the field
-    gameState->players[0].x = field->width / 4; // One quarter width for Player 1
-    gameState->players[0].y = field->height / 3; // One third height for Player 1
-
-    gameState->players[1].x = field->width / 4; // Same quarter width for Player 2
-    gameState->players[1].y = field->height / 3 * 2; // Two thirds height for Player 2
-
-    // Players 3 and 4 on the right side of the field
-    gameState->players[2].x = field->width / 4 * 3; // Three quarters width for Player 3
-    gameState->players[2].y = field->height / 3; // One third height for Player 3
-
-    gameState->players[3].x = field->width / 4 * 3; // Same three quarters width for Player 4
-    gameState->players[3].y = field->height / 3 * 2; // Two thirds height for Player 4
+    // Reset players' positions
+    for (int i = 0; i < gameState->numPlayers; i++) {
+        gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
+        gameState->players[i].y = field->height / 4;
+        gameState->players[i].radius = field->width / 128;
+    }
 
     // Reset the ball position to the center of the field
     ball->x = field->width / 2;
@@ -275,9 +263,5 @@ void resetGame(GameState *gameState, Entity *ball, Field *field) {
         gameState->players[i].radius = playerRadius;
     }
 }
-
-
-
-
 
 

@@ -231,61 +231,56 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    // //initialize game
+   // Initialize game
     gameState.ball.x = 0;
     gameState.ball.y = 0;
     Field field;
-    
- 
+
     initializeGame(&gameState, &field);
 
-
-    //to track player movement
+    // Track player movement
     Uint32 previousTime = SDL_GetTicks();
     Uint32 currentTime;
     float deltaTime;
 
-    //timer
+    // Timer
     Timer timer;
-    initializeTimer(&gameState.gameTimer, 45); // Sätter maxTime till 120 sekunder
-    //Score
-    initializeScore(&gameState.scoreTracker);
+    initializeTimer(&gameState.gameTimer, 45); // Set maxTime to 45 seconds
 
+    // Score
+    initializeScore(&gameState.scoreTracker);
 
     // Game loop variables
     closeWindow = false;
-    int ballVelocityX = 0;
-    int ballVelocityY = 0;
     int scoreTrue = 0;
-    
+
     // Main game loop
     while (!closeWindow && !gameState.isGameOver) {
         currentTime = SDL_GetTicks();
-        float deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
+        deltaTime = (currentTime - previousTime) / 1000.0f;  // Convert milliseconds to seconds
         previousTime = currentTime;
 
         if (isServer == 1) {
-            // Server operations        
+            // Server operations
             handleHostEvents(&closeWindow, clients, &gameState);
             receiveDataFromClients(clients, socketSet, &gameState); 
             updatePlayerPosition(&gameState, clients, &field, deltaTime);
             updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-             updateTimer(&gameState.gameTimer, &gameState);
-            
+            updateTimer(&gameState.gameTimer, &gameState);
+
             if (scoreTrue) {
                 resetGame(&gameState, &gameState.ball, &field);
                 scoreTrue = 0;
             }
 
-            sendDataToClients(clients, &gameState);  //funkar helt
+            sendDataToClients(clients, &gameState);
 
-        } else if (isServer == 2) {            
+        } else if (isServer == 2) {
             // Client operations
-            handleClientEvents(&closeWindow, &myClientInfo);// när borta kan it controll 
-            sendDataToServer(&myClientInfo, &gameState); 
-            receiveDataFromServer(&myClientInfo, &gameState); //funkar
-
-        }   
+            handleClientEvents(&closeWindow, &myClientInfo);
+            sendDataToServer(&myClientInfo, &gameState);
+            receiveDataFromServer(&myClientInfo, &gameState);
+        }
 
         // Render game
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
@@ -298,15 +293,16 @@ int main(int argc, char **argv) {
         renderScore(renderer, font, &gameState.scoreTracker, windowWidth, windowHeight);
         renderTimer(renderer, font, &gameState.gameTimer, windowWidth);
         SDL_RenderPresent(renderer);
-        
+
         // Delay for consistent frame rate
         SDL_Delay(1);
     }
+
     // Display winner if game is over
     if (gameState.isGameOver) {
         renderWinner(renderer, font, &gameState.scoreTracker);  // Display winning team
         SDL_RenderPresent(renderer);
-        SDL_Delay(10000);  // Keep the window with the result for 5 seconds
+        SDL_Delay(10000);  // Keep the window with the result for 10 seconds
     }
 
     // Clean up
@@ -314,5 +310,4 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
 
