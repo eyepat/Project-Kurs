@@ -133,3 +133,36 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
         }
     }
 }
+
+
+void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet, TCPsocket serverSocket) {
+    // Clean up SDL objects
+    SDL_DestroyTexture(fieldTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    TTF_Quit();
+
+    // Clean up client sockets array and myClientInfo socket
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        if (clients[i].socket != NULL) {
+            SDLNet_TCP_Close(clients[i].socket);
+            clients[i].socket = NULL;
+        }
+    }
+    if (myClientInfo != NULL && myClientInfo->socket != NULL) {
+        SDLNet_TCP_Close(myClientInfo->socket);
+        myClientInfo->socket = NULL;
+    }
+
+    // Clean up SDLNet socket set
+    SDLNet_FreeSocketSet(socketSet);
+    socketSet = NULL;
+
+    // Clean up server socket
+    SDLNet_TCP_Close(serverSocket);
+    serverSocket = NULL;
+
+    SDLNet_Quit();
+    TTF_CloseFont(font);
+    SDL_Quit();
+}

@@ -102,16 +102,10 @@ int main(int argc, char **argv) {
             SDL_RenderClear(renderer);
             closeWindow = true;
         }
-        
-        
-
   
     }
 
-
-
-
-            switch (isServer) {
+    switch (isServer) {
         case 1:  // Server
             isServer = 1;
             printf("Port is : %d \n", port);
@@ -150,11 +144,9 @@ int main(int argc, char **argv) {
             }
             initClient(ip, &myClientInfo, &gameState, renderer, menufont, windowWidth, &menuState, windowHeight, portPointer, hostIP, isServerPointer, &closeWindow);
             
-            
-            break;
-
         default:
-
+            // printf("poop");
+            break;
         }
 
 
@@ -309,118 +301,9 @@ int main(int argc, char **argv) {
     }
     
     // Clean up
-    SDL_DestroyTexture(fieldTexture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    TTF_Quit();
-
-    // Clean up client sockets array and myClientInfo socket
-    for (int i = 0; i < MAX_PLAYERS; i++) {
-        if (clients[i].socket != NULL) {
-            SDLNet_TCP_Close(clients[i].socket);
-            clients[i].socket = NULL;
-        }
-    }
-    if (myClientInfo.socket != NULL) {
-        SDLNet_TCP_Close(myClientInfo.socket);
-        myClientInfo.socket = NULL;
-    }
-
-    // Clean up SDLNet socket set
-    SDLNet_FreeSocketSet(socketSet);
-    socketSet = NULL;
-
-    // Clean up server socket
-    SDLNet_TCP_Close(serverSocket);
-    serverSocket = NULL;
-
-
-    SDLNet_Quit();
-    TTF_CloseFont(font);
-    SDL_Quit();
+    cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet, serverSocket);
 
     return 0;
 }
 
-
-
-
-
-/*
-int main(int argc, char* argv[]) {
-
-    SDL_Init(SDL_INIT_VIDEO);
-    TTF_Init();
-    IMG_Init(IMG_INIT_PNG);
-    SDL_Window* window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    
-    // Hämta dimensionerna av fönstret
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24); // replace with your font path and size
-    MenuState menuState;
-    menuState.menuState = 0; 
-    menuState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
-    menuState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
-    menuState.exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
-    menuState.startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
-    menuState.joinHostButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
-    menuState.onlineButton.texture = IMG_LoadTexture(renderer, "resources/online.png");
-    menuState.localButton.texture = IMG_LoadTexture(renderer, "resources/local.png");
-    menuState.ipInputButton.texture = IMG_LoadTexture(renderer, "resources/ipInput.png");
-    //menuState.backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
-    menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
-    menuState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
-
-    bool closeWindow = false;
-    while (!closeWindow) {
-        handleMenuEvent(&closeWindow, &menuState);
-        SDL_RenderClear(renderer);
-        drawMenu(renderer, menufont, &menuState, windowWidth, windowHeight);
-        SDL_RenderPresent(renderer);
-        //menuState->menuState = 0;//start menu, choose to play online or local
-        //menuState->menuState = 1;//online menu
-        //menuState->menuState = 2;//start local two player game
-        //menuState->menuState = 3;//host menu
-        //menuState->menuState = 4;//join menu
-        //menuState->menuState = 5;//exit game
-        //menuState->menuState = 6;//start game
-        //menuState->menuState = 7;// enter host ip and join host
-
-        if (menuState.menuState == 6) {//host clicked start button
-            //start online game
-        }
-        if (menuState.menuState == 7) {//client clicked join host
-            //join host game
-        }
-        if (menuState.menuState == 2) {//local butto clicked
-            //start local game
-        }
-        if (menuState.menuState == 5) {//exit button clicked
-            closeWindow=true;
-        }
-    }
-     // Cleanup...
-    SDL_DestroyTexture(menuState.hostButton.texture);
-    SDL_DestroyTexture(menuState.joinButton.texture);
-    SDL_DestroyTexture(menuState.exitButton.texture);
-    SDL_DestroyTexture(menuState.startButton.texture);
-    SDL_DestroyTexture(menuState.joinHostButton.texture);
-    SDL_DestroyTexture(menuState.onlineButton.texture);
-    SDL_DestroyTexture(menuState.localButton.texture);
-    SDL_DestroyTexture(menuState.ipInputButton.texture);
-    //SDL_DestroyTexture(menuState.backButton.texture);
-    SDL_DestroyTexture(menuState.menuBackground);
-    SDL_DestroyTexture(menuState.gameBackground);
-    TTF_CloseFont(menufont);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    IMG_Quit();
-    TTF_Quit();
-    SDL_Quit();
-
-    return 0;
-
-}*/
 
