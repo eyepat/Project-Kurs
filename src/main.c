@@ -303,9 +303,9 @@ int main(int argc, char **argv) {
     }
     
     // Clean up
-    cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet, serverSocket);
+    //cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet, serverSocket);
 
-    return 0;
+    //return 0;
 }
 
 
