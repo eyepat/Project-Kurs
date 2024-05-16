@@ -49,7 +49,6 @@ void initServer(IPaddress ip, GameState *gameState, Client clients[], SDLNet_Soc
         SDL_RenderClear(renderer);
         drawMenu(renderer, font, menuState, windowWidth, windowHeight, portPointer, hostIP, isServerPointer);
         SDL_RenderPresent(renderer);
-        SDL_Delay(11);
 
         TCPsocket newClientSocket = SDLNet_TCP_Accept(serverSocket);
         if (newClientSocket) {
@@ -122,7 +121,6 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
         SDL_RenderClear(renderer);
         drawMenu(renderer, font, menuState, windowWidth, windowHeight, portPointer, hostIP, isServer);
         SDL_RenderPresent(renderer);
-        SDL_Delay(11);
     
         int serverFullSignal;
         if (SDLNet_CheckSockets(set, 1) > 0)
