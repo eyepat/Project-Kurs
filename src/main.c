@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
         handleMenuEvent(&closeWindow, &menuState);
         SDL_RenderClear(renderer);
         drawMenu(renderer, menufont, &menuState, windowWidth, windowHeight, portPointer, hostIP, isServerPointer);
-        SDL_Delay(10); //10ms delay between frames
+        SDL_Delay(11); //10ms delay between frames
 
         //SDL_RenderPresent(renderer);
         //menuState->menuState = 0;//start menu, choose to play online or local
