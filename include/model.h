@@ -61,6 +61,7 @@ typedef struct {
     int clientID;
     MovementFlags flags;
     int isActive;
+    int gameStart;
 } Client;
 
 //  User Interface Definitions 
