@@ -27,10 +27,12 @@ void initializeGame(GameState *gameState, Field *field) {
     gameState->ball.xSpeed = 0; // Initialize ball's speed in the x-direction to zero
     gameState->ball.ySpeed = 0; // Initialize ball's speed in the y-direction to zero
     modifyPlayerColors(255, 255, 255, 200, gameState->ball.colorData); //Set ball color
-    modifyPlayerColors(255, 0, 255, 200, gameState->players[0].colorData);
-    modifyPlayerColors(255, 255, 0, 200, gameState->players[1].colorData); //Hard set for default player color, it only matters for player that will get rendered later
-    // Reminder to set up color initiation for all players up to MAX later
-
+    modifyPlayerColors(255, 3, 86, 150, gameState->players[0].colorData);
+    modifyPlayerColors(255, 0, 0, 240, gameState->players[1].colorData); //Hard set for default player color, it only matters for players that will get rendered later
+    modifyPlayerColors(0, 0, 128, 240, gameState->players[2].colorData);
+    modifyPlayerColors(173, 216, 230, 240, gameState->players[3].colorData);
+    
+    
     // Initialize goal properties
     field->goals[0].box = (SDL_Rect){field->width * 0.063, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[0].teamID = 1; // Team 1's goal

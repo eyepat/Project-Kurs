@@ -235,12 +235,14 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
     if (menuState->menuState == 0) { //start menu
         SDL_RenderCopy(renderer, menuState->onlineButton.texture, NULL, &menuState->onlineButton.bounds);
         SDL_RenderCopy(renderer, menuState->localButton.texture, NULL, &menuState->localButton.bounds);
+        SDL_RenderPresent(renderer);
     }
 
     if (menuState->menuState == 1) { //online menu
         SDL_RenderCopy(renderer, menuState->hostButton.texture, NULL, &menuState->hostButton.bounds);
         SDL_RenderCopy(renderer, menuState->joinButton.texture, NULL, &menuState->joinButton.bounds);
         SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
+        SDL_RenderPresent(renderer);
     }
 
     if (menuState->menuState == 9) // Connect client to host after taking IP and port
