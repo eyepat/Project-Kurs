@@ -246,6 +246,7 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         SDL_RenderCopy(renderer, menuState->joinButton.texture, NULL, &menuState->joinButton.bounds);
         SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
         SDL_RenderPresent(renderer);
+
     }
 
     if (menuState->menuState == 9) // Connect client to host after taking IP and port
@@ -268,6 +269,9 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         SDL_RenderPresent(renderer);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        SDL_Delay(11);
     }
     
 
@@ -281,6 +285,9 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         SDL_RenderPresent(renderer);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        SDL_Delay(11);
     }
 
     if (menuState->menuState == 13)
@@ -292,6 +299,9 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         SDL_RenderPresent(renderer);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        SDL_Delay(11);
     }
 
     if (menuState->menuState == 14)
@@ -303,6 +313,9 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         SDL_RenderPresent(renderer);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture); 
+        SDL_Delay(11);       
     }
 
     if (menuState->menuState == 15)
@@ -314,6 +327,9 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         SDL_RenderPresent(renderer);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        SDL_Delay(11);
     }
 
     if (menuState->menuState == 16)
@@ -325,6 +341,9 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
         SDL_RenderCopy(renderer, texture, NULL, &dstrect);
         SDL_RenderPresent(renderer);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        SDL_Delay(11);
     }
     
     
