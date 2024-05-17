@@ -135,29 +135,35 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windo
     renderText(renderer, font, text, color, 185, 15);  // Justera positionen vid behov
 }
 void renderGoals(SDL_Renderer *renderer, const Field *field) {
-    // color for outlin, exempelvis vit
+    // Outline color, for example, black
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-    int outlineThickness = 2; // Du kan justera tjockleken efter behov
+    int outlineThickness = 2; // Adjust thickness as needed
 
-    // Rendera vänstra målet med outline
+    // Render left goal outline
     SDL_Rect outlineRectLeft = {field->goals[0].box.x - outlineThickness, field->goals[0].box.y - outlineThickness,
                                 field->goals[0].box.w + outlineThickness * 2, field->goals[0].box.h + outlineThickness * 2};
     SDL_RenderDrawRect(renderer, &outlineRectLeft);
 
-    // Rendera högra målet med outline
+    // Render right goal outline
     SDL_Rect outlineRectRight = {field->goals[1].box.x - outlineThickness, field->goals[1].box.y - outlineThickness,
                                  field->goals[1].box.w + outlineThickness * 2, field->goals[1].box.h + outlineThickness * 2};
     SDL_RenderDrawRect(renderer, &outlineRectRight);
 
-    // color for goal
-    SDL_SetRenderDrawColor(renderer, 190, 190, 190, 190); // Ändra färgvärden efter behov
+    // Set color for the left goal (red) with opacity
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 95); // Red color with 50% opacity
 
-    // render left goal
+    // Render left goal
     SDL_RenderFillRect(renderer, &field->goals[0].box);
 
-    // render right goal
+    // Set color for the right goal (blue) with opacity
+    SDL_SetRenderDrawColor(renderer, 0, 0, 200, 95); // Blue color with 50% opacity
+
+    // Render right goal
     SDL_RenderFillRect(renderer, &field->goals[1].box);
+
+    // Reset color back to black for any future drawing
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
 }
 
 void modifyPlayerColors(int red, int blue, int green, int opacity, int playerColorData[4]){
