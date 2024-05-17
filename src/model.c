@@ -173,8 +173,10 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
 
 void assignRandomColors(GameState *gameState) {
     // Define colors for the teams
-    int red[4] = {255, 0, 0, 200};  // RGBA for red with 200 opacity
-    int blue[4] = {0, 0, 255, 200}; // RGBA for blue with 200 opacity
+    int red[4] = {255, 77, 77, 200};  // RGBA for red with 200 opacity
+    int blue[4] = {102, 102, 255, 200}; // RGBA for blue with 200 opacity
+    int wineRed[4] = {204, 0, 0, 200};
+    int navyBlue[4] ={0, 0, 153, 200};
 
     for (int i = 0; i < gameState->numPlayers; i++) {
         if (gameState->numPlayers == 2) {
@@ -190,17 +192,35 @@ void assignRandomColors(GameState *gameState) {
                 gameState->players[i].colorData[3] = blue[3];
             }
         } else if (gameState->numPlayers == 4) {
-            if (i < 2) {  // First two players get red
+            if (i == 0) {  // First two players get red
                 gameState->players[i].colorData[0] = red[0];
                 gameState->players[i].colorData[1] = red[1];
                 gameState->players[i].colorData[2] = red[2];
                 gameState->players[i].colorData[3] = red[3];
-            } else {  // Next two players get blue
+            }
+            else if (i == 1)
+            {
+                gameState->players[i].colorData[0] = wineRed[0];
+                gameState->players[i].colorData[1] = wineRed[1];
+                gameState->players[i].colorData[2] = wineRed[2];
+                gameState->players[i].colorData[3] = wineRed[3];
+            }
+            
+            else if (i == 2)
+            {  // Next two players get blue
                 gameState->players[i].colorData[0] = blue[0];
                 gameState->players[i].colorData[1] = blue[1];
                 gameState->players[i].colorData[2] = blue[2];
                 gameState->players[i].colorData[3] = blue[3];
             }
+            else if (i == 3)
+            {
+                gameState->players[i].colorData[0] = navyBlue[0];
+                gameState->players[i].colorData[1] = navyBlue[1];
+                gameState->players[i].colorData[2] = navyBlue[2];
+                gameState->players[i].colorData[3] = navyBlue[3];         
+            }
+            
         }
     }
 }

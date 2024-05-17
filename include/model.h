@@ -6,7 +6,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 
-#define MAX_PLAYERS 4
+#define MAX_PLAYERS 3
 #define PALYER_SPEED 500
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800

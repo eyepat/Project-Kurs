@@ -295,7 +295,7 @@ int main(int argc, char **argv) {
         SDL_RenderPresent(renderer);
 
         // Delay for consistent frame rate
-        SDL_Delay(1);
+        SDL_Delay(5); //5ms delay = 200fps cap
     }
 
     // Display winner if game is over
