@@ -175,370 +175,142 @@ void renderButton(SDL_Renderer* renderer, Button* button) {
 
 
 void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int windowWidth, int windowHeight, int *portPointer, char hostIP[20], int *isServerPointer) {
-        
-    menuState->hostButton.bounds.x = windowWidth/2 - 100; 
-    menuState->hostButton.bounds.y = 100; 
-    menuState->hostButton.bounds.w = 200; // Button width is 200 pixels
-    menuState->hostButton.bounds.h = 50;  // Button height is 50 pixels
+    // Define button sizes and positions
+    const int buttonWidth = 200;
+    const int buttonHeight = 50;
+    const int buttonX = windowWidth / 2 - buttonWidth / 2;
+
+    // Host Button
+    menuState->hostButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};
     
-    menuState->joinButton.bounds.x = windowWidth/2 - 100; // Same x as hostButton 
-    menuState->joinButton.bounds.y = 200; // 200 pixels from the top, so it's below hostButton
-    menuState->joinButton.bounds.w = 200; // Same width as hostButton
-    menuState->joinButton.bounds.h = 50;  // Same height as hostButton
+    // Join Button
+    menuState->joinButton.bounds = (SDL_Rect){buttonX, 200, buttonWidth, buttonHeight};
+    
+    // Exit Button
+    menuState->exitButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};
+    
+    // Start Button
+    menuState->startButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};  // Same position as exit
+    
+    // Join Host Button
+    menuState->joinHostButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};  // Same position as exit
+    
+    // Online Button
+    menuState->onlineButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};  // Same position as host
+    
+    // Local Button
+    menuState->localButton.bounds = (SDL_Rect){buttonX, 200, buttonWidth, buttonHeight};  // Same position as join
+    
+    // IP Input Button
+    menuState->ipInputButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};  // Same position as host
 
-    menuState->exitButton.bounds.x = windowWidth/2 - 100; // Same x as other buttons 
-    menuState->exitButton.bounds.y = 300; // Below the other buttons
-    menuState->exitButton.bounds.w = 200; // Same width as other buttons
-    menuState->exitButton.bounds.h = 50;  // Same height as other buttons
+    strcpy(menuState->ip, "127.0.0.1");  // Set default IP
 
-    menuState->startButton.bounds.x = windowWidth/2 - 100; 
-    menuState->startButton.bounds.y = 300; // startButton position as exit
-    menuState->startButton.bounds.w = 200; 
-    menuState->startButton.bounds.h = 50;  
-        
-    menuState->joinHostButton.bounds.x= windowWidth/2 - 100;
-    menuState->joinHostButton.bounds.y = 300; // joinHostButton position as exit
-    menuState->joinHostButton.bounds.w = 200; 
-    menuState->joinHostButton.bounds.h = 50;  
-
-    menuState->onlineButton.bounds.x= windowWidth/2 - 100;
-    menuState->onlineButton.bounds.y = 100; // onlineButton position as host
-    menuState->onlineButton.bounds.w = 200; 
-    menuState->onlineButton.bounds.h = 50;  
-
-    menuState->localButton.bounds.x= windowWidth/2 - 100;
-    menuState->localButton.bounds.y = 200; // localButton same position as join
-    menuState->localButton.bounds.w = 200; 
-    menuState->localButton.bounds.h = 50;  
-
-    menuState->ipInputButton.bounds.x = windowWidth/2 - 100; 
-    menuState->ipInputButton.bounds.y = 100; // ipInputButton same position as host
-    menuState->ipInputButton.bounds.w = 200; 
-    menuState->ipInputButton.bounds.h = 50;  
-
-    strcpy(menuState->ip, "127.0.0.1"); //same position as host
-    char displayMessage[30] = "Enter host IP";
-        
+    // Render background
     SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-    //menuState->menuState = 0;//start menu, choose to play online or local
-    //menuState->menuState = 1;//online menu
-    //menuState->menuState = 2;//start local two player game
-    //menuState->menuState = 3;//host menu
-    //menuState->menuState = 4;//join menu
-    //menuState->menuState = 5;//exit game
-    //menuState->menuState = 6;//start game
-    //menuState->menuState = 7;//join host
-    //menuState->menuState = 8;//enter ip
-    //startButton position as exit
-    //joinHostButton position as exit
-    //onlineButton position as host
-    //localButton same position as join
-    //ipInputButton same position as host
 
-    if (menuState->menuState == 0) { //start menu
-        SDL_RenderCopy(renderer, menuState->onlineButton.texture, NULL, &menuState->onlineButton.bounds);
-        SDL_RenderCopy(renderer, menuState->localButton.texture, NULL, &menuState->localButton.bounds);
-        SDL_RenderPresent(renderer);
-    }
-
-    if (menuState->menuState == 1) { //online menu
-        SDL_RenderCopy(renderer, menuState->hostButton.texture, NULL, &menuState->hostButton.bounds);
-        SDL_RenderCopy(renderer, menuState->joinButton.texture, NULL, &menuState->joinButton.bounds);
-        SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
-        SDL_RenderPresent(renderer);
-    }
-
-    if (menuState->menuState == 9) // Connect client to host after taking IP and port
-    {
-        /*SDL_Color color = {255, 255, 255}; 
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Connecting to host...", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 100, 200, 300, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);   */
-        SDL_RenderClear(renderer);
-        menuState->menuState = 6;
-    }
-
-    if (menuState->menuState == 11)
-    {
-        SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Waiting for players 1/4...", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 150, 300, 300, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        SDL_RenderPresent(renderer);
-    }
-    
-
-
-    if (menuState->menuState == 12)
-    {
-        SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Waiting for players 2/4...", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 150, 300, 300, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        SDL_RenderPresent(renderer);
-    }
-
-    if (menuState->menuState == 13)
-    {
-        SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Waiting for players 3/4...", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 150, 300, 300, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        SDL_RenderPresent(renderer);
-    }
-
-    if (menuState->menuState == 14)
-    {
-        SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Starting game with 4/4 players...", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 150, 300, 300, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        SDL_RenderPresent(renderer);
-    }
-
-    if (menuState->menuState == 15)
-    {
-        SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Connecting to host...", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 150, 300, 300, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        SDL_RenderPresent(renderer);
-    }
-
-    if (menuState->menuState == 16)
-    {
-        SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Connected to host and waiting", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 150, 300, 300, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        SDL_RenderPresent(renderer);
+    // Render buttons based on menu state
+    switch(menuState->menuState) {
+        case 0:  // Start menu
+            SDL_RenderCopy(renderer, menuState->onlineButton.texture, NULL, &menuState->onlineButton.bounds);
+            SDL_RenderCopy(renderer, menuState->localButton.texture, NULL, &menuState->localButton.bounds);
+            break;
+        case 1:  // Online menu
+            SDL_RenderCopy(renderer, menuState->hostButton.texture, NULL, &menuState->hostButton.bounds);
+            SDL_RenderCopy(renderer, menuState->joinButton.texture, NULL, &menuState->joinButton.bounds);
+            SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
+            break;
+        case 9:  // Connect client to host
+            SDL_RenderClear(renderer);
+            menuState->menuState = 6;  // Proceed to next state
+            break;
+        case 11:  // Waiting for players 1/4
+            renderTextMenu(renderer, font, "Waiting for players 1/4...", windowWidth / 2 - 150, 300, 300, 50);
+            break;
+        case 12:  // Waiting for players 2/4
+           renderTextMenu(renderer, font, "Waiting for players 2/4...", windowWidth / 2 - 150, 300, 300, 50);
+            break;
+        case 13:  // Waiting for players 3/4
+            renderTextMenu(renderer, font, "Waiting for players 3/4...", windowWidth / 2 - 150, 300, 300, 50);
+            break;
+        case 14:  // Starting game with 4/4 players
+           renderTextMenu(renderer, font, "Starting game with 4/4 players...", windowWidth / 2 - 150, 300, 300, 50);
+            break;
+        case 15:  // Connecting to host
+           renderTextMenu(renderer, font, "Connecting to host...", windowWidth / 2 - 150, 300, 300, 50);
+            break;
+        case 16:  // Connected to host and waiting
+            renderTextMenu(renderer, font, "Connected to host and waiting", windowWidth / 2 - 150, 300, 300, 50);
+            break;
+        case 10:  // Host setup
+            *isServerPointer = 1;
+            menuState->menuState = 6;
+            break;
+        case 3:  // Host button clicked
+            handleUserInput(renderer, font, menuState, portPointer, "Enter port",1200);
+            break;
+        case 8:  // Enter host port for connecting to host
+            handleUserInput(renderer, font, menuState, portPointer, "Enter host port",windowWidth);
+            *isServerPointer = 2;
+            menuState->menuState = 9;
+            break;
+        case 4:  // Join client menu
+            handleUserInput(renderer, font, menuState, NULL, "Enter host IP",windowWidth);
+            strcpy(hostIP, menuState->userInputIp);
+            menuState->menuState = 8;
+            break;
     }
     
-    
-    
-    
+    // Present the renderer
+    SDL_RenderPresent(renderer);
+}
 
-    if (menuState->menuState == 10)
-    {
-        
-        *isServerPointer = 1;
-        menuState->menuState = 6;
+// Helper function to render text
+void renderTextMenu(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, int w, int h) {
+    SDL_Color color = {255, 255, 255};  // White color
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect dstrect = {x, y, w, h};
+    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}
 
-         
-    }
-        
-    if (menuState->menuState == 3) { //host button clicked
-        // Show the IP address
-        //SDL_RenderCopy(renderer, menuState->startButton.texture, NULL, &menuState->startButton.bounds);
-        //strcpy(menuState->ip, "127.0.0.1"); //same position as host
+// Helper function to handle user input
+void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int* portPointer, const char* prompt, int windowWidth) {
+    SDL_Color color = {255, 255, 255};  // White color
+    renderText(renderer, font, prompt, color, windowWidth / 2 - 100, 50);
 
-        // Draw the IP address
-                 
-        SDL_Color color = {255, 255, 255}; // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Enter port", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 100, 200, 200, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        int type = 1;
-        int position = 0;
+    int type = true;
+    int position = 0;
+    memset(menuState->userInputIp, 0, 20);
 
-        memset(menuState->userInputIp, 0, 20);
-        //user ip input while loop
-        while (type) { // While type is true
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) { // Poll for events
-                if (event.type == SDL_KEYDOWN) { // If a key was pressed
-                    // If the key was a number or a dot
-                    if ((event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) || event.key.keysym.sym == SDLK_PERIOD) {
-                        // If position is less than 15
-                        if (position < 15) {
-                            // Add the character to userInputIp
-                            menuState->userInputIp[position] = event.key.keysym.sym;
-                            position++;
-                        }
+    while (type) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_KEYDOWN) {
+                if ((event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) || event.key.keysym.sym == SDLK_PERIOD) {
+                    if (position < 15) {
+                        menuState->userInputIp[position] = event.key.keysym.sym;
+                        position++;
                     }
-                    // If the backspace key was pressed and position is greater than 0
-                    if (event.key.keysym.sym == SDLK_BACKSPACE && position > 0) {
-                        position--;
-                        // Remove the last character from userInputIp
-                        menuState->userInputIp[position] = 0;
-                    }
-                    // If the return key was pressed
-                    if (event.key.keysym.sym == SDLK_RETURN) {
-                        // Set type to false 
-                        type = false;
-                    
+                }
+                if (event.key.keysym.sym == SDLK_BACKSPACE && position > 0) {
+                    position--;
+                    menuState->userInputIp[position] = 0;
+                }
+                if (event.key.keysym.sym == SDLK_RETURN) {
+                    type = false;
+                    if (portPointer != NULL) {
                         *portPointer = atoi(menuState->userInputIp);
-                        printf("%d ", *portPointer);
                         menuState->menuState = 10;
-                        
                     }
                 }
             }
+        }
 
-            // Render the ipInputButton texture
-            SDL_RenderCopy(renderer, menuState->ipInputButton.texture, NULL, &menuState->ipInputButton.bounds);
-
-            SDL_Surface* surface = TTF_RenderText_Solid(font, menuState->userInputIp, color);
-
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-            SDL_Rect dstrect = {windowWidth/2 - 100, 100, 200, 50}; // Position of the ip
-
-            // Render the text over the image
-            SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-            SDL_RenderPresent(renderer); //update screen
-
-            SDL_FreeSurface(surface);
-            SDL_DestroyTexture(texture);
-            //menuState->menuState = 5;
-        }//while type=true
-
-
-
-    
+        SDL_RenderCopy(renderer, menuState->ipInputButton.texture, NULL, &menuState->ipInputButton.bounds);
+        renderText(renderer, font, menuState->userInputIp, color, windowWidth / 2 - 50, 110);
+        SDL_RenderPresent(renderer);
     }
-
-
-        if (menuState->menuState == 8) //Enter host port for connecting to host
-    {
-        SDL_Color color = {255, 255, 255}; 
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Enter host port", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 100, 200, 200, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        int type = true;
-        int position = 0;
-
-        memset(menuState->userInputIp, 0, 20);
-        //user ip input while loop
-        while (type) { // While type is true
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) { // Poll for events
-                if (event.type == SDL_KEYDOWN) { // If a key was pressed
-                    // If the key was a number or a dot
-                    if ((event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) || event.key.keysym.sym == SDLK_PERIOD) {
-                        // If position is less than 15
-                        if (position < 15) {
-                            // Add the character to userInputIp
-                            menuState->userInputIp[position] = event.key.keysym.sym;
-                            position++;
-                        }
-                    }
-                    // If the backspace key was pressed and position is greater than 0
-                    if (event.key.keysym.sym == SDLK_BACKSPACE && position > 0) {
-                        position--;
-                        // Remove the last character from userInputIp
-                        menuState->userInputIp[position] = 0;
-                    }
-                    // If the return key was pressed
-                    if (event.key.keysym.sym == SDLK_RETURN) {
-                        // Set type to false 
-                        type = false;
-                        *isServerPointer = 2;
-                        *portPointer = atoi(menuState->userInputIp);
-                        printf("%d ", *portPointer);
-                        menuState->menuState = 9;
-                        
-                    }
-                }
-            }
-
-            // Render the ipInputButton texture
-            SDL_RenderCopy(renderer, menuState->ipInputButton.texture, NULL, &menuState->ipInputButton.bounds);
-
-            SDL_Surface* surface = TTF_RenderText_Solid(font, menuState->userInputIp, color);
-
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-            SDL_Rect dstrect = {windowWidth/2 - 100, 100, 200, 50}; // Position of the ip
-
-            // Render the text over the image
-            SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-            SDL_RenderPresent(renderer); //update screen
-
-            SDL_FreeSurface(surface);
-            SDL_DestroyTexture(texture);
-            //menuState->menuState = 5;
-        }//while type=true
-    }
-
-    if (menuState->menuState == 4) { // If the menu state is 4 (join client menu)
-
-        *isServerPointer = 2;
-        int type = true; 
-        int position = 0; // Position in userInputIp 
-        SDL_Color color = {255, 255, 255}; 
-
-        SDL_Surface* surface = TTF_RenderText_Solid(font, "Enter host IP", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect dstrect = {windowWidth/2 - 100, 200, 200, 50}; // Position where you want to show the IP text
-        SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-        
-
-        memset(menuState->userInputIp, 0, 20);
-        //user ip input while loop
-        while (type) { // While type is true
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) { // Poll for events
-                if (event.type == SDL_KEYDOWN) { // If a key was pressed
-                    // If the key was a number or a dot
-                    if ((event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) || event.key.keysym.sym == SDLK_PERIOD) {
-                        // If position is less than 15
-                        if (position < 15) {
-                            // Add the character to userInputIp
-                            menuState->userInputIp[position] = event.key.keysym.sym;
-                            position++;
-                        }
-                    }
-                    // If the backspace key was pressed and position is greater than 0
-                    if (event.key.keysym.sym == SDLK_BACKSPACE && position > 0) {
-                        position--;
-                        // Remove the last character from userInputIp
-                        menuState->userInputIp[position] = 0;
-                    }
-                    // If the return key was pressed
-                    if (event.key.keysym.sym == SDLK_RETURN) {
-                        // Set type to false 
-                        type = false;
-                        strcpy(hostIP, menuState->userInputIp);
-
-                        menuState->menuState = 8;
-                        
-                    }
-                }
-            }
-
-            // Render the ipInputButton texture
-            SDL_RenderCopy(renderer, menuState->ipInputButton.texture, NULL, &menuState->ipInputButton.bounds);
-
-            SDL_Surface* surface = TTF_RenderText_Solid(font, menuState->userInputIp, color);
-
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-            SDL_Rect dstrect = {windowWidth/2 - 100, 100, 200, 50}; // Position of the ip
-
-            // Render the text over the image
-            SDL_RenderCopy(renderer, texture, NULL, &dstrect);
-            SDL_RenderPresent(renderer); //update screen
-
-            SDL_FreeSurface(surface);
-            SDL_DestroyTexture(texture);
-            //menuState->menuState = 5;
-        }//while type=true
-    }    
-
 }
