@@ -302,7 +302,7 @@ int main(int argc, char **argv) {
     if (gameState.isGameOver) {
         renderWinner(renderer, font, &gameState.scoreTracker);  // Display winning team
         SDL_RenderPresent(renderer);
-        SDL_Delay(10000);  // Keep the window with the result for 10 seconds
+        SDL_Delay(5000);  // Keep the window with the result for 10 seconds
     }
 
     // Clean up
