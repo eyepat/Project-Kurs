@@ -6,7 +6,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 
-#define MAX_PLAYERS 4
+#define MAX_PLAYERS 3
 #define PALYER_SPEED 500
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800
@@ -110,5 +110,6 @@ void initializeTimer(Timer* timer, int maxTime);
 void updateTimer(Timer* timer, GameState *gameState);
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);
 void resetGame(GameState *gameState, Entity *ball, Field *field);
+void updatePlayerPositionLocal(GameState *gameState, const Field *field, float deltaTime, MovementFlags flags[2]);
 
 #endif // MODEL_H

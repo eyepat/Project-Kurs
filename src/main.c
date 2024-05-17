@@ -100,10 +100,16 @@ int main(int argc, char **argv) {
         //menuState->menuState = 6;//start game
         //menuState->menuState = 7;// enter host ip and join host
 
-        if (menuState.menuState == 6)
+        if (menuState.menuState == 6 || menuState.menuState == 2)
         {
             SDL_RenderClear(renderer);
             closeWindow = true;
+
+            if (menuState.menuState == 2)
+            {
+                isServer = 0;
+            }
+            
         }
   
     }
@@ -148,7 +154,7 @@ int main(int argc, char **argv) {
             initClient(ip, &myClientInfo, &gameState, renderer, menufont, windowWidth, &menuState, windowHeight, portPointer, hostIP, isServerPointer, &closeWindow);
             
         default:
-            // printf("poop");
+            
             break;
         }
 
@@ -236,7 +242,19 @@ int main(int argc, char **argv) {
     gameState.ball.y = 0;
     Field field;
 
-    initializeGame(&gameState, &field);
+    if (isServer != 0) //Initialize this way only for online play
+    {
+        initializeGame(&gameState, &field);
+    }
+
+    if (isServer == 0) //Initialize this way for 1v1 local play
+    {
+        gameState.numPlayers = 2; 
+        initializeGame(&gameState, &field);
+    }
+    MovementFlags localMovement[2];
+    
+    
 
     // Track player movement
     Uint32 previousTime = SDL_GetTicks();
@@ -282,6 +300,21 @@ int main(int argc, char **argv) {
             receiveDataFromServer(&myClientInfo, &gameState);
         }
 
+        if (isServer == 0) //Local 1v1 gameplay
+        {
+            localControls(&closeWindow, &gameState, localMovement);
+            updatePlayerPositionLocal(&gameState, &field, deltaTime, localMovement);
+            updateTimer(&gameState.gameTimer, &gameState);
+            updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
+            
+            if (scoreTrue) {
+                resetGame(&gameState, &gameState.ball, &field);
+                scoreTrue = 0;
+            }
+
+        }
+        
+
         // Render game
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -295,14 +328,14 @@ int main(int argc, char **argv) {
         SDL_RenderPresent(renderer);
 
         // Delay for consistent frame rate
-        SDL_Delay(1);
+        SDL_Delay(5); //5ms delay = 200fps cap
     }
 
     // Display winner if game is over
     if (gameState.isGameOver) {
         renderWinner(renderer, font, &gameState.scoreTracker);  // Display winning team
         SDL_RenderPresent(renderer);
-        SDL_Delay(5000);  // Keep the window with the result for 10 seconds
+        SDL_Delay(11); 
     }
 
     // Clean up
