@@ -110,5 +110,6 @@ void initializeTimer(Timer* timer, int maxTime);
 void updateTimer(Timer* timer, GameState *gameState);
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);
 void resetGame(GameState *gameState, Entity *ball, Field *field);
+void updatePlayerPositionLocal(GameState *gameState, const Field *field, float deltaTime, MovementFlags flags[2]);
 
 #endif // MODEL_H

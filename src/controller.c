@@ -166,3 +166,48 @@ void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *wind
     TTF_CloseFont(font);
     SDL_Quit();
 }
+
+void localControls(bool *closeWindow, GameState *gameState, MovementFlags playerMovement[2]) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            *closeWindow = true;
+            return;
+        }
+        if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+            // Determine the value based on whether the event is key down or key up
+            bool value = (event.type == SDL_KEYDOWN); 
+            switch (event.key.keysym.scancode) {
+                case SDL_SCANCODE_W:
+                    playerMovement[0].up = value;
+                    break;
+                case SDL_SCANCODE_S:
+                    playerMovement[0].down = value;
+                    break;
+                case SDL_SCANCODE_A:
+                    playerMovement[0].left = value;
+                    break;
+                case SDL_SCANCODE_D:
+                    playerMovement[0].right = value;
+                    break;
+                case SDL_SCANCODE_DOWN:
+                    playerMovement[1].down = value;
+                    break;
+                case SDL_SCANCODE_UP:
+                    playerMovement[1].up = value;
+                    break;
+                case SDL_SCANCODE_LEFT:
+                    playerMovement[1].left = value;
+                    break;
+                case SDL_SCANCODE_RIGHT:
+                    playerMovement[1].right = value;
+                    break;
+                default:
+                    break;
+            
+            
+            
+            }
+        }
+    }
+}
