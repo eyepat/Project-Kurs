@@ -1,13 +1,11 @@
-
-
 #include "model.h"
 #include "view.h"
 #include <stdlib.h>
 #include <time.h>
+#include "network.h" 
 #include <math.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
-
 
 void initializeGame(GameState *gameState, Field *field) {
     // Set field dimensions based on the current display resolution
@@ -40,12 +38,6 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[1].teamID = 2; // Team 2's goal
 }
 
-
-
-
-
-
-
 void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime) {
     for (int i = 0; i < gameState->numPlayers; i++) {
         // Ensure that the client index used is within the bounds of the gameState players array
@@ -53,11 +45,6 @@ void updatePlayerPosition(GameState *gameState, Client clients[], const Field *f
             continue;  // Skip this client if their clientID is out of range
         }
 
-        // if (!clients[i].isActive) {
-        //     continue; // Skip inactive clients
-        // }
-
-        // Use clientID to refer to the specific player in gameState
         int clientID = clients[i].clientID;
         MovementFlags clientFlags = clients[i].flags;
         float speed = PALYER_SPEED * deltaTime;
@@ -81,8 +68,6 @@ void updatePlayerPosition(GameState *gameState, Client clients[], const Field *f
     }
 }
 
-
-
 // Function to update ball position
 int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag) {
     // Loop through all players to check for interactions with the ball
@@ -96,7 +81,6 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
             float dy = ball->y - player->y;
             float magnitude = sqrt(dx * dx + dy * dy);
 
-            // Prevent division by zero
             if (magnitude != 0) {
                 dx /= magnitude; // Normalize the direction vector
                 dy /= magnitude;
@@ -141,7 +125,6 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
             ball->x + ball->radius < field->goals[i].box.x + field->goals[i].box.w &&
             ball->y - ball->radius > field->goals[i].box.y &&
             ball->y + ball->radius < field->goals[i].box.y + field->goals[i].box.h && *scoreFlag != 1) {
-            // Ball is in the goal
             ball->xSpeed = 0;
             ball->ySpeed = 0;
             int scoringTeam = (field->goals[i].teamID == 1) ? 2 : 1;
@@ -151,18 +134,15 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
         }
     }
 
-    // Check boundaries and apply the margins set for the player
     float verticalMargin = field->height * 0.12; // Top margin
     float bottomMargin = field->height * 0.10; // Bottom margin
     float horizontalMargin = field->width * 0.07; // Side margins
 
-    // Check if the ball hits the left or right wall
     if (ball->x - ball->radius <= horizontalMargin || ball->x + ball->radius >= field->width - horizontalMargin) {
         ball->xSpeed *= -1;
         ball->x = fmax(ball->radius + horizontalMargin, fmin(ball->x, field->width - ball->radius - horizontalMargin));
     }
 
-    // Check if the ball hits the top or bottom wall
     if (ball->y - ball->radius <= verticalMargin || ball->y + ball->radius >= field->height - bottomMargin) {
         ball->ySpeed *= -1;
         ball->y = fmax(ball->radius + verticalMargin, fmin(ball->y, field->height - ball->radius - bottomMargin));
@@ -172,60 +152,49 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
 }
 
 void assignRandomColors(GameState *gameState) {
-    // Define colors for the teams
-    int red[4] = {255, 120, 77, 200};  // RGBA for red with 200 opacity
-    int blue[4] = {102, 102, 255, 200}; // RGBA for blue with 200 opacity
+    int red[4] = {255, 120, 77, 200};
+    int blue[4] = {102, 102, 255, 200};
     int wineRed[4] = {255, 0, 0, 200};
-    int navyBlue[4] ={100, 0, 180, 200};
+    int navyBlue[4] = {100, 0, 180, 200};
 
     for (int i = 0; i < gameState->numPlayers; i++) {
         if (gameState->numPlayers == 2) {
-            if (i == 0) {  // First player gets red
+            if (i == 0) {
                 gameState->players[i].colorData[0] = red[0];
                 gameState->players[i].colorData[1] = red[1];
                 gameState->players[i].colorData[2] = red[2];
                 gameState->players[i].colorData[3] = red[3];
-            } else {  // Second player gets blue
+            } else {
                 gameState->players[i].colorData[0] = blue[0];
                 gameState->players[i].colorData[1] = blue[1];
                 gameState->players[i].colorData[2] = blue[2];
                 gameState->players[i].colorData[3] = blue[3];
             }
         } else if (gameState->numPlayers == 4) {
-            if (i == 0) {  // First two players get red
+            if (i == 0) {
                 gameState->players[i].colorData[0] = red[0];
                 gameState->players[i].colorData[1] = red[1];
                 gameState->players[i].colorData[2] = red[2];
                 gameState->players[i].colorData[3] = red[3];
-            }
-            else if (i == 1)
-            {
+            } else if (i == 1) {
                 gameState->players[i].colorData[0] = wineRed[0];
                 gameState->players[i].colorData[1] = wineRed[1];
                 gameState->players[i].colorData[2] = wineRed[2];
                 gameState->players[i].colorData[3] = wineRed[3];
-            }
-            
-            else if (i == 2)
-            {  // Next two players get blue
+            } else if (i == 2) {
                 gameState->players[i].colorData[0] = blue[0];
                 gameState->players[i].colorData[1] = blue[1];
                 gameState->players[i].colorData[2] = blue[2];
                 gameState->players[i].colorData[3] = blue[3];
-            }
-            else if (i == 3)
-            {
+            } else if (i == 3) {
                 gameState->players[i].colorData[0] = navyBlue[0];
                 gameState->players[i].colorData[1] = navyBlue[1];
                 gameState->players[i].colorData[2] = navyBlue[2];
-                gameState->players[i].colorData[3] = navyBlue[3];         
+                gameState->players[i].colorData[3] = navyBlue[3];
             }
-            
         }
     }
 }
-
-
 
 void initializeScore(Score* score) {
     score->team1Score = 0;
@@ -259,11 +228,11 @@ void updateTimer(Timer* timer, GameState *gameState) {
 
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
     char message[100];
-    SDL_Color color = {255, 255, 255};  // White color
+     SDL_Color color = {255, 255, 255};  // White color
     if (score->team1Score > score->team2Score) {
-        sprintf(message, "Team 1 wins with a score of %d to %d!", score->team1Score, score->team2Score);
+        sprintf(message, "Red team wins with a score of %d to %d!", score->team1Score, score->team2Score);
     } else if (score->team2Score > score->team1Score) {
-        sprintf(message, "Team 2 wins with a score of %d to %d!", score->team2Score, score->team1Score);
+        sprintf(message, "blue team wins with a score of %d to %d!", score->team2Score, score->team1Score);
     } else {
         sprintf(message, "The game is a draw, each team scoring %d.", score->team1Score);
     }
@@ -276,8 +245,7 @@ void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
     SDL_DestroyTexture(texture);
 }
 
-
-void resetGame(GameState *gameState, Entity *ball, Field *field) {
+void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
     // Reset players' positions
     for (int i = 0; i < gameState->numPlayers; i++) {
         gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
@@ -298,11 +266,8 @@ void resetGame(GameState *gameState, Entity *ball, Field *field) {
     }
 }
 
-
 void updatePlayerPositionLocal(GameState *gameState, const Field *field, float deltaTime, MovementFlags flags[2]) {
     for (int i = 0; i < gameState->numPlayers; i++) {
-    
-
         MovementFlags clientFlags = flags[i];
         float speed = PALYER_SPEED * deltaTime;
 
@@ -322,10 +287,64 @@ void updatePlayerPositionLocal(GameState *gameState, const Field *field, float d
         if (clientFlags.right && gameState->players[i].x + gameState->players[i].radius < field->width - horizontalMargin) {
             gameState->players[i].x += speed;
         }
-        
-        
     }
 }
+void resetGameState(GameState *gameState, Entity *ball, Field *field, Client clients[], int isServer, SDLNet_SocketSet socketSet) {
+    // Reset scores
+    initializeScore(&gameState->scoreTracker);
+    // Reset game timer
+    initializeTimer(&gameState->gameTimer, 45); 
+
+    // Reset game over flag
+    gameState->isGameOver = false;
+    // Reset players' positions and ball position
+    resetGameAfterGoal(gameState, ball, field);
+    // If server, reset clients' movement flags and send reset state to clients
+    if (isServer == 1) {
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            clients[i].flags.up = false;
+            clients[i].flags.down = false;
+            clients[i].flags.left = false;
+            clients[i].flags.right = false;
+        }
+
+        // Send reset state to clients
+        sendDataToClients(clients, gameState);
+    }
+
+    // Print debug info
+    printf("Full game reset complete.\n");
+}
+
+
+
+void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *renderer, TTF_Font *font, Field *field, int isServer, Client clients[], SDLNet_SocketSet socketSet) {
+    renderWinner(renderer, font, &gameState->scoreTracker);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(3000); // Show the winner for 3 seconds
+
+    SDL_Event event;
+    bool decisionMade = false;
+
+    while (!decisionMade) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                *closeWindow = true;
+                decisionMade = true;
+            } else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_q) {
+                    *closeWindow = true;
+                    decisionMade = true;
+                } else if (event.key.keysym.sym == SDLK_r && isServer == 1) {
+                    printf("Restarting game...\n");
+                    resetGameState(gameState, &gameState->ball, field, clients, isServer, socketSet);
+                    decisionMade = true;
+                }
+            }
+        }
+    }
+}
+
 
 
 
