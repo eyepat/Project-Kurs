@@ -189,7 +189,11 @@ int main(int argc, char **argv) {
     //Loading Font
     TTF_Font* font = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 50);
     if (!font) {
-    printf("Error loading font: %s\n", TTF_GetError());
+        printf("Error loading font: %s\n", TTF_GetError());
+        //SDL_DestroyRenderer(renderer);
+        //SDL_DestroyWindow(window);
+        //TTF_Quit();
+        //SDL_Quit();
     }
 
     window = SDL_CreateWindow(
@@ -203,6 +207,7 @@ int main(int argc, char **argv) {
     if (!window) {
         printf("Error creating window: %s\n", SDL_GetError());
         SDL_Quit();
+        //TTF_Quit();
         return 1;
     }
     // Hämta dimensionerna av fönstret
@@ -214,6 +219,7 @@ int main(int argc, char **argv) {
     if (!renderer) {
         printf("Error creating renderer: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
+        //TTF_Quit();
         SDL_Quit();
         return 1;
     }

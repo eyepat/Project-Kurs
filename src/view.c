@@ -212,7 +212,7 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
 
     strcpy(menuState->ip, "127.0.0.1");  // Set default IP
 
-    // Render background
+    SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
 
     // Render buttons based on menu state
@@ -314,9 +314,12 @@ void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuStat
                 }
             }
         }
-
-        SDL_RenderCopy(renderer, menuState->ipInputButton.texture, NULL, &menuState->ipInputButton.bounds);
-        renderText(renderer, font, menuState->userInputIp, color, windowWidth / 2 - 50, 110);
-        SDL_RenderPresent(renderer);
+        
+        SDL_RenderClear(renderer);  // Clear renderer before drawing
+        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);  // Render background
+        SDL_RenderCopy(renderer, menuState->ipInputButton.texture, NULL, &menuState->ipInputButton.bounds);  // Render button
+        renderText(renderer, font, prompt, color, windowWidth / 2 - 100, 50);  // Render prompt
+        renderText(renderer, font, menuState->userInputIp, color, windowWidth / 2 - 50, 110);  // Render user input
+        SDL_RenderPresent(renderer);  // Present renderer
     }
 }
