@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     menuState.localButton.texture = IMG_LoadTexture(renderer, "resources/local.png");
     menuState.ipInputButton.texture = IMG_LoadTexture(renderer, "resources/ipInput.png");
     menuState.backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
-    menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.png");
+    menuState.menuBackground = IMG_LoadTexture(renderer, "resources/menu.jpg");
     menuState.gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
 
     bool closeWindow = false;
