@@ -212,7 +212,7 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
 
     strcpy(menuState->ip, "127.0.0.1");  // Set default IP
 
-    SDL_RenderClear(renderer);
+    //SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
 
     // Render buttons based on menu state
