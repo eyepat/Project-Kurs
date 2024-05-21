@@ -293,7 +293,7 @@ void resetGameState(GameState *gameState, Entity *ball, Field *field, Client cli
     // Reset scores
     initializeScore(&gameState->scoreTracker);
     // Reset game timer
-    initializeTimer(&gameState->gameTimer, 45); 
+    initializeTimer(&gameState->gameTimer, 120); 
 
     // Reset game over flag
     gameState->isGameOver = false;
