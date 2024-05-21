@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 
     int choice, port;
     char hostIP[20];
-    int isServer = 0;
+    int isServer = 77;
     int *portPointer = &port;
     int *isServerPointer = &isServer;
 
@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    while (true) { // Main game loop for restart functionality
+    while (isServer == 0 || isServer == 1 || isServer == 2) { // Main game loop for restart functionality
         gameState.ball.x = 0;
         gameState.ball.y = 0;
         Field field;
