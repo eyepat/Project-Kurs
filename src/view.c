@@ -106,6 +106,7 @@ void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Co
 // Render the timer text
 void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windowWidth) {
     // Convert to Minutes and seconds
+
     int totalSeconds = timer->currentTime;
     int minutes = totalSeconds / 60;
     int seconds = totalSeconds % 60;

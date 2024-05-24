@@ -209,6 +209,24 @@ void updateScore(Score *score, int teamNumber) {
     }
 }
 
+struct timer{
+    int startTime;
+    int currentTime;
+    int maxTime;
+};
+
+Timer *createTimer(int startTime, int currentTime, int maxTime) {
+    Timer *timer = malloc(sizeof(struct timer));
+    timer->startTime=startTime;
+    timer->currentTime=currentTime;
+    timer->maxTime=maxTime;
+    return timer;
+}
+
+void destroyTimer(Timer *timer){
+    free(timer);
+}
+
 void initializeTimer(Timer* timer, int maxTime) {
     timer->currentTime = 0;
     timer->startTime = SDL_GetTicks64();

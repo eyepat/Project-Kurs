@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
         Uint32 currentTime;
         float deltaTime;
 
-        Timer timer;
+        Timer *timer=createTimer(0,0,0);
         initializeTimer(&gameState.gameTimer, 120);
 
         initializeScore(&gameState.scoreTracker);

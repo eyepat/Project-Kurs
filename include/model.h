@@ -38,11 +38,7 @@ typedef struct {
 } Field;
 
 //  Game State Definitions 
-typedef struct {
-    int startTime;
-    int currentTime;
-    int maxTime;
-} Timer;
+typedef struct timer Timer;
 
 typedef struct {
     int team1Score;
@@ -107,8 +103,13 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
 void assignRandomColors(GameState *gameState);
 void initializeScore(Score* score);
 void updateScore(Score *score, int teamID);
+
+Timer *createTimer(int startTime, int currentTime, int maxTime);
+void destroyTimer(Timer *timer);
+
 void initializeTimer(Timer* timer, int maxTime);
 void updateTimer(Timer* timer, GameState *gameState);
+
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);
 void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field);
 void resetGameState(GameState *gameState, Entity *ball, Field *field, Client clients[], int isServer, SDLNet_SocketSet socketSet);
