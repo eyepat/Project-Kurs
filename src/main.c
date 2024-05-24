@@ -9,8 +9,6 @@
 #include "controller.h"
 #include "network.h"
 
-
-
 int main(int argc, char **argv) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
@@ -139,6 +137,8 @@ int main(int argc, char **argv) {
     TTF_Font* font = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 50);
     if (!font) {
         printf("Error loading font: %s\n", TTF_GetError());
+        SDL_Quit();
+        return 1;
     }
 
     window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
     SDL_FreeSurface(fieldSurface);
     if (!fieldTexture) {
         printf("Error creating football field texture: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(renderer);
+         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
@@ -196,9 +196,8 @@ int main(int argc, char **argv) {
         Uint32 currentTime;
         float deltaTime;
 
-        Timer *timer=createTimer(0,0,0);
-        initializeTimer(&gameState.gameTimer, 120);
-
+        gameState.gameTimer = createTimer(0, 0, 45); // 2 minutes timer
+        initializeTimer(&gameState.gameTimer, 45); // 120 seconds = 2 minutes
         initializeScore(&gameState.scoreTracker);
 
         closeWindow = false;
@@ -214,7 +213,7 @@ int main(int argc, char **argv) {
                 receiveDataFromClients(clients, socketSet, &gameState);
                 updatePlayerPosition(&gameState, clients, &field, deltaTime);
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-                updateTimer(&gameState.gameTimer, &gameState);
+                updateTimer(&gameState.gameTimer); // Fixed function call
 
                 // If a goal is scored, reset the ball and players' positions
                 if (scoreTrue) {
@@ -230,7 +229,7 @@ int main(int argc, char **argv) {
             } else if (isServer == 0) {
                 localControls(&closeWindow, &gameState, localMovement);
                 updatePlayerPositionLocal(&gameState, &field, deltaTime, localMovement);
-                updateTimer(&gameState.gameTimer, &gameState);
+                updateTimer(&gameState.gameTimer); 
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
 
                 // If a goal is scored, reset the ball and players' positions

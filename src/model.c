@@ -7,6 +7,13 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
+struct timer {
+    int startTime;
+    int currentTime;
+    int maxTime;
+    Uint32 lastUpdate; // Time of the last update in milliseconds
+};
+
 void initializeGame(GameState *gameState, Field *field) {
     // Set field dimensions based on the current display resolution
     field->width = SCREEN_WIDTH;
@@ -209,11 +216,7 @@ void updateScore(Score *score, int teamNumber) {
     }
 }
 
-struct timer{
-    int startTime;
-    int currentTime;
-    int maxTime;
-};
+
 
 Timer *createTimer(int startTime, int currentTime, int maxTime) {
     Timer *timer = malloc(sizeof(struct timer));
@@ -226,14 +229,34 @@ Timer *createTimer(int startTime, int currentTime, int maxTime) {
 void destroyTimer(Timer *timer){
     free(timer);
 }
+int getCurrentTime(const Timer *timer) {
+    return timer->currentTime;
+}
+
+void updateTimer(Timer *timer) {
+    Uint32 currentTicks = SDL_GetTicks();
+    Uint32 elapsedTicks = currentTicks - timer->lastUpdate;
+
+    // Increment the timer by one second if at least one second has passed
+    if (elapsedTicks >= 1000) {
+        timer->currentTime++;
+        timer->lastUpdate = currentTicks - (elapsedTicks % 1000);
+    }
+
+    // Ensure the timer does not exceed the max time
+    if (timer->currentTime > timer->maxTime) {
+        timer->currentTime = timer->maxTime;
+    }
+}
+
 
 void initializeTimer(Timer* timer, int maxTime) {
     timer->currentTime = 0;
-    timer->startTime = SDL_GetTicks64();
+    timer->lastUpdate = SDL_GetTicks();
     timer->maxTime = maxTime;
 }
 
-void updateTimer(Timer* timer, GameState *gameState) {
+/*void updateTimer(Timer* timer, GameState *gameState) {
     unsigned int currentTicks = SDL_GetTicks();
     timer->currentTime = (currentTicks - timer->startTime) / 1000;  // Convert milliseconds to seconds
 
@@ -242,7 +265,7 @@ void updateTimer(Timer* timer, GameState *gameState) {
         gameState->isGameOver = true;  // Set the game over flag when time is up
         printf("Time's up! Game over.\n");
     }
-}
+}*/
 
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
     char message[100];
@@ -353,11 +376,7 @@ void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *rende
                 if (event.key.keysym.sym == SDLK_q) {
                     *closeWindow = true;
                     decisionMade = true;
-                } else if (event.key.keysym.sym == SDLK_r && isServer == 1) {
-                    printf("Restarting game...\n");
-                    resetGameState(gameState, &gameState->ball, field, clients, isServer, socketSet);
-                    decisionMade = true;
-                }
+                } 
             }
         }
     }

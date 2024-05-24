@@ -104,26 +104,18 @@ void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Co
 }
 
 // Render the timer text
-void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windowWidth) {
-    // Convert to Minutes and seconds
-
-    int totalSeconds = timer->currentTime;
+void renderTimer(SDL_Renderer* renderer, TTF_Font* font, const Timer* timer, int windowWidth) {
+    int totalSeconds = getCurrentTime(timer);
     int minutes = totalSeconds / 60;
     int seconds = totalSeconds % 60;
 
-    // MM:SS Formatting
     char text[20];
     sprintf(text, "%02d:%02d", minutes, seconds);
 
-    // White color
     SDL_Color color = {255, 255, 255};
-
-    // Position the timer text
-
     int timerX = (windowWidth / 2 ) - 65; // Center timer horizontally
-    int timerY = 15; // Move down timer
+    int timerY = 10; // Move down timer
 
-    // Render the text
     renderText(renderer, font, text, color, timerX, timerY);
 }
 
