@@ -1,24 +1,34 @@
-# Makefile för macOS anpassad för ditt projekt
+# Makefile for Windows
 SRCDIR=./src
 INCDIR=./include
-CC=clang
-CFLAGS = -g -c $(shell sdl2-config --cflags) -I$(INCDIR)
-LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lm -lSDL2_ttf -lSDL2_net -lSDL2_mixer
+CC=gcc
 
-# Namnet på ditt mål (exekverbar fil)
-TARGET = Football
+# Correct the paths to use MinGW-w64 installation
+INCLUDE = C:/mingw64/include
+LIBDIR = C:/mingw64/lib
 
-# Objektfiler som ska byggas
-OBJS = $(SRCDIR)/main.o $(SRCDIR)/controller.o $(SRCDIR)/model.o $(SRCDIR)/view.o $(SRCDIR)/network.o
+# Update the compilation flags to use the correct include directories
+CFLAGS = -g -I$(INCLUDE) -I$(INCDIR) -c 
+LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2  -lm -lSDL2_mixer
 
-# Standard byggregel
-$(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS)
+# Your targets
+Football: main.o controller.o model.o view.o network.o
+	$(CC) main.o controller.o model.o network.o view.o  -o Football $(LDFLAGS)
 
-# Regel för att bygga .o filer från .c filer
-$(SRCDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -o $@ -c $<
+main.o: $(SRCDIR)/main.c
+	$(CC) $(CFLAGS) $(SRCDIR)/main.c
 
-# Städa projektet från byggfiler och exekverbara filer
+controller.o: $(SRCDIR)/controller.c
+	$(CC) $(CFLAGS) $(SRCDIR)/controller.c
+
+model.o: $(SRCDIR)/model.c
+	$(CC) $(CFLAGS) $(SRCDIR)/model.c
+
+view.o: $(SRCDIR)/view.c
+	$(CC) $(CFLAGS) $(SRCDIR)/view.c
+
+network.o: $(SRCDIR)/network.c
+	$(CC) $(CFLAGS) $(SRCDIR)/network.c
+
 clean:
-	rm -f $(SRCDIR)/*.o $(TARGET)
+	del *.o Football.exe
