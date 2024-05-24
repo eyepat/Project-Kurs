@@ -104,6 +104,10 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
                 printf("Local button clicked.\n");
                 menuState->menuState = 2;//start local two player game
             } 
+            else if (SDL_PointInRect(&mousePos, &menuState->exitButton.bounds)) {
+                    printf("Exit button clicked.\n");
+                    *closeWindow = true; // Set closeWindow to true to exit the game
+                }
             else if (menuState->menuState == 1 && SDL_PointInRect(&mousePos, &menuState->hostButton.bounds)) {
                 // Add the action for the host button
                 printf("Host button clicked.\n");
@@ -119,11 +123,6 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
                 SDL_DestroyTexture(menuState->hostButton.texture);
                 SDL_DestroyTexture(menuState->exitButton.texture);
                 SDL_DestroyTexture(menuState->joinButton.texture);
-            }
-            else if (menuState->menuState == 1 && SDL_PointInRect(&mousePos, &menuState->exitButton.bounds)) {
-                // Add the action for the exit button here
-                printf("exit button clicked.\n");
-                menuState->menuState = 5;//exit game
             }
             else if (menuState->menuState == 3 && SDL_PointInRect(&mousePos, &menuState->startButton.bounds)) {
                 // Add the action for the start button 
