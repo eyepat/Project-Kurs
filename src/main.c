@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     
     int windowWidth, windowHeight;
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24);
 
     MenuState menuState;
@@ -192,11 +192,20 @@ int main(int argc, char **argv) {
         }
         MovementFlags localMovement[2];
 
+        for (int i = 0; i < 2; i++)
+        {
+            localMovement[i].right = 0;
+            localMovement[i].up = 0;
+            localMovement[i].left = 0;
+            localMovement[i].down = 0;
+        }
+        
+
         Uint32 previousTime = SDL_GetTicks();
         Uint32 currentTime;
         float deltaTime;
 
-        Timer timer;
+        Timer timer;    
         initializeTimer(&gameState.gameTimer, 120);
 
         initializeScore(&gameState.scoreTracker);
@@ -250,17 +259,16 @@ int main(int argc, char **argv) {
             renderScore(renderer, font, &gameState.scoreTracker, windowWidth, windowHeight);
             renderTimer(renderer, font, &gameState.gameTimer, windowWidth);
             SDL_RenderPresent(renderer);
-
             SDL_Delay(5);
         }
 
-        if (gameState.isGameOver) {
+        /*if (gameState.isGameOver) {
             handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
         }
 
         if (closeWindow) {
             break;
-        }
+        }*/
     }
 
     cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet, serverSocket);
