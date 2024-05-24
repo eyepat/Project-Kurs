@@ -220,11 +220,12 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
         case 0:  // Start menu
             SDL_RenderCopy(renderer, menuState->onlineButton.texture, NULL, &menuState->onlineButton.bounds);
             SDL_RenderCopy(renderer, menuState->localButton.texture, NULL, &menuState->localButton.bounds);
+            SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
             break;
         case 1:  // Online menu
             SDL_RenderCopy(renderer, menuState->hostButton.texture, NULL, &menuState->hostButton.bounds);
             SDL_RenderCopy(renderer, menuState->joinButton.texture, NULL, &menuState->joinButton.bounds);
-            SDL_RenderCopy(renderer, menuState->exitButton.texture, NULL, &menuState->exitButton.bounds);
+            
             break;
         case 9:  // Connect client to host
             SDL_RenderClear(renderer);
