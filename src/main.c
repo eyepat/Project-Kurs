@@ -262,13 +262,13 @@ int main(int argc, char **argv) {
             SDL_Delay(5);
         }
 
-        /*if (gameState.isGameOver) {
+        if (gameState.isGameOver) {
             handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
         }
 
         if (closeWindow) {
             break;
-        }*/
+        }
     }
 
     cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet, serverSocket);

@@ -335,10 +335,6 @@ void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *rende
                 if (event.key.keysym.sym == SDLK_q) {
                     *closeWindow = true;
                     decisionMade = true;
-                } else if (event.key.keysym.sym == SDLK_r && isServer == 1) {
-                    printf("Restarting game...\n");
-                    resetGameState(gameState, &gameState->ball, field, clients, isServer, socketSet);
-                    decisionMade = true;
                 }
             }
         }

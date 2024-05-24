@@ -120,7 +120,7 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windo
     // Position the timer text
 
     int timerX = (windowWidth / 2 ) - 65; // Center timer horizontally
-    int timerY = 15; // Move down timer
+    int timerY = 5; // Move down timer
 
     // Render the text
     renderText(renderer, font, text, color, timerX, timerY);
@@ -132,7 +132,7 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windo
     sprintf(text, "%d : %d", score->team1Score, score->team2Score);  // Format: "Team1Score : Team2Score"
 
     SDL_Color color = {255, 255, 255};  // vit färg för poängtexten
-    renderText(renderer, font, text, color, 185, 15);  // Justera positionen vid behov
+    renderText(renderer, font, text, color, 150, 11);  // Justera positionen vid behov
 }
 void renderGoals(SDL_Renderer *renderer, const Field *field) {
     // Outline color, for example, black
