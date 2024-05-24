@@ -12,6 +12,6 @@ void handleHostEvents(bool *closeWindow, Client clients[], GameState *gameState)
 void localControls(bool *closeWindow, GameState *gameState, MovementFlags playerMovement[2]);
 void handleClientEvents(bool *closeWindow, Client *myClientInfo);
 void handleMenuEvent(bool *closeWindow, MenuState* menuState);
-void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet, TCPsocket serverSocket);
+void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet);
 
 #endif /* CONTROLLER_H */
