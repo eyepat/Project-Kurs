@@ -110,7 +110,7 @@ void updateScore(Score *score, int teamID);
 Timer *createTimer(int startTime, int currentTime, int maxTime);
 void destroyTimer(Timer *timer);
 int getCurrentTime(const Timer *timer);
-void updateTimer(Timer *timer);
+void updateTimer(Timer *timer, GameState *gameState);
 void initializeTimer(Timer* timer, int maxTime);
 
 

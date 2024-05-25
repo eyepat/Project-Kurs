@@ -6,7 +6,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "model.h"
 #include "SDL2/SDL_image.h"
-#include <SDL_image.h>
+
 
 // Function declarations for rendering game elements
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight);

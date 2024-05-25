@@ -38,9 +38,6 @@ int main(int argc, char **argv) {
     int *portPointer = &port;
     int *isServerPointer = &isServer;
     int windowWidth, windowHeight;
-    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24);
 
     SDL_Window *window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
@@ -173,34 +170,11 @@ int main(int argc, char **argv) {
         playSound(1, sounds, channels);
         
         Field field;
-
-        if (isServer != 0) {
-            initializeGame(&gameState, &field);
-        }
-
-        if (isServer == 0) {
-            gameState.numPlayers = 2;
-            initializeGame(&gameState, &field);
-        }
-        MovementFlags localMovement[2];
-
-        for (int i = 0; i < 2; i++)
-        {
-            localMovement[i].right = 0;
-            localMovement[i].up = 0;
-            localMovement[i].left = 0;
-            localMovement[i].down = 0;
-        }
-        
-
         Uint32 previousTime = SDL_GetTicks();
         Uint32 currentTime;
         float deltaTime;
 
-        Timer timer;    
-        initializeTimer(&gameState.gameTimer, 120);
-
-        initializeScore(&gameState.scoreTracker);
+        
 
         closeWindow = false;
         int scoreTrue = 0;
@@ -216,7 +190,9 @@ int main(int argc, char **argv) {
             localMovement[i].left = false;
             localMovement[i].right = false;
         }
-
+        //gameState.gameTimer = createTimer(0, 0, 0); 
+        initializeTimer(gameState.gameTimer, 45);  // 120 seconds = 2 minutes
+        initializeScore(&gameState.scoreTracker);
         initializeGame(&gameState, &field);
        
         while (!closeWindow && !gameState.isGameOver) {
@@ -231,11 +207,11 @@ int main(int argc, char **argv) {
                 receiveDataFromClients(clients, socketSet, &gameState);
                 updatePlayerPosition(&gameState, clients, &field, deltaTime);
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-                updateTimer(&gameState.gameTimer); // Fixed function call
+                updateTimer(gameState.gameTimer, &gameState);
 
                 if (scoreTrue) {
-                    resetGameAfterGoal(&gameState, &gameState.ball, &field);
                     playSound(1, sounds, channels);
+                    resetGameAfterGoal(&gameState, &gameState.ball, &field);
                     scoreTrue = 0;
                 }
 
@@ -251,7 +227,7 @@ int main(int argc, char **argv) {
 
                 localControls(&closeWindow, &gameState, localMovement);
                 updatePlayerPositionLocal(&gameState, &field, deltaTime, localMovement);
-                updateTimer(&gameState.gameTimer); 
+                updateTimer(gameState.gameTimer, &gameState); 
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
 
                 // If a goal is scored, reset the ball and players' positions
@@ -270,14 +246,21 @@ int main(int argc, char **argv) {
             renderPlayers(renderer, &gameState);
             renderBall(renderer, &gameState.ball);
             renderScore(renderer, font, &gameState.scoreTracker, windowWidth, windowHeight);
-            renderTimer(renderer, font, &gameState.gameTimer, windowWidth);
+            renderTimer(renderer, font, gameState.gameTimer, windowWidth);
             SDL_RenderPresent(renderer);
-            SDL_Delay(5);
+
+            // SDL_Delay(5);
+            // delay with 60 frames
+            currentTime = SDL_GetTicks() - currentTime;
+            if (frameDelay > currentTime) {
+                SDL_Delay(frameDelay - currentTime);
+            }
+
         }
 
         if (gameState.isGameOver) {
-            playSound(2, sounds, channels);
             handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
+             playSound(2, sounds, channels);
         }
 
         if (closeWindow) {

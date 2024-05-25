@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "SDL2/SDL_image.h"
-#include <SDL_image.h>
+#include <stdio.h>
+#include <math.h>
 
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
@@ -120,10 +122,6 @@ void renderTimer(SDL_Renderer* renderer, TTF_Font* font, const Timer* timer, int
     int timerX = (windowWidth / 2 ) - 65; 
     int timerY = 10; 
 
-    int timerX = (windowWidth / 2 ) - 65; // Center timer horizontally
-    int timerY = 5; // Move down timer
-
-    // Render the text
     renderText(renderer, font, text, color, timerX, timerY);
 }
 
@@ -133,7 +131,7 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windo
     sprintf(text, "%d : %d", score->team1Score, score->team2Score);  // Format: "Team1Score : Team2Score"
 
     SDL_Color color = {255, 255, 255};  // vit färg för poängtexten
-    renderText(renderer, font, text, color, 150, 11);  // Justera positionen vid behov
+    renderText(renderer, font, text, color, 145, 15);  // Justera positionen vid behov
 }
 
 void renderGoals(SDL_Renderer *renderer, const Field *field) {
@@ -329,9 +327,7 @@ void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuStat
 
 void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[]) {
     // Initialize SDL_mixer
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        fprintf(stderr, "SDL_mixer could not initialize! Mix_Error: %s\n", Mix_GetError());
-    }
+   
 
     // Load sounds
     const char* soundFiles[NUM_SOUNDS] = {
@@ -343,9 +339,7 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
 
     for (int i = 0; i < NUM_SOUNDS; ++i) {
         sounds[i] = Mix_LoadWAV(soundFiles[i]);
-        if (sounds[i] == NULL) {
-            fprintf(stderr, "Failed to load sound %d! SDL_mixer Error: %s\n", i + 1, Mix_GetError());
-        }
+        
         channels[i] = -1; // Initialize channel tracking
     }
 
@@ -366,25 +360,16 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
 }
 
 void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]) {
-    if (soundIndex < 1 || soundIndex > NUM_SOUNDS) {
-        fprintf(stderr, "Invalid sound index: %d\n", soundIndex);
-        return;
-    }
+   
 
     int channel = Mix_PlayChannel(-1, sounds[soundIndex - 1], 0);
-    if (channel == -1) {
-        fprintf(stderr, "Failed to play the sound! SDL_mixer Error: %s\n", Mix_GetError());
-        return;
-    }
+   
     channels[soundIndex - 1] = channel; // Track the channel
 }
 
 //For longer sounds like background muscik
 void stopSound(int soundIndex, int channels[]) {
-    if (soundIndex < 1 || soundIndex > NUM_SOUNDS) {
-        fprintf(stderr, "Invalid sound index: %d\n", soundIndex);
-        return;
-    }
+    
 
     int channel = channels[soundIndex - 1];
     if (channel != -1) {
