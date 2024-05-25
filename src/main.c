@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
+    cleanup(&gameState, fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
 
     return 0;
 }
