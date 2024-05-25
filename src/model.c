@@ -1,14 +1,21 @@
-#include "model.h"
-#include "view.h"
+
 #include <stdlib.h>
 #include <time.h>
-#include "network.h" 
 #include <math.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-#include "SDL2/SDL_image.h"
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
+#include "model.h"
+#include "view.h"
+#include "network.h"
+
+struct timer {
+    int startTime;
+    int currentTime;
+    int maxTime;
+    Uint32 lastUpdate; // Time of the last update in milliseconds
+};
 
 void initializeSDL() {
 
@@ -31,13 +38,6 @@ void initializeSDL() {
     }
 
 }
-
-struct timer {
-    int startTime;
-    int currentTime;
-    int maxTime;
-    Uint32 lastUpdate; // Time of the last update in milliseconds
-};
 
 void initializeGame(GameState *gameState, Field *field) {
     // Set field dimensions based on the current display resolution
@@ -83,6 +83,7 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
 
+    gameState->gameTimer = createTimer(0, 0, 45); // 2 minutes timer
     initializeTimer(&gameState->gameTimer, 120);// change seconds
     initializeScore(&gameState->scoreTracker);
 
@@ -258,8 +259,6 @@ void updateScore(Score *score, int teamNumber) {
         score->team2Score++;
     }
 }
-
-
 
 Timer *createTimer(int startTime, int currentTime, int maxTime) {
     Timer *timer = malloc(sizeof(struct timer));
