@@ -3,7 +3,10 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "model.h"
+#include "SDL2/SDL_image.h"
+#include <SDL_image.h>
 
 // Function declarations for rendering game elements
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight);
@@ -12,7 +15,7 @@ void renderBall(SDL_Renderer *renderer, const Entity *ball);
 void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, int outlineThickness, int colorData[4]);
 void drawBall(SDL_Renderer* renderer, int x, int y, int radius);
 void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Color color, int x, int y);
-void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windowWidth);
+void renderTimer(SDL_Renderer* renderer, TTF_Font* font, const Timer* timer, int windowWidth);
 void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windowWidth, int windowHeight);
 void renderGoals(SDL_Renderer *renderer, const Field *field);
 void modifyPlayerColors(int red, int blue, int green, int opacity, int playerColorData[4]);
@@ -20,5 +23,9 @@ void renderButton(SDL_Renderer* renderer, Button* button);
 void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int windowWidth, int windowHeight, int *portPointer, char hostIP[20], int *isServerPointer);
 void renderTextMenu(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, int w, int h);
 void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int* portPointer, const char* prompt, int windowWidth);
+void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]);
+void stopSound(int soundIndex, int channels[]);
+void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[]);
+
 
 #endif /* VIEW_H */

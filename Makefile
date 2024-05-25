@@ -9,7 +9,7 @@ LIBDIR = C:/mingw64/lib
 
 # Update the compilation flags to use the correct include directories
 CFLAGS = -g -I$(INCLUDE) -I$(INCDIR) -c 
-LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2  -lm
+LDFLAGS = -L$(LIBDIR) -lmingw32 -lSDL2main -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2  -lm -lSDL2_mixer
 
 # Your targets
 Football: main.o controller.o model.o view.o network.o

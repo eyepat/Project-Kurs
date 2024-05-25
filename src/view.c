@@ -1,7 +1,11 @@
 #include "view.h"
+#include "model.h"
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include "SDL2/SDL_image.h"
+#include <SDL_image.h>
+
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
     int newWidth = windowWidth * 1; // 100% of the window width
@@ -21,21 +25,19 @@ void renderPlayers(SDL_Renderer *renderer, const GameState *gameState) {
     // Iterate over each player in the game state
     
     // Render the player entity
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    // SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
     
     for (int i = 0; i < gameState->numPlayers; i++)
     {
-        drawDetailedCircle(renderer, gameState->players[i].x, gameState->players[i].y , 14, 3, (int *) gameState->players[i].colorData);
+        drawDetailedCircle(renderer, gameState->players[i].x, gameState->players[i].y , gameState->players[i].radius, 3, (int *) gameState->players[i].colorData);
 
     }
 
 }
 
-
-
 void renderBall(SDL_Renderer *renderer, const Entity *ball) {
     // Render the ball entity
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     drawBall(renderer, ball->x, ball->y, ball->radius*1);
 
 
@@ -104,20 +106,19 @@ void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Co
 }
 
 // Render the timer text
-void renderTimer(SDL_Renderer* renderer, TTF_Font* font, Timer* timer, int windowWidth) {
-    // Convert to Minutes and seconds
-    int totalSeconds = timer->currentTime;
+void renderTimer(SDL_Renderer* renderer, TTF_Font* font, const Timer* timer, int windowWidth) {
+    int totalSeconds = getCurrentTime(timer);
     int minutes = totalSeconds / 60;
     int seconds = totalSeconds % 60;
 
-    // MM:SS Formatting
     char text[20];
     sprintf(text, "%02d:%02d", minutes, seconds);
 
-    // White color
     SDL_Color color = {255, 255, 255};
 
     // Position the timer text
+    int timerX = (windowWidth / 2 ) - 65; 
+    int timerY = 10; 
 
     int timerX = (windowWidth / 2 ) - 65; // Center timer horizontally
     int timerY = 5; // Move down timer
@@ -134,6 +135,7 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windo
     SDL_Color color = {255, 255, 255};  // vit färg för poängtexten
     renderText(renderer, font, text, color, 150, 11);  // Justera positionen vid behov
 }
+
 void renderGoals(SDL_Renderer *renderer, const Field *field) {
     // Outline color, for example, black
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -212,7 +214,7 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
 
     strcpy(menuState->ip, "127.0.0.1");  // Set default IP
 
-    SDL_RenderClear(renderer);
+    //SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
 
     // Render buttons based on menu state
@@ -322,5 +324,71 @@ void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuStat
         renderText(renderer, font, prompt, color, windowWidth / 2 - 100, 50);  // Render prompt
         renderText(renderer, font, menuState->userInputIp, color, windowWidth / 2 - 50, 110);  // Render user input
         SDL_RenderPresent(renderer);  // Present renderer
+    }
+}
+
+void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[]) {
+    // Initialize SDL_mixer
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        fprintf(stderr, "SDL_mixer could not initialize! Mix_Error: %s\n", Mix_GetError());
+    }
+
+    // Load sounds
+    const char* soundFiles[NUM_SOUNDS] = {
+        "resources/startwhistle.wav",
+        // "resources/music.wav",
+        "resources/ending.wav"
+        // Add paths for other sounds here
+    };
+
+    for (int i = 0; i < NUM_SOUNDS; ++i) {
+        sounds[i] = Mix_LoadWAV(soundFiles[i]);
+        if (sounds[i] == NULL) {
+            fprintf(stderr, "Failed to load sound %d! SDL_mixer Error: %s\n", i + 1, Mix_GetError());
+        }
+        channels[i] = -1; // Initialize channel tracking
+    }
+
+    // Initialize menu state
+    menuState->menuState = 0;
+    menuState->hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
+    menuState->joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
+    menuState->exitButton.texture = IMG_LoadTexture(renderer, "resources/exit.png");
+    menuState->startButton.texture = IMG_LoadTexture(renderer, "resources/start.png");
+    menuState->joinHostButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
+    menuState->onlineButton.texture = IMG_LoadTexture(renderer, "resources/online.png");
+    menuState->localButton.texture = IMG_LoadTexture(renderer, "resources/local.png");
+    menuState->ipInputButton.texture = IMG_LoadTexture(renderer, "resources/ipInput.png");
+    menuState->backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
+    menuState->menuBackground = IMG_LoadTexture(renderer, "resources/menu.jpg");
+    menuState->gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
+
+}
+
+void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]) {
+    if (soundIndex < 1 || soundIndex > NUM_SOUNDS) {
+        fprintf(stderr, "Invalid sound index: %d\n", soundIndex);
+        return;
+    }
+
+    int channel = Mix_PlayChannel(-1, sounds[soundIndex - 1], 0);
+    if (channel == -1) {
+        fprintf(stderr, "Failed to play the sound! SDL_mixer Error: %s\n", Mix_GetError());
+        return;
+    }
+    channels[soundIndex - 1] = channel; // Track the channel
+}
+
+//For longer sounds like background muscik
+void stopSound(int soundIndex, int channels[]) {
+    if (soundIndex < 1 || soundIndex > NUM_SOUNDS) {
+        fprintf(stderr, "Invalid sound index: %d\n", soundIndex);
+        return;
+    }
+
+    int channel = channels[soundIndex - 1];
+    if (channel != -1) {
+        Mix_HaltChannel(channel);
+        channels[soundIndex - 1] = -1; // Reset channel tracking
     }
 }
