@@ -31,5 +31,4 @@ network.o: $(SRCDIR)/network.c
 	$(CC) $(CFLAGS) $(SRCDIR)/network.c
 
 clean:
-	rm -f *.o Football.exe
-
+	rm -f *.o Football
