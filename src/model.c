@@ -260,8 +260,6 @@ void updateScore(Score *score, int teamNumber) {
     }
 }
 
-
-
 Timer *createTimer(int startTime,int currentTime, int maxTime){
    Timer *timer = malloc(sizeof(Timer));
     if (timer != NULL) {
@@ -350,30 +348,6 @@ void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
     ball->xSpeed = 0; // Reset ball speed to zero
     ball->ySpeed = 0;
 
-}
-
-void updatePlayerPositionLocal(GameState *gameState, const Field *field, float deltaTime, MovementFlags flags[2]) {
-    for (int i = 0; i < gameState->numPlayers; i++) {
-        MovementFlags clientFlags = flags[i];
-        float speed = PALYER_SPEED * deltaTime;
-
-        float verticalMargin = field->height * 0.12;
-        float bottomMargin = field->height * 0.10;
-        float horizontalMargin = field->width * 0.07;
-
-        if (clientFlags.up && gameState->players[i].y - gameState->players[i].radius > verticalMargin) {
-            gameState->players[i].y -= speed;
-        }
-        if (clientFlags.down && gameState->players[i].y + gameState->players[i].radius < field->height - bottomMargin) {
-            gameState->players[i].y += speed;
-        }
-        if (clientFlags.left && gameState->players[i].x - gameState->players[i].radius > horizontalMargin) {
-            gameState->players[i].x -= speed;
-        }
-        if (clientFlags.right && gameState->players[i].x + gameState->players[i].radius < field->width - horizontalMargin) {
-            gameState->players[i].x += speed;
-        }
-    }
 }
 
 

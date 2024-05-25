@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL_image.h>
 #include "model.h"
 #include "view.h"
@@ -321,7 +322,9 @@ void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuStat
 
 void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[]) {
     // Initialize SDL_mixer
-   
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        fprintf(stderr, "SDL_mixer could not initialize! Mix_Error: %s\n", Mix_GetError());
+    }
 
     // Load sounds
     const char* soundFiles[NUM_SOUNDS] = {
@@ -333,7 +336,9 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
 
     for (int i = 0; i < NUM_SOUNDS; ++i) {
         sounds[i] = Mix_LoadWAV(soundFiles[i]);
-        
+        if (sounds[i] == NULL) {
+            fprintf(stderr, "Failed to load sound %d! SDL_mixer Error: %s\n", i + 1, Mix_GetError());
+        }
         channels[i] = -1; // Initialize channel tracking
     }
 
@@ -382,7 +387,6 @@ void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]) {
 //For longer sounds like background muscik
 void stopSound(int soundIndex, int channels[]) {
     
-
     int channel = channels[soundIndex - 1];
     if (channel != -1) {
         Mix_HaltChannel(channel);
