@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
     SDL_FreeSurface(fieldSurface);
     if (!fieldTexture) {
         printf("Error creating football field texture: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(renderer);
+         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
@@ -173,6 +173,11 @@ int main(int argc, char **argv) {
         Uint32 previousTime = SDL_GetTicks();
         Uint32 currentTime;
         float deltaTime;
+
+        gameState.gameTimer = createTimer(0, 0, 45); // 2 minutes timer
+        initializeTimer(&gameState.gameTimer, 45); // 120 seconds = 2 minutes
+        initializeScore(&gameState.scoreTracker);
+
         closeWindow = false;
         int scoreTrue = 0;
 
@@ -202,7 +207,7 @@ int main(int argc, char **argv) {
                 receiveDataFromClients(clients, socketSet, &gameState);
                 updatePlayerPosition(&gameState, clients, &field, deltaTime);
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-                updateTimer(&gameState.gameTimer, &gameState);
+                updateTimer(&gameState.gameTimer); // Fixed function call
 
                 if (scoreTrue) {
                     resetGameAfterGoal(&gameState, &gameState.ball, &field);
@@ -222,7 +227,7 @@ int main(int argc, char **argv) {
 
                 localControls(&closeWindow, &gameState, localMovement);
                 updatePlayerPositionLocal(&gameState, &field, deltaTime, localMovement);
-                updateTimer(&gameState.gameTimer, &gameState);
+                updateTimer(&gameState.gameTimer); 
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
 
                 // If a goal is scored, reset the ball and players' positions
