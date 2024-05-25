@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 
 void handleHostEvents(bool *closeWindow, Client clients[], GameState *gameState) {
     SDL_Event event;
@@ -16,7 +18,6 @@ void handleHostEvents(bool *closeWindow, Client clients[], GameState *gameState)
             switch (event.key.keysym.scancode) {
                 case SDL_SCANCODE_W:
                     clients[0].flags.up = value; // Update the movement flags for the host only
-                    printf("W hostevents\n");
                     break;
                 case SDL_SCANCODE_S:
                     clients[0].flags.down = value;
@@ -33,7 +34,6 @@ void handleHostEvents(bool *closeWindow, Client clients[], GameState *gameState)
         }
     }
 }
-
 
 void handleClientEvents(bool *closeWindow, Client *myClientInfo) {
     SDL_Event event;
@@ -134,12 +134,15 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
 }
 
 
-void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet, TCPsocket serverSocket) {
+void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet) {
+  
     // Clean up SDL objects
     SDL_DestroyTexture(fieldTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
+    IMG_Quit();
+    Mix_CloseAudio();
 
     // Clean up client sockets array and myClientInfo socket
     for (int i = 0; i < MAX_PLAYERS; i++) {
@@ -156,10 +159,6 @@ void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *wind
     // Clean up SDLNet socket set
     SDLNet_FreeSocketSet(socketSet);
     socketSet = NULL;
-
-    // Clean up server socket
-    SDLNet_TCP_Close(serverSocket);
-    serverSocket = NULL;
 
     SDLNet_Quit();
     TTF_CloseFont(font);

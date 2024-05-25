@@ -6,6 +6,31 @@
 #include <math.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include "SDL2/SDL_image.h"
+#include <SDL_image.h>
+
+void initializeSDL() {
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
+        printf("Error: %s\n", SDL_GetError());
+    }
+
+    if (SDLNet_Init() != 0) {
+        fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+    }
+
+    if (TTF_Init() == -1) {
+        printf("Error initializing SDL_ttf: %s\n", TTF_GetError());
+        SDL_Quit();
+    }
+
+    if (IMG_Init(IMG_INIT_PNG) == 0) {
+        printf("Error initializing SDL_image: %s\n", IMG_GetError());
+        SDL_Quit();
+    }
+
+}
 
 void initializeGame(GameState *gameState, Field *field) {
     // Set field dimensions based on the current display resolution
@@ -15,11 +40,25 @@ void initializeGame(GameState *gameState, Field *field) {
     const int GOAL_WIDTH = 80; // Replace with the actual value
     const int GOAL_HEIGHT = 250;
 
-    // Initialize players' properties
+    // Initialize player properties
     for (int i = 0; i < gameState->numPlayers; i++) {
-        gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
-        gameState->players[i].y = field->height / 4;
-        gameState->players[i].radius = field->width / 128;
+        if (gameState->numPlayers == 2) {
+            if (i == 0) {
+                gameState->players[i].x = field->width / 4; // Left-middle
+            } else if (i == 1) {
+                gameState->players[i].x = 3 * field->width / 4; // Right-middle
+            }
+            gameState->players[i].y = field->height / 2;
+        } else if (gameState->numPlayers == 4) {
+            if (i < 2) {
+                gameState->players[i].x = field->width / 4; // Left side
+                gameState->players[i].y = (field->height / 3) * (i + 1);
+            } else {
+                gameState->players[i].x = 3 * field->width / 4; // Right side
+                gameState->players[i].y = (field->height / 3) * (i - 1);
+            }
+        }
+        gameState->players[i].radius = 21;
     }
 
     // Initialize ball properties
@@ -36,6 +75,10 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[0].teamID = 1; // Team 1's goal
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
+
+    initializeTimer(&gameState->gameTimer, 120);// change seconds
+    initializeScore(&gameState->scoreTracker);
+
 }
 
 void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime) {
@@ -84,7 +127,7 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
             if (magnitude != 0) {
                 dx /= magnitude; // Normalize the direction vector
                 dy /= magnitude;
-                float kickForce = 900.0f; // Kick force magnitude
+                float kickForce = 500.0f; // Kick force magnitude
                 ball->xSpeed = dx * kickForce;
                 ball->ySpeed = dy * kickForce;
             }
@@ -246,11 +289,26 @@ void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
 }
 
 void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
+
     // Reset players' positions
     for (int i = 0; i < gameState->numPlayers; i++) {
-        gameState->players[i].x = (i + 1) * (field->width / (gameState->numPlayers + 1));
-        gameState->players[i].y = field->height / 4;
-        gameState->players[i].radius = field->width / 128;
+        if (gameState->numPlayers == 2) {
+            if (i == 0) {
+                gameState->players[i].x = field->width / 4; // Left-middle
+            } else if (i == 1) {
+                gameState->players[i].x = 3 * field->width / 4; // Right-middle
+            }
+            gameState->players[i].y = field->height / 2;
+        } else if (gameState->numPlayers == 4) {
+            if (i < 2) {
+                gameState->players[i].x = field->width / 4; // Left side
+                gameState->players[i].y = (field->height / 3) * (i + 1);
+            } else {
+                gameState->players[i].x = 3 * field->width / 4; // Right side
+                gameState->players[i].y = (field->height / 3) * (i - 1);
+            }
+        }
+        // gameState->players[i].radius = 21;
     }
 
     // Reset the ball position to the center of the field
@@ -259,11 +317,6 @@ void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
     ball->xSpeed = 0; // Reset ball speed to zero
     ball->ySpeed = 0;
 
-    // Optionally reset the radius of each player if the field dimensions might change
-    int playerRadius = field->width / 128; // Set the player radius relative to the field width
-    for (int i = 0; i < gameState->numPlayers; i++) {
-        gameState->players[i].radius = playerRadius;
-    }
 }
 
 void updatePlayerPositionLocal(GameState *gameState, const Field *field, float deltaTime, MovementFlags flags[2]) {

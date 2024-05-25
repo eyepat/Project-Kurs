@@ -4,12 +4,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdbool.h>
 
 #define MAX_PLAYERS 4
-#define PALYER_SPEED 500
+#define PALYER_SPEED 350
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800
+#define NUM_SOUNDS 5
+#define FPS 60
 // Entities Definitions 
 typedef struct {
     float x, y;
@@ -101,6 +104,7 @@ typedef struct {
 
 
 //  Function Declarations 
+void initializeSDL();
 void initializeGame(GameState *gameState, Field *field);
 void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime);
 int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag);

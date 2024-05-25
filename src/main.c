@@ -1,60 +1,59 @@
 #include <stdio.h>
 #include <stdbool.h>
+
 #include <SDL2/SDL.h>
-#include "SDL2/SDL_image.h"
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_net.h>
+#include <SDL2/SDL_mixer.h>
+
 #include "view.h"
 #include "model.h"
 #include "controller.h"
 #include "network.h"
 
-
-
 int main(int argc, char **argv) {
-    // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
-        printf("Error: %s\n", SDL_GetError());
-        return 1;
-    }
 
-    // Initialize SDL_net
-    if (SDLNet_Init() != 0) {
-        fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-    }
+    initializeSDL();
 
+    //Game Data
     Client clients[MAX_PLAYERS];
     Client myClientInfo;
-
     for (int i = 0; i < MAX_PLAYERS; i++) {
         clients[i].flags.up = false;
         clients[i].flags.down = false;
         clients[i].flags.left = false;
         clients[i].flags.right = false;
     }
-
     GameState gameState;
+
+    //Network
     SDLNet_SocketSet socketSet;
-    TCPsocket serverSocket;
     IPaddress ip;
 
-    int choice, port;
+    //For menu
+    int port;
     char hostIP[20];
     int isServer = 77;
     int *portPointer = &port;
     int *isServerPointer = &isServer;
-
-    SDL_Init(SDL_INIT_VIDEO);
-    TTF_Init();
-    IMG_Init(IMG_INIT_PNG);
-    SDL_Window *window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-    
     int windowWidth, windowHeight;
+
+    SDL_Window *window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     SDL_GetWindowSize(window, &windowWidth, &windowHeight);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24);
 
+    //Resource Init
+    Mix_Chunk *sounds[NUM_SOUNDS];
+    int channels[NUM_SOUNDS];
     MenuState menuState;
+    initializeResources(renderer, &menuState, sounds, channels);
+    TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 50);
+    if (!font) {
+        printf("Error loading font: %s\n", TTF_GetError());
+    }
+
     menuState.menuState = 0; 
     menuState.hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
     menuState.joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
@@ -86,7 +85,6 @@ int main(int argc, char **argv) {
 
     switch (isServer) {
         case 1: 
-            isServer = 1;
             printf("Port is : %d \n", port);
 
             if (SDLNet_ResolveHost(&ip, NULL, port) != 0) {
@@ -99,7 +97,6 @@ int main(int argc, char **argv) {
             break;
 
         case 2:
-            isServer = 2;
             printf("Host IP entered: %s \n", hostIP);
             printf("Host port entered: %d\n", port);
 
@@ -126,23 +123,10 @@ int main(int argc, char **argv) {
     TTF_CloseFont(menufont);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    IMG_Quit();
-    TTF_Quit();
-    SDL_Quit();
+   
 
-    if (TTF_Init() == -1) {
-        printf("Error initializing SDL_ttf: %s\n", TTF_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    TTF_Font* font = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 50);
-    if (!font) {
-        printf("Error loading font: %s\n", TTF_GetError());
-    }
-
+    //For game
     window = SDL_CreateWindow("Football Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-
     if (!window) {
         printf("Error creating window: %s\n", SDL_GetError());
         SDL_Quit();
@@ -177,66 +161,65 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    while (isServer == 0 || isServer == 1 || isServer == 2) { // Main game loop for restart functionality
-        gameState.ball.x = 0;
-        gameState.ball.y = 0;
-        Field field;
+    int frameDelay = 1000 / FPS; // Milliseconds per frame
 
-        if (isServer != 0) {
-            initializeGame(&gameState, &field);
-        }
 
-        if (isServer == 0) {
-            gameState.numPlayers = 2;
-            initializeGame(&gameState, &field);
-        }
-        MovementFlags localMovement[2];
+    // Main game loop for restart functionality
+    while (isServer == 0 || isServer == 1 || isServer == 2) { 
 
-        for (int i = 0; i < 2; i++)
-        {
-            localMovement[i].right = 0;
-            localMovement[i].up = 0;
-            localMovement[i].left = 0;
-            localMovement[i].down = 0;
-        }
+        playSound(1, sounds, channels);
         
-
+        Field field;
         Uint32 previousTime = SDL_GetTicks();
         Uint32 currentTime;
         float deltaTime;
-
-        Timer timer;    
-        initializeTimer(&gameState.gameTimer, 120);
-
-        initializeScore(&gameState.scoreTracker);
-
         closeWindow = false;
         int scoreTrue = 0;
 
+        //LOCAL
+        MovementFlags localMovement[2];
+        if (isServer == 0) {
+            gameState.numPlayers = 2;
+        }
+        for (int i = 0; i < 2; i++) {
+            localMovement[i].up = false;
+            localMovement[i].down = false;
+            localMovement[i].left = false;
+            localMovement[i].right = false;
+        }
+
+        initializeGame(&gameState, &field);
+       
         while (!closeWindow && !gameState.isGameOver) {
+            
             currentTime = SDL_GetTicks();
             deltaTime = (currentTime - previousTime) / 1000.0f;
             previousTime = currentTime;
 
-            if (isServer == 1) {
+            if (isServer == 1) {//HOST
+
                 handleHostEvents(&closeWindow, clients, &gameState);
                 receiveDataFromClients(clients, socketSet, &gameState);
                 updatePlayerPosition(&gameState, clients, &field, deltaTime);
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
                 updateTimer(&gameState.gameTimer, &gameState);
 
-                // If a goal is scored, reset the ball and players' positions
                 if (scoreTrue) {
                     resetGameAfterGoal(&gameState, &gameState.ball, &field);
+                    playSound(1, sounds, channels);
                     scoreTrue = 0;
                 }
 
                 sendDataToClients(clients, &gameState);
-            } else if (isServer == 2) {
+
+            } else if (isServer == 2) {//CLIENT
+
                 handleClientEvents(&closeWindow, &myClientInfo);
                 sendDataToServer(&myClientInfo, &gameState);
                 receiveDataFromServer(&myClientInfo, &gameState);
-            } else if (isServer == 0) {
+
+            } else if (isServer == 0) {//LOCAL
+
                 localControls(&closeWindow, &gameState, localMovement);
                 updatePlayerPositionLocal(&gameState, &field, deltaTime, localMovement);
                 updateTimer(&gameState.gameTimer, &gameState);
@@ -245,11 +228,12 @@ int main(int argc, char **argv) {
                 // If a goal is scored, reset the ball and players' positions
                 if (scoreTrue) {
                     resetGameAfterGoal(&gameState, &gameState.ball, &field);
+                    playSound(1, sounds, channels);
                     scoreTrue = 0;
                 }
             }
-
-            SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+            
+            // SDL_GetWindowSize(window, &windowWidth, &windowHeight);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
             renderField(renderer, fieldTexture, windowWidth, windowHeight);
@@ -259,10 +243,18 @@ int main(int argc, char **argv) {
             renderScore(renderer, font, &gameState.scoreTracker, windowWidth, windowHeight);
             renderTimer(renderer, font, &gameState.gameTimer, windowWidth);
             SDL_RenderPresent(renderer);
-            SDL_Delay(5);
+
+            // SDL_Delay(5);
+            // delay with 60 frames
+            currentTime = SDL_GetTicks() - currentTime;
+            if (frameDelay > currentTime) {
+                SDL_Delay(frameDelay - currentTime);
+            }
+
         }
 
         if (gameState.isGameOver) {
+            playSound(2, sounds, channels);
             handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
         }
 
@@ -271,7 +263,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet, serverSocket);
+    cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
 
     return 0;
 }
