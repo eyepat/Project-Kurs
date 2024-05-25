@@ -167,12 +167,12 @@ int main(int argc, char **argv) {
 
             if (isServer == 1 || isServer == 0) { // HOST and LOCAL
                 updatePlayerPosition(&gameState, clients, &field, deltaTime);
-                updateTimer(&gameState.gameTimer); 
+                // updateTimer(&gameState.gameTimer); 
                 updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
 
                 if (scoreTrue) {
-                    resetGameAfterGoal(&gameState, &gameState.ball, &field);
                     playSound(1, sounds, channels);
+                    resetGameAfterGoal(&gameState, &gameState.ball, &field);
                     scoreTrue = 0;
                 }
 
@@ -195,8 +195,8 @@ int main(int argc, char **argv) {
         }
 
         if (gameState.isGameOver) {
-            playSound(2, sounds, channels);
             handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
+             playSound(2, sounds, channels);
         }
 
         if (closeWindow) {
