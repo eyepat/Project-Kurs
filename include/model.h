@@ -1,11 +1,11 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include <stdbool.h>
 
 #define MAX_PLAYERS 4
 #define PALYER_SPEED 350
@@ -110,13 +110,12 @@ void updateScore(Score *score, int teamID);
 Timer *createTimer(int startTime, int currentTime, int maxTime);
 void destroyTimer(Timer *timer);
 int getCurrentTime(const Timer *timer);
-void updateTimer(Timer *timer);
+void updateTimer(Timer *timer, GameState *gameState);
 void initializeTimer(Timer* timer, int maxTime);
 
 
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);
 void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field);
 void resetGameState(GameState *gameState, Entity *ball, Field *field, Client clients[], int isServer, SDLNet_SocketSet socketSet);
-void updatePlayerPositionLocal(GameState *gameState, const Field *field, float deltaTime, MovementFlags flags[2]);
 void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *renderer, TTF_Font *font, Field *field, int isServer, Client clients[], SDLNet_SocketSet socketSet);
 #endif // MODEL_H

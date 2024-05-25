@@ -1,10 +1,14 @@
-#include "view.h"
-#include "model.h"
 #include <stdlib.h>
-#include <time.h>
 #include <stdbool.h>
-#include "SDL2/SDL_image.h"
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL_image.h>
+#include "model.h"
+#include "view.h"
+
 
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
@@ -22,25 +26,30 @@ void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWid
 }
 
 void renderPlayers(SDL_Renderer *renderer, const GameState *gameState) {
-    // Iterate over each player in the game state
     
-    // Render the player entity
-    // SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    
+   // Iterate over each player in the game state and Render the player entity
     for (int i = 0; i < gameState->numPlayers; i++)
     {
         drawDetailedCircle(renderer, gameState->players[i].x, gameState->players[i].y , gameState->players[i].radius, 3, (int *) gameState->players[i].colorData);
-
     }
-
 }
 
-void renderBall(SDL_Renderer *renderer, const Entity *ball) {
-    // Render the ball entity
-    // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    drawBall(renderer, ball->x, ball->y, ball->radius*1);
-
-
+void renderBall(SDL_Renderer *renderer, const GameState *gameState) {
+    // Set color for the ball (using white for this example)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
+    
+    // Draw the ball
+    int x = (int)gameState->ball.x;
+    int y = (int)gameState->ball.y;
+    int radius = gameState->ball.radius;
+    
+    for (int w = -radius; w < radius; w++) {
+        for (int h = -radius; h < radius; h++) {
+            if (w * w + h * h < radius * radius) {
+                SDL_RenderDrawPoint(renderer, x + w, y + h);
+            }
+        }
+    }
 }
 
 void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius, int outlineThickness, int colorData[4]) {
@@ -71,17 +80,6 @@ void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int ra
                 }
             }
         }
-}
-
-void drawBall(SDL_Renderer* renderer, int x, int y, int radius) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0); // Color for the ball
-    for (int w = -radius; w < radius; w++) {
-        for (int h = -radius; h < radius; h++) {
-            if (w * w + h * h < radius * radius) {
-                SDL_RenderDrawPoint(renderer, x + w, y + h);
-            }
-        }
-    }
 }
 
 // Function to render text
@@ -266,7 +264,6 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
             break;
     }
     
-    // Present the renderer
     SDL_RenderPresent(renderer);
 }
 
@@ -358,33 +355,58 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
     menuState->backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
     menuState->menuBackground = IMG_LoadTexture(renderer, "resources/menu.jpg");
     menuState->gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
+}
 
+void menuCleanup(MenuState* menuState, SDL_Renderer* renderer, TTF_Font* menufont, SDL_Window* window) {
+    SDL_DestroyTexture(menuState->hostButton.texture);
+    SDL_DestroyTexture(menuState->joinButton.texture);
+    SDL_DestroyTexture(menuState->exitButton.texture);
+    SDL_DestroyTexture(menuState->startButton.texture);
+    SDL_DestroyTexture(menuState->joinHostButton.texture);
+    SDL_DestroyTexture(menuState->onlineButton.texture);
+    SDL_DestroyTexture(menuState->localButton.texture);
+    SDL_DestroyTexture(menuState->ipInputButton.texture);
+    SDL_DestroyTexture(menuState->backButton.texture);
+    SDL_DestroyTexture(menuState->menuBackground);
+    SDL_DestroyTexture(menuState->gameBackground);
+    
+    TTF_CloseFont(menufont);
+    
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 }
 
 void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]) {
-    if (soundIndex < 1 || soundIndex > NUM_SOUNDS) {
-        fprintf(stderr, "Invalid sound index: %d\n", soundIndex);
-        return;
-    }
+   
 
     int channel = Mix_PlayChannel(-1, sounds[soundIndex - 1], 0);
-    if (channel == -1) {
-        fprintf(stderr, "Failed to play the sound! SDL_mixer Error: %s\n", Mix_GetError());
-        return;
-    }
+   
     channels[soundIndex - 1] = channel; // Track the channel
 }
 
 //For longer sounds like background muscik
 void stopSound(int soundIndex, int channels[]) {
-    if (soundIndex < 1 || soundIndex > NUM_SOUNDS) {
-        fprintf(stderr, "Invalid sound index: %d\n", soundIndex);
-        return;
-    }
-
+    
     int channel = channels[soundIndex - 1];
     if (channel != -1) {
         Mix_HaltChannel(channel);
         channels[soundIndex - 1] = -1; // Reset channel tracking
     }
+}
+
+void renderGame(SDL_Renderer *renderer, SDL_Texture *fieldTexture, int windowWidth, int windowHeight, GameState *gameState, Field *field, TTF_Font *font) {
+    // Clear the screen
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    // Render game elements
+    renderField(renderer, fieldTexture, windowWidth, windowHeight);
+    renderGoals(renderer, field);
+    renderPlayers(renderer, gameState);
+    renderBall(renderer, gameState);
+    renderScore(renderer, font, &gameState->scoreTracker, windowWidth, windowHeight);
+    renderTimer(renderer, font, &gameState->gameTimer, windowWidth);
+
+    // Present the rendered frame
+    SDL_RenderPresent(renderer);
 }

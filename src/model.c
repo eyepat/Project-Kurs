@@ -1,14 +1,21 @@
-#include "model.h"
-#include "view.h"
+
 #include <stdlib.h>
 #include <time.h>
-#include "network.h" 
 #include <math.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
-#include "SDL2/SDL_image.h"
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
+#include "model.h"
+#include "view.h"
+#include "network.h"
+
+struct timer {
+    int startTime;
+    int currentTime;
+    int maxTime;
+    Uint32 lastUpdate; // Time of the last update in milliseconds
+};
 
 void initializeSDL() {
 
@@ -31,13 +38,6 @@ void initializeSDL() {
     }
 
 }
-
-struct timer {
-    int startTime;
-    int currentTime;
-    int maxTime;
-    Uint32 lastUpdate; // Time of the last update in milliseconds
-};
 
 void initializeGame(GameState *gameState, Field *field) {
     // Set field dimensions based on the current display resolution
@@ -83,6 +83,7 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
 
+    gameState->gameTimer = createTimer(0, 0, 45); // 2 minutes timer
     initializeTimer(&gameState->gameTimer, 120);// change seconds
     initializeScore(&gameState->scoreTracker);
 
@@ -134,7 +135,7 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
             if (magnitude != 0) {
                 dx /= magnitude; // Normalize the direction vector
                 dy /= magnitude;
-                float kickForce = 500.0f; // Kick force magnitude
+                float kickForce = 700.0f; // Kick force magnitude
                 ball->xSpeed = dx * kickForce;
                 ball->ySpeed = dy * kickForce;
             }
@@ -259,13 +260,14 @@ void updateScore(Score *score, int teamNumber) {
     }
 }
 
-
-
-Timer *createTimer(int startTime, int currentTime, int maxTime) {
-    Timer *timer = malloc(sizeof(struct timer));
-    timer->startTime=startTime;
-    timer->currentTime=currentTime;
-    timer->maxTime=maxTime;
+Timer *createTimer(int startTime,int currentTime, int maxTime){
+   Timer *timer = malloc(sizeof(Timer));
+    if (timer != NULL) {
+        timer->startTime = startTime;
+        timer->currentTime = currentTime;
+        timer->maxTime = maxTime;
+        timer->lastUpdate = 0;  // Initialize lastUpdate
+    }
     return timer;
 }
 
@@ -276,19 +278,16 @@ int getCurrentTime(const Timer *timer) {
     return timer->currentTime;
 }
 
-void updateTimer(Timer *timer) {
+void updateTimer(Timer* timer,GameState *gameState) {
     Uint32 currentTicks = SDL_GetTicks();
-    Uint32 elapsedTicks = currentTicks - timer->lastUpdate;
-
-    // Increment the timer by one second if at least one second has passed
-    if (elapsedTicks >= 1000) {
-        timer->currentTime++;
-        timer->lastUpdate = currentTicks - (elapsedTicks % 1000);
+    Uint32 elapsedTicks = currentTicks -timer->lastUpdate;
+    if(elapsedTicks >= 1000){
+        timer->currentTime ++;
+        timer->lastUpdate = currentTicks-(elapsedTicks % 1000);
     }
-
-    // Ensure the timer does not exceed the max time
-    if (timer->currentTime > timer->maxTime) {
+    if(timer->currentTime > timer->maxTime){
         timer->currentTime = timer->maxTime;
+        gameState->isGameOver = true; // Set the game over flag when time is up
     }
 }
 
@@ -299,16 +298,7 @@ void initializeTimer(Timer* timer, int maxTime) {
     timer->maxTime = maxTime;
 }
 
-/*void updateTimer(Timer* timer, GameState *gameState) {
-    unsigned int currentTicks = SDL_GetTicks();
-    timer->currentTime = (currentTicks - timer->startTime) / 1000;  // Convert milliseconds to seconds
 
-    if (timer->currentTime >= timer->maxTime) {
-        timer->currentTime = timer->maxTime;  // Clamp the currentTime to maxTime to avoid overflow
-        gameState->isGameOver = true;  // Set the game over flag when time is up
-        printf("Time's up! Game over.\n");
-    }
-}*/
 
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
     char message[100];
@@ -359,57 +349,6 @@ void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
     ball->ySpeed = 0;
 
 }
-
-void updatePlayerPositionLocal(GameState *gameState, const Field *field, float deltaTime, MovementFlags flags[2]) {
-    for (int i = 0; i < gameState->numPlayers; i++) {
-        MovementFlags clientFlags = flags[i];
-        float speed = PALYER_SPEED * deltaTime;
-
-        float verticalMargin = field->height * 0.12;
-        float bottomMargin = field->height * 0.10;
-        float horizontalMargin = field->width * 0.07;
-
-        if (clientFlags.up && gameState->players[i].y - gameState->players[i].radius > verticalMargin) {
-            gameState->players[i].y -= speed;
-        }
-        if (clientFlags.down && gameState->players[i].y + gameState->players[i].radius < field->height - bottomMargin) {
-            gameState->players[i].y += speed;
-        }
-        if (clientFlags.left && gameState->players[i].x - gameState->players[i].radius > horizontalMargin) {
-            gameState->players[i].x -= speed;
-        }
-        if (clientFlags.right && gameState->players[i].x + gameState->players[i].radius < field->width - horizontalMargin) {
-            gameState->players[i].x += speed;
-        }
-    }
-}
-void resetGameState(GameState *gameState, Entity *ball, Field *field, Client clients[], int isServer, SDLNet_SocketSet socketSet) {
-    // Reset scores
-    initializeScore(&gameState->scoreTracker);
-    // Reset game timer
-    initializeTimer(&gameState->gameTimer, 120); 
-
-    // Reset game over flag
-    gameState->isGameOver = false;
-    // Reset players' positions and ball position
-    resetGameAfterGoal(gameState, ball, field);
-    // If server, reset clients' movement flags and send reset state to clients
-    if (isServer == 1) {
-        for (int i = 0; i < MAX_PLAYERS; i++) {
-            clients[i].flags.up = false;
-            clients[i].flags.down = false;
-            clients[i].flags.left = false;
-            clients[i].flags.right = false;
-        }
-
-        // Send reset state to clients
-        sendDataToClients(clients, gameState);
-    }
-
-    // Print debug info
-    printf("Full game reset complete.\n");
-}
-
 
 
 void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *renderer, TTF_Font *font, Field *field, int isServer, Client clients[], SDLNet_SocketSet socketSet) {

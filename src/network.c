@@ -3,9 +3,10 @@
 #include <string.h>     
 #include <SDL2/SDL_net.h> 
 #include "model.h"
-#include "network.h"
 #include "view.h"
 #include "controller.h"
+#include "network.h"
+
 
 void initServer(IPaddress ip, GameState *gameState, Client clients[], SDLNet_SocketSet *socketSet, SDL_Renderer* renderer, TTF_Font* font, int windowWidth, MenuState* menuState, int windowHeight, int *portPointer, char hostIP[20],int* isServerPointer, bool* closeWindow) {
     printf("Initializing server\n");
@@ -158,14 +159,9 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
 }
 
 
-
-
-
-
 void sendDataToServer(Client *clientInfo, GameState *gameState) {
     int retries = 3; // Number of retry attempts
     int len;
-    // printf("Client ID sendin: %d\n", clientInfo->clientID);    // printf("senddatatoserver\n");
 
     // Retry sending the clientID
     while (retries > 0) {
@@ -191,23 +187,16 @@ void sendDataToServer(Client *clientInfo, GameState *gameState) {
         fprintf(stderr, "Failed to send complete MovementFlags: %s\n", SDLNet_GetError());
     }
 }
-//it correctly recieving id now 
-//fixa so it recieves keyipnuts correctly now
 
 void receiveDataFromClients(Client clients[], SDLNet_SocketSet socketSet, GameState *gameState) {
     for (int i = 0; i < MAX_PLAYERS; i++) {
         if (clients[i].isActive) {
             // Receive the clientID first
-            // printf("receiveDataFromClients\n");
             
             int clientID = 0;
-            // printf("client idb: %d\n", clients[0].clientID); //-1 och 1
-            // printf("client idb: %d\n", clients[1].clientID);
 
             int recvResult = SDLNet_TCP_Recv(clients[i].socket, &clientID, sizeof(int));
-            // printf("client ida: %d\n", clients[0].clientID);
-            // printf("client ida: %d\n", clients[1].clientID);
-
+         
             if (recvResult <= 0) {
                 // Handle disconnection or error
                 if (recvResult == 0) {
@@ -235,14 +224,7 @@ void receiveDataFromClients(Client clients[], SDLNet_SocketSet socketSet, GameSt
                     // Update the movement flags for the corresponding client
                     clients[clientID].clientID = clientID; // Store clientID in the correct array slot
                     clients[clientID].flags = incomingFlags;
-                    // printf("host id : %d\n", clients[0].clientID);
-                    // printf("client id: %d\n", clients[1].clientID);
-
-
-                    if (incomingFlags.up) {
-                        // printf("Server received 'W' from Client %d\n", clients[1].clientID); //its printing this from 0
-                        printf("Server received 'W' from Client %d\n", clientID);
-                    }
+    
 
                 } else if (recvResult == 0) {
                     printf("Client %d disconnected. Slot kept open for reconnection.\n", clientID);
@@ -252,17 +234,10 @@ void receiveDataFromClients(Client clients[], SDLNet_SocketSet socketSet, GameSt
                 } else {
                     fprintf(stderr, "Error receiving data from client %d: %s\n", clientID, SDLNet_GetError());
                 }
-            } else {
-                // Handle invalid clientID
-                // fprintf(stderr, "Received invalid clientID: %d\n", clientID);
-            }
+            } 
         }
     }
 }
-
-///clientID blir galen en stoppas in i array får segmentation error
-
-
 
 void sendDataToClients(Client clients[], GameState *gameState) {
     for (int i = 0; i < gameState->numPlayers; i++) {
@@ -282,33 +257,4 @@ void receiveDataFromServer(Client *clientInfo, GameState *gameState) {
         exit(EXIT_FAILURE);
     }
 }
-
-
-
-
-
-
-// void acceptNewOrReconnectingClients(TCPsocket serverSocket, TCPsocket* clientSockets, SDLNet_SocketSet socketSet, GameState *gameState) //dont work i dont think
-// {
-//     // printf("Checking for new or reconnecting clients...\n");
-//     TCPsocket newClientSocket = SDLNet_TCP_Accept(serverSocket);
-//     if (newClientSocket) {
-//         int slotFound = -1;
-//         for (int i = 0; i < MAX_PLAYERS; i++) {
-//             if (clientSockets[i] == NULL) {
-//                 slotFound = i;
-//                 break;
-//             }
-//         }
-//         if (slotFound != -1) {
-//             clientSockets[slotFound] = newClientSocket;
-//             SDLNet_TCP_AddSocket(socketSet, newClientSocket);
-//             gameState->numPlayers++;
-//             printf("Client connected and assigned to slot %d.\n", slotFound);
-//         } else {
-//             printf("No open slots available for new connections.\n");
-//             SDLNet_TCP_Close(newClientSocket);
-//         }
-//     }
-// }
 
