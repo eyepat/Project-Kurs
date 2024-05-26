@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     SDL_SetWindowIcon(window, iconSurface);
     SDL_FreeSurface(iconSurface);
 
-
+    
     //MENU loop
     bool closeWindow = false;
     while (!closeWindow) {
@@ -112,7 +112,6 @@ int main(int argc, char **argv) {
         default:
             break;
     }
-
     menuCleanup(&menuState, renderer, menufont, window);
 
     //For game

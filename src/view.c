@@ -312,7 +312,11 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
     const char* soundFiles[NUM_SOUNDS] = {
         "resources/startwhistle.wav",
         "resources/ending.wav",
-        "resources/music.wav"
+        "resources/IngameSound.wav",
+        "resources/menuSound.wav",
+        
+         
+
         // Add paths for other sounds here
     };
 
