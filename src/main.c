@@ -52,6 +52,15 @@ int main(int argc, char **argv) {
         printf("Error loading font: %s\n", TTF_GetError());
     }
 
+    //LOGO
+    SDL_Surface *iconSurface = IMG_Load("resources/Logo.jpg");
+    if (!iconSurface) {
+        printf("Error loading icon: %s\n", IMG_GetError());
+    }
+    SDL_SetWindowIcon(window, iconSurface);
+    SDL_FreeSurface(iconSurface);
+
+
     //MENU loop
     bool closeWindow = false;
     while (!closeWindow) {
