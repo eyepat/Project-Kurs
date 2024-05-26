@@ -12,7 +12,6 @@ void initServer(IPaddress ip, GameState *gameState, Client clients[], SDLNet_Soc
     printf("Initializing server\n");
     menuState->menuState = 11;
 
-
     // Open the server socket
     TCPsocket serverSocket = SDLNet_TCP_Open(&ip);
     if (!serverSocket) {
@@ -38,9 +37,6 @@ void initServer(IPaddress ip, GameState *gameState, Client clients[], SDLNet_Soc
         clients[i].clientID = 0;  // Initialize ID to -1 indicating unused
         clients[i].isActive = 0;  // Mark as inactive
     }
-    // Initialize host client
-    // clients[0].clientID = 0;    // Host client ID set to 0
-    // clients[0].isActive = 1;    // Mark the host as active
 
     // Main server loop, accepting clients
     gameState->numPlayers = 1;
@@ -59,7 +55,6 @@ void initServer(IPaddress ip, GameState *gameState, Client clients[], SDLNet_Soc
             clients[gameState->numPlayers].clientID = gameState->numPlayers;  // Assign client ID
             clients[gameState->numPlayers].isActive = 1;  // Mark as active
 
-
             SDLNet_TCP_AddSocket(*socketSet, newClientSocket);
 
             // Send the client ID to the new client
@@ -67,7 +62,6 @@ void initServer(IPaddress ip, GameState *gameState, Client clients[], SDLNet_Soc
 
             printf("New client connected with ID %d. Total Players: %d\n", clients[gameState->numPlayers].clientID, gameState->numPlayers + 1);
             gameState->numPlayers++;
-            
         }
     }
 
@@ -88,7 +82,6 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
     printf("Initializing client...\n");
     int showWaitScreen = 1;
 
-
     // Open the client socket
     clientInfo->socket = SDLNet_TCP_Open(&ip);
     if (!clientInfo->socket) {
@@ -96,8 +89,6 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
         SDLNet_Quit();
         exit(EXIT_FAILURE);
     }
-
-    printf("Client connected to server.\n");
 
     // Receive the client ID assigned by the server
     int result = SDLNet_TCP_Recv(clientInfo->socket, &clientInfo->clientID, sizeof(clientInfo->clientID));
@@ -111,12 +102,14 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
         SDLNet_Quit();
         exit(EXIT_FAILURE);
     }
-        SDLNet_SocketSet set;
-        set = SDLNet_AllocSocketSet(1);
-        SDLNet_TCP_AddSocket(set, clientInfo->socket);
 
+    SDLNet_SocketSet set;
+    set = SDLNet_AllocSocketSet(1);
+    SDLNet_TCP_AddSocket(set, clientInfo->socket);
 
-        while (showWaitScreen == 1)
+    printf("Client connected to server.\n");
+
+    while (showWaitScreen == 1)
     {
         menuState->menuState = 16;
         handleMenuEvent(closeWindow, menuState);
@@ -151,9 +144,7 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
                 exit(EXIT_FAILURE);
             }
         }
-        
     }
-    
     printf("Client setup complete, ready for next steps.\n");
     
 }
@@ -214,10 +205,10 @@ void receiveDataFromClients(Client clients[], SDLNet_SocketSet socketSet, GameSt
             if (clientID >= 0 && clientID < MAX_PLAYERS) {
                 // Proceed only if the clientID is within the valid range
                 MovementFlags incomingFlags;
-                    incomingFlags.up = false;
-                    incomingFlags.down = false;
-                    incomingFlags.left = false;
-                    incomingFlags.right = false;
+                incomingFlags.up = false;
+                incomingFlags.down = false;
+                incomingFlags.left = false;
+                incomingFlags.right = false;
                     
                 recvResult = SDLNet_TCP_Recv(clients[i].socket, &incomingFlags, sizeof(MovementFlags));
                 if (recvResult > 0) {

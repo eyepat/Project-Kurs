@@ -8,11 +8,12 @@
 #include <SDL2/SDL_mixer.h>
 
 #define MAX_PLAYERS 4
-#define PALYER_SPEED 350
+#define PLAYER_SPEED 350
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800
-#define NUM_SOUNDS 5
+#define NUM_SOUNDS 3
 #define FPS 60
+
 // Entities Definitions 
 typedef struct {
     float x, y;
@@ -40,7 +41,6 @@ typedef struct {
     Goal goals[2];
 } Field;
 
-
 typedef struct timer Timer;
 
 typedef struct {
@@ -55,7 +55,6 @@ typedef struct {
     Score scoreTracker;
     Timer *gameTimer;
     bool isGameOver; 
-    Field field;
 } GameState;
 
 typedef struct {
@@ -71,12 +70,6 @@ typedef struct {
     SDL_Rect bounds;
     SDL_Texture* texture;
 } Button;
-
-typedef struct {
-    int color[4];  // Lagets färg: RGB och opacity
-    int score;     // Antal mål laget har gjort
-    int goalIndex; // Index för det mål som tillhör detta lag
-} Team;
 
 typedef struct {
     char username[40];
@@ -103,7 +96,7 @@ typedef struct {
 void initializeSDL();
 void initializeGame(GameState *gameState, Field *field);
 void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime);
-int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag);
+void updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag);
 void assignRandomColors(GameState *gameState);
 void initializeScore(Score* score);
 void updateScore(Score *score, int teamID);
@@ -112,10 +105,6 @@ void destroyTimer(Timer *timer);
 int getCurrentTime(const Timer *timer);
 void updateTimer(Timer *timer, GameState *gameState);
 void initializeTimer(Timer* timer, int maxTime);
-
-
-void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);
 void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field);
-void resetGameState(GameState *gameState, Entity *ball, Field *field, Client clients[], int isServer, SDLNet_SocketSet socketSet);
 void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *renderer, TTF_Font *font, Field *field, int isServer, Client clients[], SDLNet_SocketSet socketSet);
 #endif // MODEL_H

@@ -82,7 +82,7 @@ void drawDetailedCircle(SDL_Renderer* renderer, int centerX, int centerY, int ra
         }
 }
 
-// Function to render text
+// Function to render texts
 void renderText(SDL_Renderer* renderer, TTF_Font* font, const char* text, SDL_Color color, int x, int y) {
     // Render text
     SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
@@ -170,7 +170,6 @@ void modifyPlayerColors(int red, int blue, int green, int opacity, int playerCol
     
 }
 
-
 void renderButton(SDL_Renderer* renderer, Button* button) {
     SDL_RenderCopy(renderer, button->texture, NULL, &button->bounds);
 }
@@ -182,33 +181,17 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
     const int buttonHeight = 50;
     const int buttonX = windowWidth / 2 - buttonWidth / 2;
 
-    // Host Button
     menuState->hostButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};
-    
-    // Join Button
     menuState->joinButton.bounds = (SDL_Rect){buttonX, 200, buttonWidth, buttonHeight};
-    
-    // Exit Button
     menuState->exitButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};
-    
-    // Start Button
-    menuState->startButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};  // Same position as exit
-    
-    // Join Host Button
-    menuState->joinHostButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};  // Same position as exit
-    
-    // Online Button
-    menuState->onlineButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};  // Same position as host
-    
-    // Local Button
-    menuState->localButton.bounds = (SDL_Rect){buttonX, 200, buttonWidth, buttonHeight};  // Same position as join
-    
-    // IP Input Button
-    menuState->ipInputButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};  // Same position as host
+    menuState->startButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};  
+    menuState->joinHostButton.bounds = (SDL_Rect){buttonX, 300, buttonWidth, buttonHeight};  
+    menuState->onlineButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};      
+    menuState->localButton.bounds = (SDL_Rect){buttonX, 200, buttonWidth, buttonHeight}; 
+    menuState->ipInputButton.bounds = (SDL_Rect){buttonX, 100, buttonWidth, buttonHeight};  
 
     strcpy(menuState->ip, "127.0.0.1");  // Set default IP
 
-    //SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);
 
     // Render buttons based on menu state
@@ -224,7 +207,7 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
             
             break;
         case 9:  // Connect client to host
-            SDL_RenderClear(renderer);
+            // SDL_RenderClear(renderer);
             menuState->menuState = 6;  // Proceed to next state
             break;
         case 11:  // Waiting for players 1/4
@@ -329,8 +312,8 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
     // Load sounds
     const char* soundFiles[NUM_SOUNDS] = {
         "resources/startwhistle.wav",
-        // "resources/music.wav",
-        "resources/ending.wav"
+        "resources/ending.wav",
+        "resources/music.wav"
         // Add paths for other sounds here
     };
 
@@ -378,7 +361,6 @@ void menuCleanup(MenuState* menuState, SDL_Renderer* renderer, TTF_Font* menufon
 
 void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]) {
    
-
     int channel = Mix_PlayChannel(-1, sounds[soundIndex - 1], 0);
    
     channels[soundIndex - 1] = channel; // Track the channel
@@ -409,4 +391,23 @@ void renderGame(SDL_Renderer *renderer, SDL_Texture *fieldTexture, int windowWid
 
     // Present the rendered frame
     SDL_RenderPresent(renderer);
+}
+
+void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
+    char message[100];
+     SDL_Color color = {255, 255, 255};  // White color
+    if (score->team1Score > score->team2Score) {
+        sprintf(message, "Red team wins with a score of %d to %d!", score->team1Score, score->team2Score);
+    } else if (score->team2Score > score->team1Score) {
+        sprintf(message, "blue team wins with a score of %d to %d!", score->team2Score, score->team1Score);
+    } else {
+        sprintf(message, "The game is a draw, each team scoring %d.", score->team1Score);
+    }
+
+    SDL_Surface *surface = TTF_RenderText_Solid(font, message, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect textRect = {100, SCREEN_HEIGHT / 2 - surface->h / 2, surface->w, surface->h};  // Centered
+    SDL_RenderCopy(renderer, texture, NULL, &textRect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }
