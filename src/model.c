@@ -83,7 +83,7 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
 
-    gameState->gameTimer = createTimer(0, 0, 45); // 2 minutes timer
+    gameState->gameTimer = createTimer(0, 0, 0); // 2 minutes timer
     initializeTimer(&gameState->gameTimer, 120);// change seconds
     initializeScore(&gameState->scoreTracker);
 

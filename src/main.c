@@ -196,7 +196,8 @@ int main(int argc, char **argv) {
     stopSound(3, channels);
     playSound(2, sounds, channels);
     handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
-    cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
+    // cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
+    cleanup(&gameState, fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
 
     return 0;
 }

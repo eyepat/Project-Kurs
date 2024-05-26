@@ -146,7 +146,7 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
 }
 
 
-void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet) {
+void cleanup(GameState *gameState, SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet) {
   
     // Clean up SDL objects
     SDL_DestroyTexture(fieldTexture);
@@ -155,6 +155,7 @@ void cleanup(SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *wind
     TTF_Quit();
     IMG_Quit();
     Mix_CloseAudio();
+    destroyTimer(gameState->gameTimer);
 
     // Clean up client sockets array and myClientInfo socket
     for (int i = 0; i < MAX_PLAYERS; i++) {
