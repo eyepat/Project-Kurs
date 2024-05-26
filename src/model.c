@@ -98,7 +98,7 @@ void updatePlayerPosition(GameState *gameState, Client clients[], const Field *f
 
         int clientID = clients[i].clientID;
         MovementFlags clientFlags = clients[i].flags;
-        float speed = PALYER_SPEED * deltaTime;
+        float speed = PLAYER_SPEED * deltaTime;
 
         float verticalMargin = field->height * 0.12;
         float bottomMargin = field->height * 0.10;
@@ -120,7 +120,7 @@ void updatePlayerPosition(GameState *gameState, Client clients[], const Field *f
 }
 
 // Function to update ball position
-int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag) {
+void updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag) {
     // Loop through all players to check for interactions with the ball
     for (int i = 0; i < gameState->numPlayers; i++) {
         Entity *player = &gameState->players[i];
@@ -198,8 +198,6 @@ int updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *
         ball->ySpeed *= -1;
         ball->y = fmax(ball->radius + verticalMargin, fmin(ball->y, field->height - ball->radius - bottomMargin));
     }
-
-    return 1;
 }
 
 void assignRandomColors(GameState *gameState) {
@@ -298,27 +296,6 @@ void initializeTimer(Timer* timer, int maxTime) {
     timer->maxTime = maxTime;
 }
 
-
-
-void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
-    char message[100];
-     SDL_Color color = {255, 255, 255};  // White color
-    if (score->team1Score > score->team2Score) {
-        sprintf(message, "Red team wins with a score of %d to %d!", score->team1Score, score->team2Score);
-    } else if (score->team2Score > score->team1Score) {
-        sprintf(message, "blue team wins with a score of %d to %d!", score->team2Score, score->team1Score);
-    } else {
-        sprintf(message, "The game is a draw, each team scoring %d.", score->team1Score);
-    }
-
-    SDL_Surface *surface = TTF_RenderText_Solid(font, message, color);
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_Rect textRect = {100, SCREEN_HEIGHT / 2 - surface->h / 2, surface->w, surface->h};  // Centered
-    SDL_RenderCopy(renderer, texture, NULL, &textRect);
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-}
-
 void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
 
     // Reset players' positions
@@ -339,7 +316,6 @@ void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
                 gameState->players[i].y = (field->height / 3) * (i - 1);
             }
         }
-        // gameState->players[i].radius = 21;
     }
 
     // Reset the ball position to the center of the field
@@ -373,7 +349,4 @@ void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *rende
         }
     }
 }
-
-
-
 

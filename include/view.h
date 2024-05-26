@@ -27,6 +27,6 @@ void stopSound(int soundIndex, int channels[]);
 void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[]);
 void menuCleanup(MenuState* menuState, SDL_Renderer* renderer, TTF_Font* menufont, SDL_Window* window);
 void renderGame(SDL_Renderer *renderer, SDL_Texture *fieldTexture, int windowWidth, int windowHeight, GameState *gameState, Field *field, TTF_Font *font);
-
+void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);
 
 #endif /* VIEW_H */
