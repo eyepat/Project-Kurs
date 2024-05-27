@@ -178,13 +178,11 @@ int main(int argc, char **argv) {
             updatePlayerPosition(&gameState, clients, &field, deltaTime);
             updateTimer(&gameState.gameTimer, &gameState); 
             updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
-
             if (scoreTrue) {
                 playSound(1, sounds, channels);
                 resetGameAfterGoal(&gameState, &gameState.ball, &field);
                 scoreTrue = 0;
             }
-
             if (isServer == 1) { // Additional actions for HOST
                 sendDataToClients(clients, &gameState);
             }
@@ -204,8 +202,6 @@ int main(int argc, char **argv) {
     stopSound(3, channels);
     playSound(2, sounds, channels);
     handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
-    // cleanup(fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
     cleanup(&gameState, fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
-
     return 0;
 }

@@ -288,8 +288,6 @@ void updateTimer(Timer* timer,GameState *gameState) {
         gameState->isGameOver = true; // Set the game over flag when time is up
     }
 }
-
-
 void initializeTimer(Timer* timer, int maxTime) {
     timer->currentTime = 0;
     timer->lastUpdate = SDL_GetTicks();
