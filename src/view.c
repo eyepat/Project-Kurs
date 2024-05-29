@@ -7,7 +7,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "model.h"
 #include "view.h"
-
+#include "controller.h"
 
 void renderField(SDL_Renderer *renderer, SDL_Texture *fieldTexture,int windowWidth, int windowHeight) {
     // Define the new size of the field
@@ -266,7 +266,6 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
         "resources/startwhistle.wav",
         "resources/ending.wav",
         "resources/IngameSound.wav",
-        "resources/menuSound.wav",
     };
     for (int i = 0; i < NUM_SOUNDS; ++i) {
         sounds[i] = Mix_LoadWAV(soundFiles[i]);

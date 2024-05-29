@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
         closeWindow = true;
     }
 
-    initializeGame(&gameState, &field, &clients);
+    initializeGame(&gameState, &field, clients);
 
     playSound(1, sounds, channels);
     playSound(3, sounds, channels);
