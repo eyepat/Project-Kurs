@@ -37,14 +37,18 @@ void initializeSDL() {
         SDL_Quit();
     }
 
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        fprintf(stderr, "SDL_mixer could not initialize! Mix_Error: %s\n", Mix_GetError());
+    }
+
 }
 
-void initializeGame(GameState *gameState, Field *field) {
+void initializeGame(GameState *gameState, Field *field, Client clients[]) {
     // Set field dimensions based on the current display resolution
     field->width = SCREEN_WIDTH;
     field->height = SCREEN_HEIGHT;
 
-    const int GOAL_WIDTH = 80; // Replace with the actual value
+    const int GOAL_WIDTH = 80; 
     const int GOAL_HEIGHT = 250;
 
     // Initialize player properties
@@ -67,13 +71,20 @@ void initializeGame(GameState *gameState, Field *field) {
         }
         gameState->players[i].radius = 21;
     }
+    //Initialize movementflags
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        clients[i].flags.up = false;
+        clients[i].flags.down = false;
+        clients[i].flags.left = false;
+        clients[i].flags.right = false;  
+    }
 
     // Initialize ball properties
     gameState->ball.x = field->width / 2;
     gameState->ball.y = field->height / 2;
     gameState->ball.radius = 20;
-    gameState->ball.xSpeed = 0; // Initialize ball's speed in the x-direction to zero
-    gameState->ball.ySpeed = 0; // Initialize ball's speed in the y-direction to zero
+    gameState->ball.xSpeed = 0; 
+    gameState->ball.ySpeed = 0; 
 
     assignRandomColors(gameState); 
 
@@ -83,26 +94,24 @@ void initializeGame(GameState *gameState, Field *field) {
     field->goals[1].box = (SDL_Rect){field->width * 0.937 - GOAL_WIDTH, (field->height * 1.03 - GOAL_HEIGHT) / 2, GOAL_WIDTH, GOAL_HEIGHT};
     field->goals[1].teamID = 2; // Team 2's goal
 
-    gameState->gameTimer = createTimer(0, 0, 0); // 2 minutes timer
-    initializeTimer(&gameState->gameTimer, 120);// change seconds
+    gameState->gameTimer = createTimer(0, 0, 0);
+    initializeTimer(&gameState->gameTimer, 120);// 2 minutes timer
     initializeScore(&gameState->scoreTracker);
 
 }
 
 void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime) {
-    for (int i = 0; i < gameState->numPlayers; i++) {
-        // Ensure that the client index used is within the bounds of the gameState players array
-        if (clients[i].clientID < 0 || clients[i].clientID >= gameState->numPlayers) {
-            continue;  // Skip this client if their clientID is out of range
-        }
 
+    float speed = PLAYER_SPEED * deltaTime;
+
+    float verticalMargin = field->height * 0.12;
+    float bottomMargin = field->height * 0.10;
+    float horizontalMargin = field->width * 0.07;
+
+    for (int i = 0; i < gameState->numPlayers; i++) {
+      
         int clientID = clients[i].clientID;
         MovementFlags clientFlags = clients[i].flags;
-        float speed = PLAYER_SPEED * deltaTime;
-
-        float verticalMargin = field->height * 0.12;
-        float bottomMargin = field->height * 0.10;
-        float horizontalMargin = field->width * 0.07;
 
         if (clientFlags.up && gameState->players[clientID].y - gameState->players[clientID].radius > verticalMargin) {
             gameState->players[clientID].y -= speed;
@@ -185,9 +194,9 @@ void updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score 
         }
     }
 
-    float verticalMargin = field->height * 0.12; // Top margin
-    float bottomMargin = field->height * 0.10; // Bottom margin
-    float horizontalMargin = field->width * 0.07; // Side margins
+    float verticalMargin = field->height * 0.12; 
+    float bottomMargin = field->height * 0.10; 
+    float horizontalMargin = field->width * 0.07; 
 
     if (ball->x - ball->radius <= horizontalMargin || ball->x + ball->radius >= field->width - horizontalMargin) {
         ball->xSpeed *= -1;
@@ -264,7 +273,7 @@ Timer *createTimer(int startTime,int currentTime, int maxTime){
         timer->startTime = startTime;
         timer->currentTime = currentTime;
         timer->maxTime = maxTime;
-        timer->lastUpdate = 0;  // Initialize lastUpdate
+        timer->lastUpdate = 0; 
     }
     return timer;
 }
@@ -316,10 +325,10 @@ void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
         }
     }
 
-    // Reset the ball position to the center of the field
+    // Reset the ball 
     ball->x = field->width / 2;
     ball->y = field->height / 2;
-    ball->xSpeed = 0; // Reset ball speed to zero
+    ball->xSpeed = 0; 
     ball->ySpeed = 0;
 
 }

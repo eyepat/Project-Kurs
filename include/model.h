@@ -94,7 +94,7 @@ typedef struct {
 
 //  Function Declarations 
 void initializeSDL();
-void initializeGame(GameState *gameState, Field *field);
+void initializeGame(GameState *gameState, Field *field, Client clients[]);
 void updatePlayerPosition(GameState *gameState, Client clients[], const Field *field, float deltaTime);
 void updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score *score, float deltaTime, int *scoreFlag);
 void assignRandomColors(GameState *gameState);

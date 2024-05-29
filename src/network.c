@@ -34,8 +34,8 @@ void initServer(IPaddress ip, GameState *gameState, Client clients[], SDLNet_Soc
     // Initialize client array
     for (int i = 0; i < MAX_PLAYERS; i++) {
         clients[i].socket = NULL;
-        clients[i].clientID = 0;  // Initialize ID to -1 indicating unused
-        clients[i].isActive = 0;  // Mark as inactive
+        clients[i].clientID = 0;  
+        clients[i].isActive = 0;
     }
 
     // Main server loop, accepting clients

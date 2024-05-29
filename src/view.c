@@ -206,7 +206,6 @@ void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int 
             
             break;
         case 9:  // Connect client to host
-            // SDL_RenderClear(renderer);
             menuState->menuState = 6;  // Proceed to next state
             break;
         case 11:  // Waiting for players 1/4
@@ -302,12 +301,8 @@ void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuStat
     }
 }
 
-void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[]) {
-    // Initialize SDL_mixer
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        fprintf(stderr, "SDL_mixer could not initialize! Mix_Error: %s\n", Mix_GetError());
-    }
-
+void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[], SDL_Window* window) {
+  
     // Load sounds
     const char* soundFiles[NUM_SOUNDS] = {
         "resources/startwhistle.wav",
@@ -315,9 +310,6 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
         "resources/IngameSound.wav",
         "resources/menuSound.wav",
         
-         
-
-        // Add paths for other sounds here
     };
 
     for (int i = 0; i < NUM_SOUNDS; ++i) {
@@ -328,7 +320,7 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
         channels[i] = -1; // Initialize channel tracking
     }
 
-    // Initialize menu state
+    // Initialize menu textures
     menuState->menuState = 0;
     menuState->hostButton.texture = IMG_LoadTexture(renderer, "resources/host.png");
     menuState->joinButton.texture = IMG_LoadTexture(renderer, "resources/join.png");
@@ -341,6 +333,15 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
     menuState->backButton.texture = IMG_LoadTexture(renderer, "resources/back.png");
     menuState->menuBackground = IMG_LoadTexture(renderer, "resources/menu.jpg");
     menuState->gameBackground = IMG_LoadTexture(renderer, "resources/football-field.png");
+
+    //LOGO
+    SDL_Surface *iconSurface = IMG_Load("resources/Logo.jpg");
+    if (!iconSurface) {
+        printf("Error loading icon: %s\n", IMG_GetError());
+    }
+    SDL_SetWindowIcon(window, iconSurface);
+    SDL_FreeSurface(iconSurface);
+    
 }
 
 void menuCleanup(MenuState* menuState, SDL_Renderer* renderer, TTF_Font* menufont, SDL_Window* window) {
@@ -398,7 +399,7 @@ void renderGame(SDL_Renderer *renderer, SDL_Texture *fieldTexture, int windowWid
 
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score) {
     char message[100];
-     SDL_Color color = {255, 255, 255};  // White color
+     SDL_Color color = {255, 255, 255};  // White 
     if (score->team1Score > score->team2Score) {
         sprintf(message, "Red team wins with a score of %d to %d!", score->team1Score, score->team2Score);
     } else if (score->team2Score > score->team1Score) {

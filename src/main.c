@@ -15,19 +15,10 @@ int main(int argc, char **argv) {
     initializeSDL();
 
     //Game Data
-    Client clients[MAX_PLAYERS];
-    Client myClientInfo;
-    for (int i = 0; i < MAX_PLAYERS; i++) {
-        clients[i].flags.up = false;
-        clients[i].flags.down = false;
-        clients[i].flags.left = false;
-        clients[i].flags.right = false;
-    }
-    GameState gameState;
+    Client clients[MAX_PLAYERS]; //HOST
+    Client myClientInfo; //CLIENT
+    GameState gameState; //ALL USERS
 
-    //Network
-    SDLNet_SocketSet socketSet;
-    IPaddress ip;
 
     //For menu
     int port;
@@ -45,22 +36,13 @@ int main(int argc, char **argv) {
     Mix_Chunk *sounds[NUM_SOUNDS];
     int channels[NUM_SOUNDS];
     MenuState menuState;
-    initializeResources(renderer, &menuState, sounds, channels);
+    initializeResources(renderer, &menuState, sounds, channels, window);
     TTF_Font* menufont = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 24);
     TTF_Font* font = TTF_OpenFont("resources/8bitOperatorPlus-Regular.ttf", 50);
     if (!font) {
         printf("Error loading font: %s\n", TTF_GetError());
     }
 
-    //LOGO
-    SDL_Surface *iconSurface = IMG_Load("resources/Logo.jpg");
-    if (!iconSurface) {
-        printf("Error loading icon: %s\n", IMG_GetError());
-    }
-    SDL_SetWindowIcon(window, iconSurface);
-    SDL_FreeSurface(iconSurface);
-
-    
     //MENU loop
     bool closeWindow = false;
     while (!closeWindow) {
@@ -70,13 +52,16 @@ int main(int argc, char **argv) {
         SDL_Delay(11);
 
         if (menuState.menuState == 6 || menuState.menuState == 2) {
-            // SDL_RenderClear(renderer);
             closeWindow = true;
             if (menuState.menuState == 2) {
                 isServer = 0;
             }
         }
     }
+
+    //Network
+    SDLNet_SocketSet socketSet;
+    IPaddress ip;
 
     switch (isServer) {
         case 1: //SERVER
@@ -157,7 +142,13 @@ int main(int argc, char **argv) {
     Uint32 currentTime;
     float deltaTime;
     closeWindow = false;
-    initializeGame(&gameState, &field);
+    //if exit button in menu is pressed
+    if (menuState.menuState == 77) {
+        closeWindow = true;
+    }
+
+    initializeGame(&gameState, &field, &clients);
+
     playSound(1, sounds, channels);
     playSound(3, sounds, channels);
 
@@ -167,14 +158,15 @@ int main(int argc, char **argv) {
         currentTime = SDL_GetTicks();
         deltaTime = (currentTime - previousTime) / 1000.0f;
         previousTime = currentTime;
-
+        //CONTROLLER
         handleEvents(&closeWindow, clients, &gameState, isServer, &myClientInfo);
-
+      
         if (isServer == 1 || isServer == 0) { // HOST and LOCAL
 
             if (isServer == 1) { // Additional actions for HOST
                 receiveDataFromClients(clients, socketSet, &gameState);
             }
+            //MODEL
             updatePlayerPosition(&gameState, clients, &field, deltaTime);
             updateTimer(&gameState.gameTimer, &gameState); 
             updateBallPosition(&gameState.ball, &gameState, &field, &gameState.scoreTracker, deltaTime, &scoreTrue);
@@ -191,6 +183,7 @@ int main(int argc, char **argv) {
             receiveDataFromServer(&myClientInfo, &gameState);
         }
 
+        //VIEW
         renderGame(renderer, fieldTexture, windowWidth, windowHeight, &gameState, &field, font);
 
         // Delay to maintain 60 FPS
@@ -199,9 +192,15 @@ int main(int argc, char **argv) {
             SDL_Delay(frameDelay - currentTime);
         }
     }
+    
     stopSound(3, channels);
-    playSound(2, sounds, channels);
-    handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
+
+    if(gameState.isGameOver)
+    {
+        playSound(2, sounds, channels);
+        handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);
+    }
+   
     cleanup(&gameState, fieldTexture, renderer, window, font, clients, &myClientInfo, socketSet);
     return 0;
 }

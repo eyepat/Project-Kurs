@@ -24,7 +24,7 @@ void renderTextMenu(SDL_Renderer* renderer, TTF_Font* font, const char* text, in
 void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int* portPointer, const char* prompt, int windowWidth);
 void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]);
 void stopSound(int soundIndex, int channels[]);
-void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[]);
+void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[], SDL_Window* window);
 void menuCleanup(MenuState* menuState, SDL_Renderer* renderer, TTF_Font* menufont, SDL_Window* window);
 void renderGame(SDL_Renderer *renderer, SDL_Texture *fieldTexture, int windowWidth, int windowHeight, GameState *gameState, Field *field, TTF_Font *font);
 void renderWinner(SDL_Renderer *renderer, TTF_Font *font, const Score *score);

@@ -63,43 +63,14 @@ void handleEvents(bool *closeWindow, Client clients[], GameState *gameState, int
     }
 }
 
-void handleClientEvents(bool *closeWindow, Client *myClientInfo) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            *closeWindow = true;
-            return;
-        }
-        if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-            // Determine the value based on whether the event is key down or key up
-            bool value = (event.type == SDL_KEYDOWN);
-            switch (event.key.keysym.scancode) {
-                case SDL_SCANCODE_W:
-                    myClientInfo->flags.up = value;
-                    break;
-                case SDL_SCANCODE_S:
-                    myClientInfo->flags.down = value;
-                    break;
-                case SDL_SCANCODE_A:
-                    myClientInfo->flags.left = value;
-                    break;
-                case SDL_SCANCODE_D:
-                    myClientInfo->flags.right = value;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-}
-
 
 void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) {
+            menuState->menuState = 77;
             *closeWindow = true;
-            return;
+            // return;
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN) {
             int x, y;
@@ -107,19 +78,18 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
             SDL_Point mousePos = {x, y};
 
             if (menuState->menuState == 0 && SDL_PointInRect(&mousePos, &menuState->onlineButton.bounds)) {
-                // Add the action for the host button
                 printf("Online button clicked.\n");
                 menuState->menuState = 1;//online menu
             } 
             else if (menuState->menuState == 0 && SDL_PointInRect(&mousePos, &menuState->localButton.bounds)) {
-                // Add the action for the host button
                 printf("Local button clicked.\n");
                 menuState->menuState = 2;//start local two player game
             } 
             else if (SDL_PointInRect(&mousePos, &menuState->exitButton.bounds)) {
-                    printf("Exit button clicked.\n");
-                    *closeWindow = true; // Set closeWindow to true to exit the game
-                }
+                printf("Exit button clicked.\n");
+                menuState->menuState = 77;
+                *closeWindow = true; // Set closeWindow to true to exit the game
+            }
             else if (menuState->menuState == 1 && SDL_PointInRect(&mousePos, &menuState->hostButton.bounds)) {
                 // Add the action for the host button
                 printf("Host button clicked.\n");
@@ -129,21 +99,20 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
                 SDL_DestroyTexture(menuState->exitButton.texture);
             } 
             else if (menuState->menuState == 1 && SDL_PointInRect(&mousePos, &menuState->joinButton.bounds)) {
-                // Add the action for the join button here
                 printf("join button clicked.\n");
-                  menuState->menuState = 4;//join menu
+                menuState->menuState = 4;//join menu
                 SDL_DestroyTexture(menuState->hostButton.texture);
                 SDL_DestroyTexture(menuState->exitButton.texture);
                 SDL_DestroyTexture(menuState->joinButton.texture);
             }
             else if (menuState->menuState == 3 && SDL_PointInRect(&mousePos, &menuState->startButton.bounds)) {
-                // Add the action for the start button 
                 printf("start button clicked.\n");
                 menuState->menuState = 6;//start game
             }
         }
     }
 }
+
 
 
 void cleanup(GameState *gameState, SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet) {
