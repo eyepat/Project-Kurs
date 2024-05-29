@@ -21,7 +21,6 @@ void modifyPlayerColors(int red, int blue, int green, int opacity, int playerCol
 void renderButton(SDL_Renderer* renderer, Button* button);
 void drawMenu(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int windowWidth, int windowHeight, int *portPointer, char hostIP[20], int *isServerPointer);
 void renderTextMenu(SDL_Renderer* renderer, TTF_Font* font, const char* text, int x, int y, int w, int h);
-void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int* portPointer, const char* prompt, int windowWidth);
 void playSound(int soundIndex, Mix_Chunk *sounds[], int channels[]);
 void stopSound(int soundIndex, int channels[]);
 void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[], SDL_Window* window);

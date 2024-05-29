@@ -8,6 +8,7 @@
 #include <SDL2/SDL_image.h>
 #include "model.h"
 #include "view.h"
+#include "controller.h"
 #include "network.h"
 
 struct timer {
@@ -325,29 +326,5 @@ void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field) {
     ball->xSpeed = 0; 
     ball->ySpeed = 0;
 
-}
-
-
-void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *renderer, TTF_Font *font, Field *field, int isServer, Client clients[], SDLNet_SocketSet socketSet) {
-    renderWinner(renderer, font, &gameState->scoreTracker);
-    SDL_RenderPresent(renderer);
-    SDL_Delay(3000); // Show the winner for 3 seconds
-
-    SDL_Event event;
-    bool decisionMade = false;
-
-    while (!decisionMade) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                *closeWindow = true;
-                decisionMade = true;
-            } else if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_q) {
-                    *closeWindow = true;
-                    decisionMade = true;
-                } 
-            }
-        }
-    }
 }
 

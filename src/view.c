@@ -259,48 +259,6 @@ void renderTextMenu(SDL_Renderer* renderer, TTF_Font* font, const char* text, in
     SDL_DestroyTexture(texture);
 }
 
-// Helper function to handle user input
-void handleUserInput(SDL_Renderer* renderer, TTF_Font* font, MenuState* menuState, int* portPointer, const char* prompt, int windowWidth) {
-    SDL_Color color = {255, 255, 255};  // White color
-    renderText(renderer, font, prompt, color, windowWidth / 2 - 100, 50);
-
-    int type = true;
-    int position = 0;
-    memset(menuState->userInputIp, 0, 20);
-
-    while (type) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN) {
-                if ((event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9) || event.key.keysym.sym == SDLK_PERIOD) {
-                    if (position < 15) {
-                        menuState->userInputIp[position] = event.key.keysym.sym;
-                        position++;
-                    }
-                }
-                if (event.key.keysym.sym == SDLK_BACKSPACE && position > 0) {
-                    position--;
-                    menuState->userInputIp[position] = 0;
-                }
-                if (event.key.keysym.sym == SDLK_RETURN) {
-                    type = false;
-                    if (portPointer != NULL) {
-                        *portPointer = atoi(menuState->userInputIp);
-                        menuState->menuState = 10;
-                    }
-                }
-            }
-        }
-        
-        SDL_RenderClear(renderer);  // Clear renderer before drawing
-        SDL_RenderCopy(renderer, menuState->menuBackground, NULL, NULL);  // Render background
-        SDL_RenderCopy(renderer, menuState->ipInputButton.texture, NULL, &menuState->ipInputButton.bounds);  // Render button
-        renderText(renderer, font, prompt, color, windowWidth / 2 - 100, 50);  // Render prompt
-        renderText(renderer, font, menuState->userInputIp, color, windowWidth / 2 - 50, 110);  // Render user input
-        SDL_RenderPresent(renderer);  // Present renderer
-    }
-}
-
 void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk* sounds[], int channels[], SDL_Window* window) {
   
     // Load sounds

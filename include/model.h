@@ -106,5 +106,4 @@ int getCurrentTime(const Timer *timer);
 void updateTimer(Timer *timer, GameState *gameState);
 void initializeTimer(Timer* timer, int maxTime);
 void resetGameAfterGoal(GameState *gameState, Entity *ball, Field *field);
-void handleGameOver(bool *closeWindow, GameState *gameState, SDL_Renderer *renderer, TTF_Font *font, Field *field, int isServer, Client clients[], SDLNet_SocketSet socketSet);
 #endif // MODEL_H
