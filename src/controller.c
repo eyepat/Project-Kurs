@@ -7,7 +7,6 @@
 
 void handleEvents(bool *closeWindow, Client clients[], GameState *gameState, int isServer, Client *myClientInfo) {
     SDL_Event event;
-
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             *closeWindow = true;
@@ -57,7 +56,6 @@ void handleEvents(bool *closeWindow, Client clients[], GameState *gameState, int
                     default:
                         break;
                 }
-
             }
         }
     }
@@ -113,10 +111,7 @@ void handleMenuEvent (bool *closeWindow, MenuState* menuState) {
     }
 }
 
-
-
 void cleanup(GameState *gameState, SDL_Texture *fieldTexture, SDL_Renderer *renderer, SDL_Window *window, TTF_Font *font, Client clients[], Client *myClientInfo, SDLNet_SocketSet socketSet) {
-  
     // Clean up SDL objects
     SDL_DestroyTexture(fieldTexture);
     SDL_DestroyRenderer(renderer);
@@ -137,11 +132,9 @@ void cleanup(GameState *gameState, SDL_Texture *fieldTexture, SDL_Renderer *rend
         SDLNet_TCP_Close(myClientInfo->socket);
         myClientInfo->socket = NULL;
     }
-
     // Clean up SDLNet socket set
     SDLNet_FreeSocketSet(socketSet);
     socketSet = NULL;
-
     SDLNet_Quit();
     TTF_CloseFont(font);
     SDL_Quit();

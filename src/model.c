@@ -14,9 +14,8 @@ struct timer {
     int startTime;
     int currentTime;
     int maxTime;
-    Uint32 lastUpdate; // Time of the last update in milliseconds
+    Uint32 lastUpdate;
 };
-
 void initializeSDL() {
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
@@ -40,9 +39,7 @@ void initializeSDL() {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         fprintf(stderr, "SDL_mixer could not initialize! Mix_Error: %s\n", Mix_GetError());
     }
-
 }
-
 void initializeGame(GameState *gameState, Field *field, Client clients[]) {
     // Set field dimensions based on the current display resolution
     field->width = SCREEN_WIDTH;
@@ -50,7 +47,6 @@ void initializeGame(GameState *gameState, Field *field, Client clients[]) {
 
     const int GOAL_WIDTH = 80; 
     const int GOAL_HEIGHT = 250;
-
     // Initialize player properties
     for (int i = 0; i < gameState->numPlayers; i++) {
         if (gameState->numPlayers == 2) {
@@ -78,7 +74,6 @@ void initializeGame(GameState *gameState, Field *field, Client clients[]) {
         clients[i].flags.left = false;
         clients[i].flags.right = false;  
     }
-
     // Initialize ball properties
     gameState->ball.x = field->width / 2;
     gameState->ball.y = field->height / 2;
@@ -152,7 +147,7 @@ void updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score 
     }
 
     // Apply friction or deceleration to gradually stop the ball
-    float deceleration = 400.0f; // Adjust this value as needed
+    float deceleration = 400.0f;
     float friction = deceleration * deltaTime;
 
     // Apply friction to the ball's xSpeed
@@ -169,7 +164,7 @@ void updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score 
     if (fabs(ball->ySpeed) > 0) {
         float direction = (ball->ySpeed > 0) ? -1 : 1;
         if (fabs(ball->ySpeed) < friction) {
-            ball->ySpeed = 0; // If friction would stop the ball, set speed to 0
+            ball->ySpeed = 0; 
         } else {
             ball->ySpeed += friction * direction;
         }
@@ -208,7 +203,6 @@ void updateBallPosition(Entity *ball, GameState *gameState, Field *field, Score 
         ball->y = fmax(ball->radius + verticalMargin, fmin(ball->y, field->height - ball->radius - bottomMargin));
     }
 }
-
 void assignRandomColors(GameState *gameState) {
     int red[4] = {255, 120, 77, 200};
     int blue[4] = {102, 102, 255, 200};

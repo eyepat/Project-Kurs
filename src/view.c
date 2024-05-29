@@ -125,8 +125,8 @@ void renderScore(SDL_Renderer* renderer, TTF_Font* font, Score *score, int windo
     char text[20];
     sprintf(text, "%d : %d", score->team1Score, score->team2Score);  // Format: "Team1Score : Team2Score"
 
-    SDL_Color color = {255, 255, 255};  // vit färg för poängtexten
-    renderText(renderer, font, text, color, 145, 15);  // Justera positionen vid behov
+    SDL_Color color = {255, 255, 255};  //white color
+    renderText(renderer, font, text, color, 145, 15);  
 }
 
 void renderGoals(SDL_Renderer *renderer, const Field *field) {
@@ -165,7 +165,7 @@ void modifyPlayerColors(int red, int blue, int green, int opacity, int playerCol
     playerColorData[0] = red;
     playerColorData[1] = blue;
     playerColorData[2] = green;
-    playerColorData[3] = opacity; //Genomskinlighet
+    playerColorData[3] = opacity; 
     
 }
 
@@ -309,9 +309,7 @@ void initializeResources(SDL_Renderer* renderer, MenuState* menuState, Mix_Chunk
         "resources/ending.wav",
         "resources/IngameSound.wav",
         "resources/menuSound.wav",
-        
     };
-
     for (int i = 0; i < NUM_SOUNDS; ++i) {
         sounds[i] = Mix_LoadWAV(soundFiles[i]);
         if (sounds[i] == NULL) {

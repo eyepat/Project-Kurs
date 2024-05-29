@@ -192,10 +192,8 @@ int main(int argc, char **argv) {
             SDL_Delay(frameDelay - currentTime);
         }
     }
-    
     stopSound(3, channels);
-
-    if(gameState.isGameOver)
+    if(gameState.isGameOver && menuState.menuState!=77)
     {
         playSound(2, sounds, channels);
         handleGameOver(&closeWindow, &gameState, renderer, font, &field, isServer, clients, socketSet);

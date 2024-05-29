@@ -89,7 +89,6 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
         SDLNet_Quit();
         exit(EXIT_FAILURE);
     }
-
     // Receive the client ID assigned by the server
     int result = SDLNet_TCP_Recv(clientInfo->socket, &clientInfo->clientID, sizeof(clientInfo->clientID));
     if (result > 0) {
@@ -146,14 +145,12 @@ void initClient(IPaddress ip, Client *clientInfo, GameState *gameState, SDL_Rend
         }
     }
     printf("Client setup complete, ready for next steps.\n");
-    
 }
 
 
 void sendDataToServer(Client *clientInfo, GameState *gameState) {
     int retries = 3; // Number of retry attempts
     int len;
-
     // Retry sending the clientID
     while (retries > 0) {
         // Send the clientID first
@@ -165,7 +162,6 @@ void sendDataToServer(Client *clientInfo, GameState *gameState) {
             retries--; // Decrement the retry counter
         }
     }
-
     // Check if all retries failed
     if (retries == 0) {
         fprintf(stderr, "Failed to send clientID after multiple retries.\n");
@@ -183,7 +179,6 @@ void receiveDataFromClients(Client clients[], SDLNet_SocketSet socketSet, GameSt
     for (int i = 0; i < MAX_PLAYERS; i++) {
         if (clients[i].isActive) {
             // Receive the clientID first
-            
             int clientID = 0;
 
             int recvResult = SDLNet_TCP_Recv(clients[i].socket, &clientID, sizeof(int));
